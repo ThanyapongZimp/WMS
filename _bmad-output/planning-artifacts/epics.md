@@ -454,31 +454,57 @@ So that every later story builds on one design system and one data-scoping model
 
 **Acceptance Criteria:**
 
+*Scaffold*
+
 **Given** no application code exists
 **When** the project is scaffolded
-**Then** it uses the starter template chosen by the architecture document `[ARCH-PENDING]` — no starter template is specified yet, and this story cannot be marked ready-for-dev until one is chosen
+**Then** it uses the starter template chosen by the architecture document `[ARCH-PENDING: D-1]` — this story cannot be marked ready-for-dev until one is chosen
 **And** the repository contains one codebase serving office web, station and PDA surfaces (NFR-12) `[ARCH-PENDING: PDA native vs web/PWA]`
+**And** a single command starts the app locally with the seeded tenant, and CI runs lint, type-check and tests on every push
+
+*Colour tokens*
 
 **Given** the app is running
 **When** any page renders
 **Then** every colour token from DESIGN.md frontmatter (core shadcn variables plus `success*`, `warning*` incl. `warning-strong`, `danger-soft*`, `info*`, `neutral*`, `scan-accept/reject/blocked*`, `pda-bar*`, `support-banner*`, `chart-1…5`) is defined as a CSS variable on `:root` and registered in the Tailwind theme so utilities such as `bg-success-soft` exist (UX-DR1)
-**And** a lint/check fails the build if a component uses a raw hex colour (UX-DR1)
-**And** only the light theme exists (UX-DR48)
+**And** the values match DESIGN.md exactly (e.g. `primary` #4A3FD6, `destructive` #C4281C, `success` #13794A, `warning` #F2A516, `warning-strong` #B86E00, `info` #1F66C1, `input` #8C93A3) (UX-DR1)
+**And** a lint/check fails the build if a component uses a raw hex/rgb colour outside the token file (UX-DR1)
+**And** only the light theme exists; no dark-mode variables or toggles are shipped, and no gradients are used (UX-DR48)
+
+*Typography, shape and spacing*
 
 **Given** the typography and shape tokens
 **When** text and controls render
-**Then** IBM Plex Sans Thai (400/500/600/700) and IBM Plex Mono (500/700) are loaded and every named style (display-kpi, h1–h3, body, body-strong, label, caption, code, pda-body, pda-caption, pda-title, pda-button, pda-location, scan-input, station-next, station-counter, feedback-headline) is available with Thai line-height ≥ 1.45 and no letter-spacing (UX-DR2)
-**And** radius tokens `sm 4 / md 6 / lg 8 / xl 12 / full` are mapped with shadcn `--radius` = 8px, and spacing tokens (page padding, control heights 36/48/56/64, table rows 44/36, scan fields 64/56, sidebar 240/64, sheet 560) are defined (UX-DR3)
+**Then** IBM Plex Sans Thai (400/500/600/700) and IBM Plex Mono (500/700) are loaded and every named style (display-kpi, h1–h3, body, body-strong, label, caption, code, pda-body, pda-caption, pda-title, pda-button, pda-location, scan-input, station-next, station-counter, feedback-headline) is available with Thai line-height ≥ 1.45, no letter-spacing and no all-caps (UX-DR2)
+**And** office sizes follow the ramp body 14/1.6, label 13, caption 12, h1 24, h2 18, h3 16, display-kpi 28/700; no text style below 12px exists (UX-DR2, UX-DR48)
+**And** numbers in tables use tabular numerals (UX-DR2)
+**And** radius tokens `sm 4 / md 6 / lg 8 / xl 12 / full` are mapped with shadcn `--radius` = 8px, and spacing tokens (page padding 24×20, control heights 36/48/56/64, table rows 44/36, scan fields 64/56, sidebar 240/64, sheet 560, gaps 8/16/24) are defined (UX-DR3)
+**And** the focus ring token is a 2px `ring` with 2px offset and is never removed by any component (UX-DR42)
+
+*Localisation*
 
 **Given** a user's language setting
 **When** the UI renders
 **Then** all UI strings come from Thai and English message catalogues, Thai is the default, and `lang` is set to `th` or `en` accordingly (NFR-8, UX-DR44)
+**And** a check fails the build if a hard-coded Thai or English UI string appears outside the catalogues
+**And** dates render as `10 ต.ค. 2026`, times as 24h `14:05`, in the Asia/Bangkok timezone, with Arabic digits only (no Thai digits) (UX-DR44)
+**And** codes (warehouse, zone, location, container, document numbers) render in mono with `translate="no"` and are never translated (UX-DR44, UX-DR42)
+
+*Data scoping*
 
 **Given** the data layer
 **When** any business record is created
 **Then** it carries a company (tenant) id and, where warehouse-specific, a warehouse id, and every query is scoped server-side to the caller's tenant and permitted warehouses (NFR-7, NFR-11)
+**And** a request for a record of another tenant, or of a warehouse outside the caller's scope, returns "not found" and reveals nothing about the record's existence (NFR-7)
+**And** an automated test suite proves the scoping for every endpoint that later stories add (each new endpoint must add its scoping test)
 **And** the tenant has a company-level edition flag (Business / 3PL) and add-on toggles stored per company and warehouse, readable by later visibility rules (UX-DR7)
-**And** a first tenant is seeded with one warehouse and a locked *System Administrator* account so later stories can sign in
+
+*Seed*
+
+**Given** a fresh environment
+**When** the seed runs
+**Then** it creates one tenant, one warehouse in that tenant, and one locked *System Administrator* account (cannot be deleted, suspended or have its role removed) that has every permission in that warehouse, so later stories can sign in
+**And** the seed is idempotent: running it twice creates no duplicates
 
 ### Story 1.2: Immutable Activity Log Recording
 
@@ -488,17 +514,43 @@ So that I can always see who did what, on which device and why.
 
 **Acceptance Criteria:**
 
+*Entry content*
+
 **Given** any feature calls the activity-log service
 **When** an action is recorded
-**Then** an entry is stored with time, actor type (user, automation, OMS API, Zimple support), actor id, device, action, target record, old → new value and reason (FR-107)
+**Then** an entry is stored with time, actor type (user, automation, OMS API, Zimple support), actor id, device, action type, target record (type + id + human code), old → new value and reason (FR-107)
+**And** actor, actor type, device and time are taken from the request context by the service, not passed in by the caller, so a feature cannot record a different actor
+**And** old → new holds only the fields that changed (e.g. `name: "คลังบางเขน" → "คลังบางเขน 1"`), not a snapshot of the whole record
+**And** the entry is tenant- and warehouse-scoped like every other record (NFR-7)
+
+*Atomicity*
+
+**Given** a business change that must be logged
+**When** the change is saved
+**Then** the change and its log entry are written in the same transaction: if the log write fails the change is rolled back, and a change that fails writes no entry
+
+*Immutability*
 
 **Given** an existing log entry
 **When** any user or API attempts to update or delete it
 **Then** the operation is rejected and no change occurs (FR-107, NFR-6)
+**And** there is no update or delete path in the service or API at all; the storage layer also rejects updates/deletes (e.g. by permissions or trigger) so a direct write by application code fails
+
+*Action types*
 
 **Given** the service is available to all modules
 **When** sign-in/out (including failed attempts), create, edit, cancel, approve, reject, adjust, reverse, rule/user/permission changes, print/reprint or export occurs in later stories
 **Then** each calls this service with the matching action type (FR-107, NFR-7)
+**And** the action-type catalogue is a closed list; an unknown action type is rejected at the call site in tests
+**And** for the pilot the catalogue contains at least: `sign-in`, `sign-in-failed`, `sign-out`, `account-locked`, `password-reset-requested`, `password-changed`, `warehouse.create`, `warehouse.edit`, `warehouse.request-disable`, `warehouse.cancel-disable`, `warehouse.disable`, `zone.create`, `zone.edit`, `location.create`, `location.bulk-create`, `location.edit`, `location.disable`, `location.enable`, `container.generate`, `container.clear`, `label.print`, `label.reprint`, `export`, `layout.edit`, `layout.bind`, `layout.unbind`, `layout.publish`
+
+*Read access in the pilot*
+
+**Given** the log viewer (Story 1.10) is not built yet
+**When** a tester needs to verify entries
+**Then** a read-only, permission-guarded API returns entries filtered by target record, actor, action type and time range, newest first, paginated
+
+*Retention*
 
 **Given** log retention
 **When** entries are older than 1 year
@@ -512,32 +564,97 @@ So that I can access only the warehouses I am allowed to work in.
 
 **Acceptance Criteria:**
 
+*Sign-in screen*
+
+**Given** the sign-in page
+**When** it renders
+**Then** it shows the tenant logo, "Zimple WMS", the heading "เข้าสู่ระบบ" with "ใช้บัญชีที่ผู้ดูแลระบบของบริษัทสร้างให้", fields อีเมล and รหัสผ่าน, a show/hide password toggle (aria-label "แสดงรหัสผ่าน"/"ซ่อนรหัสผ่าน"), a "ลืมรหัสผ่าน?" link, the button "เข้าสู่ระบบ", the hint "พนักงานหน้างานไม่ต้องใช้หน้านี้ · สแกนบัตรพนักงานที่ PDA เพื่อเข้าสู่ระบบ", and a ไทย / English switch (UX-DR44)
+**And** the browser title is "{view heading} · Zimple WMS"
+**And** on each view change, focus moves to the first input (sign-in, forgot, OTP) or to the heading (all other views) (UX-DR42)
+
+**Given** the sign-in form
+**When** the user submits with an invalid email or empty password
+**Then** inline errors show "กรอกอีเมลให้ถูกรูปแบบ เช่น name@company.co" or "กรอกรหัสผ่าน", the field is marked `aria-invalid`, focus goes to the first invalid field, and no request is sent
+
+*Successful sign-in*
+
 **Given** an active user with web sign-in enabled
 **When** they enter a correct email and password
-**Then** they are signed in, and if they have more than one warehouse in scope they choose one before reaching the app (FR-20)
-**And** the sign-in is recorded in the activity log (FR-107)
+**Then** they are signed in; the button shows a spinner and is disabled while the request runs (UX-DR16) (FR-20)
+**And** the sign-in is recorded in the activity log with device and method (`password` or `password + OTP`) (FR-107)
+
+*Warehouse picker*
+
+**Given** a signed-in user
+**When** their permitted, non-disabled warehouses number more than one
+**Then** the view "เลือกคลังที่จะทำงาน" / "สลับคลังภายหลังได้จากแถบด้านบน" lists only those warehouses as radio cards (name + code), with the last-used warehouse preselected and focused, and "เข้าใช้งาน" enters the app (FR-20, NFR-7, NFR-11)
+**And** with exactly one permitted warehouse the picker is skipped
+**And** a warehouse the user has no permission for never appears, even if it exists in the tenant
+
+*MFA*
 
 **Given** the company has MFA enabled
 **When** the user passes the password step
-**Then** a 6-digit OTP is required, with resend allowed after 45 s (FR-20)
+**Then** the view "ยืนยันตัวตน" / "กรอกรหัส 6 หลักที่ส่งไปที่ {email}" asks for a 6-digit OTP sent by email (FR-20)
+**And** the 6 inputs accept digits only, auto-advance, step back on Backspace in an empty box, accept a pasted code across all boxes, and submit automatically when all 6 digits are filled; the first box has `autocomplete="one-time-code"` and each box is labelled "หลักที่ {i}" (UX-DR42)
+**And** a wrong code shows "รหัสไม่ถูกต้อง · ตรวจรหัสในอีเมลล่าสุดแล้วกรอกใหม่", clears the boxes and focuses the first box
+**And** "ส่งรหัสใหม่" is disabled with "ส่งรหัสใหม่ได้ในอีก {s} วินาที" counting down from 45, then enabled with "ไม่ได้รับรหัส?"; resending invalidates the previous code and shows the toast "ส่งรหัสใหม่แล้ว" / "รหัสเดิมใช้ไม่ได้แล้ว" (FR-20)
+**And** "← ใช้บัญชีอื่น" returns to the sign-in view
+**And** OTP validity, the maximum wrong OTP attempts and the resend limit follow decision `[OPEN D-9]`
 **And** a Zimple support account always requires OTP regardless of the company setting (FR-20, NFR-7)
+
+*Lockout*
+
+**Given** a user enters a wrong password
+**When** it is wrong
+**Then** an alert shows "อีเมลหรือรหัสผ่านไม่ถูกต้อง · ลองได้อีก {n} ครั้งก่อนบัญชีถูกล็อกชั่วคราว", the password field is cleared and focused, and the attempt is logged as `sign-in-failed` (FR-20, FR-107)
+**And** the failure counter is kept server-side per account and resets after a successful sign-in
 
 **Given** a user enters a wrong password
 **When** this happens 3 times in a row
-**Then** the account is locked for about 15 minutes and the screen shows the locked state (FR-20)
-**And** each failed attempt is logged (FR-107)
+**Then** the account is locked for 15 minutes and the view "บัญชีถูกล็อกชั่วคราว" / "ใส่รหัสผ่านผิด 3 ครั้งติดกัน · ลองใหม่ได้เมื่อครบเวลา หรือขอตั้งรหัสผ่านใหม่" shows a mono MM:SS countdown, a "ตั้งรหัสผ่านใหม่" button and a disabled "กลับไปเข้าสู่ระบบ" that becomes "เข้าสู่ระบบอีกครั้ง" when the countdown ends (FR-20)
+**And** a correct password during the lock is still refused
+**And** the lock is logged as `account-locked` (FR-107)
+**And** whether unknown emails get the same counter and lock screen (to prevent account enumeration) follows decision `[OPEN D-6]`
+
+*Password reset*
 
 **Given** a user requests a password reset
-**When** they submit any email address
-**Then** the response is identical whether or not the email exists, and a reset link (if sent) is valid for 30 minutes (FR-20)
+**When** they submit any email address on "ตั้งรหัสผ่านใหม่"
+**Then** the response is the same view "ตรวจอีเมลของคุณ" / "ถ้า {email} เป็นอีเมลของบัญชีในระบบ จะได้รับลิงก์ตั้งรหัสผ่านใหม่ภายในไม่กี่นาที · ลิงก์ใช้ได้ 30 นาที" whether or not the email exists, with the same response time (FR-20)
+**And** a reset link (if sent) is single-use and valid for 30 minutes; an expired or used link shows a clear message and a way to request a new one
+**And** the new-password form and password policy follow decision `[OPEN D-7]`
+
+*Session*
 
 **Given** a signed-in user
-**When** the session is idle beyond the configured timeout, or the user changes their password
-**Then** the idle session ends, and a password change signs out all of the user's other sessions (FR-20)
+**When** the session is idle beyond the tenant's configured timeout
+**Then** the session ends and the next action shows "หมดเวลาใช้งาน" / "ไม่มีการใช้งานนานเกินเวลาที่บริษัทกำหนด · เข้าสู่ระบบอีกครั้งเพื่อทำงานต่อ" with "เข้าสู่ระบบอีกครั้ง" (FR-20)
+**And** the default timeout and any pre-timeout warning follow decision `[OPEN D-8]`
 
-**Given** a suspended user, or a user whose roles grant no web page
-**When** they try to sign in
-**Then** sign-in is refused with the matching message (suspended / no permission) (FR-17, FR-20)
+**Given** a signed-in user
+**When** they change their password
+**Then** all of the user's other sessions are signed out, and the sign-in page shows "เปลี่ยนรหัสผ่านแล้ว · ออกจากระบบทุกอุปกรณ์อื่นแล้ว เข้าสู่ระบบด้วยรหัสผ่านใหม่" where applicable (FR-20)
+**And** whether the current session stays signed in follows decision `[OPEN D-7]`
+
+**Given** a signed-in user
+**When** they choose "ออกจากระบบ"
+**Then** the session ends immediately (no confirm), the sign-in page shows "ออกจากระบบแล้ว", and `sign-out` is logged (FR-107)
+
+*Refusals*
+
+**Given** a suspended user
+**When** they try to sign in with a correct password
+**Then** the view "บัญชีนี้ถูกพักใช้" / "เข้าสู่ระบบไม่ได้ระหว่างพักใช้ · ติดต่อผู้ดูแลระบบของบริษัทเพื่อเปิดใช้บัญชี" shows with "ใช้บัญชีอื่น" (FR-17, FR-20)
+
+**Given** a user whose roles grant no web page
+**When** they try to sign in with a correct password
+**Then** the view "บัญชีนี้ยังไม่มีสิทธิ์ใช้งานบนเว็บ" / "บทบาทของคุณยังไม่ได้เปิดหน้าใดบนเว็บ · ติดต่อผู้ดูแลระบบเพื่อขอสิทธิ์ แล้วเข้าสู่ระบบใหม่" shows with "ใช้บัญชีอื่น" (FR-17, FR-20)
+**And** in the pilot, suspended and no-permission users exist only as seeded test data, because Stories 1.7/1.8 are not built `[PILOT]`
+
+*Out of scope*
+
+- "Remember me", SSO and PDA badge sign-in (Story 1.14)
 
 ### Story 1.4: Office Shell, Navigation and Visibility Rules
 
@@ -547,33 +664,83 @@ So that I can move around the system quickly without seeing features I cannot us
 
 **Acceptance Criteria:**
 
+*Shell frame*
+
 **Given** a signed-in office user
 **When** any office page loads
-**Then** the shell shows a 240px sidebar collapsible to a 64px rail (state persisted per user, rail tooltips on hover/focus), the tenant logo at the top, "by Zimple Solution" at the bottom, and a 56px header with warehouse switcher, global search slot, approvals and notifications counts and user menu (UX-DR5)
-**And** the browser title reads "{page} · {warehouse} · Zimple WMS" (or Zimple Fulfillment for the 3PL edition) (UX-DR5)
+**Then** the shell shows a 240px sidebar collapsible to a 64px rail, the tenant logo (max 32px high) at the top, "by Zimple Solution" at the bottom, and a sticky 56px header (UX-DR5)
+**And** sidebar items are 40px high with 20px icons; the active item uses `sidebar-accent` with a 3px primary inset bar, carries `aria-current="page"`, and follows deep links (UX-DR5)
+**And** a skip link "ข้ามไปที่เนื้อหาหลัก" is the first focusable element (UX-DR42)
+**And** the browser title reads "{page} · {warehouse name} · Zimple WMS" (or Zimple Fulfillment for the 3PL edition) and route changes announce the page title (UX-DR5, UX-DR42)
+
+*Rail*
+
+**Given** the rail toggle at the sidebar bottom
+**When** the user toggles it
+**Then** the sidebar collapses to icons with group dividers, the toggle's aria-label switches "ย่อเมนู" ↔ "ขยายเมนู", and each rail icon shows its label as a tooltip on hover and on keyboard focus (UX-DR5)
+**And** the collapsed/expanded state is saved as a server-side user preference, so it follows the user to another browser (UX-DR5)
+
+*Header*
+
+**Given** the header
+**When** it renders
+**Then** it contains, left to right: warehouse switcher (warehouse name + mono code + chevron, `aria-haspopup="dialog"`), a search slot (placeholder "ค้นหาหรือสแกนรหัส" + "Ctrl K"), spacer, approvals button, notifications button, and user menu (avatar, name, role) (UX-DR5)
+**And** approvals and notifications show a count chip only when the count is > 0 and "99+" above 99, with aria-labels that include the count (e.g. "อนุมัติ · 3 รายการรอ") (UX-DR5, UX-DR6)
+**And** in the pilot the search, approvals and notifications engines do not exist yet (Stories 1.11–1.13): the buttons render with no count and open an empty panel "ไม่มีงานรออนุมัติ" / "ยังไม่มีการแจ้งเตือน" `[PILOT]`
+
+*User menu*
+
+**Given** the user menu
+**When** it opens
+**Then** it shows the user's email and permitted warehouses, "ภาษา: ไทย/English", "เปลี่ยนรหัสผ่าน" and "ออกจากระบบ"; arrow keys move between items, Esc closes and returns focus to the trigger, and Tab or an outside click closes it (UX-DR42, UX-DR44)
+**And** switching language takes effect immediately and is saved per user (UX-DR44)
+
+*Navigation tree*
 
 **Given** the Phase 1 navigation tree in EXPERIENCE.md
 **When** the sidebar renders
-**Then** it contains exactly the Phase 1 items, Phase 2/Later items are not rendered at all, each module opens on its ภาพรวม hub, L2 tabs are URL routes with actionable-only count chips (hidden at 0, "99+" above 99), and the last tab per module is remembered per user (UX-DR6)
-**And** settings sub-pages use a secondary Tabs row, never a third sidebar level (UX-DR6)
+**Then** it contains exactly the Phase 1 items in the groups (no heading) ภาพรวมคลัง · คำสั่งซื้อ · สินค้า, "งานคลัง" รับสินค้าเข้า · สินค้าคงคลัง · หยิบสินค้า · แพ็คสินค้า · ส่งมอบขนส่ง · สินค้าตีกลับ, and "รายงาน & ตั้งค่า" รายงาน · ตั้งค่า & ข้อมูลหลัก; Phase 2/Later items are not rendered at all (UX-DR6)
+**And** each module opens on its ภาพรวม hub, L2 tabs are URL routes with actionable-only count chips (hidden at 0, "99+" above 99, announced with their label such as "ใบหยิบ 14 รายการ"), and the last tab per module is remembered per user (UX-DR6)
+**And** settings sub-pages use a secondary Tabs row, never a third sidebar level: ตั้งค่า & ข้อมูลหลัก › ตั้งค่าคลัง › คลังและตำแหน่ง shows the segment tabs คลังและโซน | ตำแหน่ง | ภาชนะ | ผังคลัง (UX-DR6)
+**And** in the pilot, Phase 1 modules that are not built yet render in the sidebar and open a placeholder "{module} ยังไม่เปิดใช้ในรอบนี้" / "รอบ pilot เปิดเฉพาะการตั้งค่าคลัง โซน ตำแหน่ง และภาชนะ · โมดูลนี้จะเปิดในรอบถัดไป" with "กลับหน้าแรก"; this placeholder is removed as each module ships `[PILOT]`
+
+*Visibility rules*
 
 **Given** the visibility rules
 **When** an item is evaluated
 **Then** rules apply in order phase → edition → owner count → add-on → permission → device binding, and the first hiding rule wins (UX-DR7)
-**And** a hidden item is absent from nav, global search, PDA tiles and deep links; a deep link shows "ไม่มีสิทธิ์เข้าหน้านี้ · ติดต่อผู้ดูแลระบบ" or "ฟีเจอร์นี้ไม่ได้เปิดใช้ในบริษัทของคุณ" with a link home (UX-DR7)
+**And** the evaluator is one shared function used by nav, settings tabs, search and (later) PDA tiles, with unit tests for each rule and for the order
+**And** a hidden item is absent from nav, global search, PDA tiles and deep links (hide, never grey out) (UX-DR7)
+**And** a deep link to a hidden page renders inside the shell with "ไม่มีสิทธิ์เข้าหน้านี้ · ติดต่อผู้ดูแลระบบ" / "บทบาทของคุณยังไม่ได้รับสิทธิ์ดู{name}" (permission) or "ฟีเจอร์นี้ไม่ได้เปิดใช้ในบริษัทของคุณ" / "{name}ไม่ได้อยู่ในแพ็กเกจหรือโมดูลเสริมที่บริษัทเปิดใช้" (edition/add-on), each with "กลับหน้าแรก" (UX-DR7)
+**And** the server also refuses the page's data and actions, so hiding is never the only guard (NFR-7)
 **And** with exactly one owner in the warehouse, owner pickers and owner columns are hidden (FR-DATA-1, UX-DR7)
+**And** in the pilot the permission rule has no role data until Story 1.8; it is evaluated in order and returns "visible" for the seeded System Administrator `[PILOT]`
+
+*Warehouse switcher*
 
 **Given** a user with more than one warehouse
 **When** they open the warehouse switcher
-**Then** a Dialog lists their warehouses; switching keeps open work and reloads all data scope (UX-DR9, NFR-11)
+**Then** a 480px Dialog "เลือกคลัง" / "สลับคลังแล้วข้อมูลทุกหน้าจะเปลี่ยนเป็นของคลังที่เลือก" lists only their permitted, non-disabled warehouses (name, code, "ตำแหน่ง {n} · โซน {n}"), marks the current one "ใช้อยู่", and focuses it (UX-DR9, NFR-11)
+**And** choosing another warehouse reloads all data scope for every page; choosing the current one just closes the dialog (UX-DR9)
+**And** if a Sheet has unsaved changes, the switch first asks "ทิ้งการแก้ไข?" so no work is lost silently (UX-DR9, UX-DR15)
+
+*Updates and offline*
 
 **Given** a new frontend version is deployed
 **When** a user is mid-task
-**Then** the app prompts "รีเฟรชเมื่อจบงานนี้" and applies the update only at task end or next sign-in, never blocking work (UX-DR47)
+**Then** an info banner shows "มีเวอร์ชันใหม่ · รีเฟรชเมื่อจบงานนี้ งานที่ทำอยู่จะไม่หาย" with "ภายหลัง" and "รีเฟรชตอนนี้"; the update applies only when the user chooses, at task end or at next sign-in, and never blocks work (UX-DR47)
+
+**Given** the browser loses its connection
+**When** any office page is open
+**Then** a warning banner "ขาดการเชื่อมต่อ · ข้อมูลอาจไม่ล่าสุด" shows, every write button is disabled with the tooltip "ออฟไลน์ · บันทึกไม่ได้จนกว่าจะเชื่อมต่อใหม่", and both clear when the connection returns (UX-DR20)
+
+*Responsive*
 
 **Given** the office viewport width
 **When** it is ≥1440 / 1280–1439 / 1024–1279 / <1024px
-**Then** the layout follows the EXPERIENCE.md responsive table (full sidebar; P3 hidden and 3-up KPIs; rail and P2–P3 hidden; sidebar as Sheet with read-and-approve only) (UX-DR46)
+**Then** the layout follows the EXPERIENCE.md responsive table: full sidebar; P3 columns hidden and 3-up KPIs; rail forced (toggle hidden) and P2–P3 hidden behind "คอลัมน์"; sidebar as an off-canvas Sheet opened by a hamburger ("เปิดเมนู") with focus trap and Esc to close, read-and-approve only (UX-DR46, UX-DR42)
+**And** at <1024px every create/edit action is hidden and settings pages show "หน้าจอแคบ · ดูข้อมูลได้ แก้ไขการตั้งค่าบนจอกว้าง 1024px ขึ้นไป" (UX-DR46)
+**And** the minimum supported desktop is 1366×768 on Chrome and Edge for Windows
 
 ### Story 1.5: Shared List Components — Status Badge, Data Table, Filter Bar, Bulk Actions and States
 
@@ -583,30 +750,76 @@ So that I learn one pattern and can find, filter, export and act on records quic
 
 **Acceptance Criteria:**
 
+*Status badge*
+
 **Given** any status displayed anywhere
 **When** the status badge renders
-**Then** it uses only the 5-tone map (success / warning / destructive / neutral / info) with icon + Thai label + tone, and a hover/focus tooltip shows the status time and actor (UX-DR10)
+**Then** it uses only the 5-tone map (success / warning / destructive / neutral / info) with icon + Thai label + tone, as a full-radius pill (label 13px, padding 2px 10px, 14px icon), and a hover/focus tooltip shows the status time and actor (UX-DR10)
+**And** icons follow the tone: success check-circle, warning clock/alert-triangle, destructive x-octagon, neutral circle-slash/lock, info loader/info (UX-DR10)
 **And** "urgent" (ด่วน/เร่งด่วน) is always destructive and "waiting for approval" is always warning (UX-DR10)
+**And** status is never shown by colour alone and whole rows are never colour-coded by status (UX-DR42, UX-DR48)
+
+*Data table*
 
 **Given** a data table
 **When** it renders a list
-**Then** it is server-side paginated (50 rows default, no infinite scroll), keeps filters, sort and page in the URL, has a sticky header and sticky first column (document number in mono + primary), right-aligned tabular numbers, and declares column priority P1–P3 with a "คอลัมน์" menu at narrow widths (UX-DR11)
-**And** row click opens the detail page, the checkbox column enables the bulk action bar, and Excel export respects active filters and masking (UX-DR11)
-**And** users can save named views (UX-DR11)
+**Then** it is server-side paginated (50 rows default, no infinite scroll), keeps filters, sort and page in the URL (`page` only when > 1, `dir` only when descending), has a 40px sticky header, 44px rows and a sticky first column (code/document number in mono + primary), and right-aligned tabular numbers (UX-DR11)
+**And** the pager shows previous/next ("หน้าก่อนหน้า"/"หน้าถัดไป"), first, last, current ±1 and "…", is hidden when there is one page, and scrolls the table to the top on page change (UX-DR11)
+**And** the count line (aria-live polite) reads "{from}–{to} จาก {n} รายการ", plus " (กรองจาก {total})" when filtered (UX-DR11, UX-DR42)
+**And** clicking a sortable header toggles ascending/descending with `aria-sort`; text sorts in Thai locale order and numbers sort numerically (UX-DR11)
+**And** columns declare priority P1–P3; P3 is hidden below 1440px and P2 below 1280px, and a "คอลัมน์" menu ("แสดงคอลัมน์เพิ่ม") lets the user show hidden groups again (UX-DR11, UX-DR46)
+**And** row click or Enter on a focused row opens the detail; clicks on the checkbox or row menu ("…", aria-label "การทำงานของ{object} {code}") do not (UX-DR11, UX-DR42)
+**And** users can save named views (filters + sort + columns) per user (UX-DR11)
+
+*Export*
+
+**Given** a list with an Excel export
+**When** the user exports
+**Then** the file contains exactly the rows matching the active filters and status tab (all pages), with masking applied, Thai column headers and Thai labels for enum values (not raw codes), and the toast "ส่งออก {n} {object}แล้ว" (+ "ตามตัวกรองที่ใช้อยู่" when filtered) (UX-DR11)
+**And** every export is logged as `export` with the filter used (FR-107)
+
+*Filter bar*
 
 **Given** a filter bar
-**When** a user types or scans in search
-**Then** the search is debounced 300 ms and accepts scanner input; status tabs show counts; "ล้างตัวกรอง" appears only when a filter is active (UX-DR12)
+**When** a user types or scans in search (min width 260px)
+**Then** the search is debounced 300 ms, and Enter applies immediately so a scanner's trailing Enter works (UX-DR12)
+**And** status tabs show counts that respect every other active filter; a tab whose count needs action can show a destructive chip (UX-DR12)
+**And** there are at most 3 select filters, each with an accessible (visually hidden) label (UX-DR12, UX-DR42)
+**And** "ล้างตัวกรอง" appears only when a filter or non-default status tab is active, and Export sits at the far right (UX-DR12)
+
+*Bulk actions*
+
+**Given** a table with a checkbox column
+**When** rows are selected
+**Then** a bottom bar on a `foreground` background shows "เลือก {n} รายการ", the action buttons and "ยกเลิกเลือก"; "เลือกทั้งหมดในหน้านี้" selects the current page only and shows an indeterminate state when partly selected (UX-DR13)
+**And** the selection is kept across pages and cleared when filters, search or status tab change
+**And** an action button is disabled when no selected row is eligible for it
+**And** the bar is hidden while the table is loading, empty or in error
 
 **Given** rows are selected
 **When** the user runs a bulk action
-**Then** the bar shows "เลือก n รายการ" and the result reports done and skipped counts with reasons, e.g. "ทำได้ 18 · ข้าม 2 (เหตุผล)" (UX-DR13)
+**Then** it applies to every eligible row and skips the rest, and the result reports done and skipped counts with reasons, e.g. "ทำได้ 18 · ข้าม 2 (ล็อกนับอยู่)" — never a silent all-or-nothing (UX-DR13)
+**And** each changed record gets its own activity-log entry marked as part of a bulk action (FR-107)
 
-**Given** a list or hub is loading, empty, filtered-empty, failing or offline
+*States*
+
+**Given** a list or hub is loading, empty, filtered-empty, failing, offline or in conflict
 **When** it renders
-**Then** it shows skeleton rows (with "ยังโหลดไม่เสร็จ · ลองใหม่" after 10 s), a first-use empty state with at most one setup action, "ไม่พบรายการตามตัวกรอง" + clear filters, a persistent destructive toast with a reference code on server error, an office offline banner that disables writes, and "ข้อมูลเปลี่ยนแล้ว · โหลดใหม่" on a save conflict (UX-DR20)
-**And** closed records show a neutral "ปิดแล้ว" badge with edit actions hidden (UX-DR20)
-**And** success toasts auto-dismiss after 4 s and error toasts persist until dismissed (UX-DR21)
+**Then** loading shows skeleton rows, and after 10 s "ยังโหลดไม่เสร็จ" with "ลองใหม่" (UX-DR20)
+**And** first-use empty shows a 48px muted icon, an h3 line, one explanatory line and at most one setup action (UX-DR20)
+**And** filtered-empty shows "ไม่พบรายการตามตัวกรอง" / "ลองเปลี่ยนคำค้นหาหรือล้างตัวกรอง" with "ล้างตัวกรอง", and the count reads "ไม่พบรายการ" (UX-DR20)
+**And** a server error shows in the table "โหลดรายการไม่สำเร็จ" / "ระบบขัดข้องชั่วคราว · ลองโหลดใหม่ ถ้ายังไม่ได้ให้แจ้งผู้ดูแลระบบพร้อมรหัสอ้างอิง" with "โหลดใหม่", plus a persistent destructive toast carrying " · รหัสอ้างอิง {ref}" in mono (UX-DR20, UX-DR21)
+**And** offline disables writes as in Story 1.4 (UX-DR20)
+**And** a save that conflicts with someone else's change shows "ข้อมูลเปลี่ยนแล้ว · มีผู้ใช้อื่นแก้{object}นี้ระหว่างที่คุณแก้ไข" with "โหลดใหม่", and the save is blocked until reload (UX-DR20)
+**And** closed or disabled records show a neutral badge (e.g. "ปิดแล้ว", "ปิดใช้"), a muted row, and hidden edit actions (UX-DR20)
+**And** a row changed by the user flashes briefly (≤ 300 ms per flash, no more than 3 per second, a static tint under reduced motion) (UX-DR42)
+
+*Toasts*
+
+**Given** any toast
+**When** it shows
+**Then** it appears bottom-right, 400px wide, stacked, in an aria-live polite region; success and info auto-dismiss after 4 s, errors persist until closed and use `role="alert"`, and every toast has a close button "ปิด" (UX-DR21)
+**And** a toast that carries an action button (e.g. "พิมพ์ label {n} ใบ") does not auto-dismiss while focused or hovered, and the same action is also reachable from the list (UX-DR42, UX-DR48)
 
 ### Story 1.6: Shared Hub, Sheet and Confirmation Components
 
@@ -616,21 +829,52 @@ So that I never lose work or trigger an irreversible action by mistake.
 
 **Acceptance Criteria:**
 
+*Hub*
+
 **Given** a module hub
 **When** it renders KPI cards, queue cards and a pipeline bar
-**Then** each card or segment is a link to its filtered queue, overdue counts use a danger-soft chip, pipeline segments use chart tones in stage order, and the hub shows "ข้อมูล ณ HH:MM" (UX-DR14)
+**Then** each whole card or segment is a link to its filtered queue, overdue counts use a danger-soft chip, pipeline segments use chart-1…5 in stage order, and the hub shows "ข้อมูล ณ HH:MM" (UX-DR14)
+**And** the KPI row holds up to 5 cards (3 per row at 1366px) (UX-DR14, UX-DR46)
 **And** any blocked item is reachable within 2 clicks from the hub (UX-DR14)
+**And** whether the hub ships in the pilot with no consuming page follows decision `[OPEN D-10]`
+
+*Sheet*
 
 **Given** a 560px create/edit Sheet
-**When** it opens
-**Then** focus is trapped, the first field is focused, and Esc/Close with unsaved changes opens an AlertDialog "ทิ้งการแก้ไข?" (UX-DR15)
-**And** on save with validation errors the Sheet stays open, shows inline errors plus a summary, and scrolls to the first error (UX-DR15)
-**And** only one Sheet is open at a time and no Dialog opens over a Sheet except an AlertDialog (UX-DR15)
+**When** it opens from the right
+**Then** focus is trapped, the first enabled field is focused, the head shows title, subtitle and a close button "ปิด", the body scrolls, and a sticky footer holds "ยกเลิก" and the primary button on the right (UX-DR15)
+**And** forms use 2 columns at ≥1280px and 1 column below (UX-DR3, UX-DR46)
+**And** Ctrl+Enter saves (UX-DR15)
+**And** clicking the backdrop does not close the Sheet
+**And** on close, focus returns to the element that opened it (UX-DR42)
+
+**Given** a Sheet with unsaved changes
+**When** the user presses Esc, the close button or "ยกเลิก"
+**Then** an AlertDialog "ทิ้งการแก้ไข?" / "ข้อมูลที่กรอกไว้ในฟอร์มนี้จะหายไป" offers "กลับไปแก้ไขต่อ" (focused) and "ทิ้งการแก้ไข" (destructive) (UX-DR15)
+**And** without unsaved changes the Sheet closes directly
+
+**Given** a Sheet form
+**When** the user saves with validation errors
+**Then** the Sheet stays open, each invalid field shows an x-octagon icon and message below it with `aria-invalid`, required fields carry a red "*", a summary at the top reads "แก้ไข {n} ช่องก่อนบันทึก · {label1}, {label2}" with links to the fields, and the view scrolls to and focuses the first error (UX-DR15)
+**And** server-side validation errors are shown the same way as client-side ones
+
+**Given** any page
+**When** a Sheet is open
+**Then** no second Sheet can open, and no Dialog opens over a Sheet except an AlertDialog (UX-DR15, UX-DR48)
+
+*Confirmations and buttons*
 
 **Given** a destructive action
 **When** the user triggers it
-**Then** an AlertDialog names the object and consequence with focus on Cancel, and irreversible stock-affecting actions require a reason field (UX-DR16)
-**And** buttons that start a server action show a spinner and are disabled until the response (no double submit), and confirm buttons say verb + object, never "ตกลง"/"OK" (UX-DR16)
+**Then** a 480px AlertDialog (`role="alertdialog"`) with a tone icon (danger x-octagon / warning alert-triangle / info) names the object and the consequence in its title and body, and focus starts on "ยกเลิก"; Esc cancels (UX-DR16)
+**And** the dialog can include a required "เหตุผล*" field; confirming with it empty shows "ระบุเหตุผลก่อนยืนยัน"; irreversible stock-affecting actions always require it (UX-DR16)
+**And** a dialog can be informational only (one button such as "เข้าใจแล้ว") when an action is refused
+**And** destructive actions live in a row or overflow menu, never as the page-header primary button; a page header has at most 1 primary + 2 secondary buttons + overflow (UX-DR16)
+
+**Given** any button that starts a server action
+**When** it is pressed
+**Then** it shows a spinner, is disabled and `aria-busy` until the response, so a double submit is impossible (UX-DR16)
+**And** confirm buttons say verb + object (e.g. "ปิดใช้ A-01-01", "ส่งคำขอปิดใช้"), never "ตกลง"/"OK" (UX-DR16)
 
 ### Story 1.7: User Management
 
@@ -985,18 +1229,71 @@ So that the system mirrors our physical site.
 
 **Acceptance Criteria:**
 
-**Given** ตั้งค่าคลัง › คลังและตำแหน่ง
-**When** an admin creates a warehouse
-**Then** it requires a unique 3-letter code and name, and becomes selectable in the warehouse switcher for scoped users (FR-8, NFR-11)
+*Page*
 
-**Given** a warehouse
-**When** the admin creates a zone
-**Then** they set room type, capacity and walk-order pattern (FR-8)
+**Given** ตั้งค่า & ข้อมูลหลัก › ตั้งค่าคลัง › คลังและตำแหน่ง › คลังและโซน
+**When** an admin opens it
+**Then** the page shows two panels: "คลัง" ("{n} คลัง · ใช้งาน {active}", button "เพิ่มคลัง") and "โซนใน{warehouse name}" ("{n} โซน", primary button "เพิ่มโซน", and a warehouse select listing non-disabled warehouses as "{name} ({code})", synced to the URL as `wh`) (FR-8, UX-DR16)
+**And** both tables follow Story 1.5 (sort in URL, 50 rows per page); neither has search, status tabs, bulk actions or export
+
+*Warehouse list*
+
+**Given** the warehouse table
+**When** it renders
+**Then** columns are รหัส (sticky, mono) · ชื่อคลัง (with tag "ใช้อยู่" on the current warehouse) · โซน · ตำแหน่ง (P2) · สต็อก (ชิ้น) · สถานะ · row menu (FR-8)
+**And** status is one of "ใช้งาน" (success), "รออนุมัติปิดใช้" (warning, clock icon, tooltip "ส่งคำขอโดย {name}"), "ปิดใช้" (neutral, muted row) (UX-DR10)
+**And** the row menu offers "แก้ไขคลัง", "ดูโซนของคลังนี้" (sets the zone panel to that warehouse and scrolls to it), and "ปิดใช้คลัง" (danger) or "ยกเลิกคำขอปิดใช้" when a request is pending
+**And** a disabled warehouse cannot be opened for edit and offers no disable action
+
+*Create / edit warehouse*
+
+**Given** the "เพิ่มคลัง" Sheet ("คลังใหม่จะเลือกได้ในตัวเลือกคลังของผู้ใช้ที่มีสิทธิ์")
+**When** the admin saves
+**Then** รหัสคลัง* is exactly 3 letters A–Z (input is uppercased and other characters are stripped as typed; hint "ภาษาอังกฤษ 3 ตัว ไม่ซ้ำกับคลังอื่น เช่น BKN") and ชื่อคลัง* is 1–60 characters after trimming (FR-8)
+**And** errors read "กรอกรหัสคลัง", "รหัสคลังต้องมี 3 ตัว", "รหัส {CODE} ถูกใช้แล้ว · เลือกรหัสอื่น", "กรอกชื่อคลัง"
+**And** the code must be unique within the tenant including disabled warehouses `[OPEN D-17: tenant vs global uniqueness]`; names need not be unique
+**And** on success the toast reads "เพิ่มคลัง {CODE} แล้ว" / "เลือกคลังนี้ในตัวเลือกคลังได้ทันที · ต่อไปเพิ่มโซน", System Administrators get access to it, and the warehouse becomes selectable in the warehouse switcher of users with access to it (FR-8, NFR-11)
+**And** `warehouse.create` is logged (FR-107)
+
+**Given** an existing warehouse
+**When** the admin opens "แก้ไขคลัง {CODE}"
+**Then** only the name is editable; the code field is disabled with the note "รหัสคลังแก้ไม่ได้หลังสร้าง เพราะใช้อ้างอิงในเอกสารและ label"
+**And** saving shows "บันทึกคลัง {CODE} แล้ว" and logs `warehouse.edit` with old → new name (FR-107)
+
+*Zones*
+
+**Given** a warehouse selected in the zone panel
+**When** the admin saves the "เพิ่มโซน" Sheet (subtitle "{warehouse name} ({code})")
+**Then** the zone is created in that warehouse with รหัสโซน* (1–3 characters A–Z/0–9, uppercased, unique within the warehouse; hint "1–3 ตัว ใช้เป็นตัวหน้าของรหัสตำแหน่ง เช่น A → A-01-01"), ชื่อโซน* (1–60), ประเภทห้อง* (default ทั่วไป), ความจุ* in m³ (decimal > 0) and รูปแบบลำดับการเดิน* (radio cards with diagrams; default งูเลื้อย) (FR-8)
+**And** room types are ทั่วไป / ควบคุมอุณหภูมิ / ของมีค่า `[OPEN D-11]`, and walk-order patterns are งูเลื้อย (snake) / ทางเดียว (one-way) / ตามรหัสตำแหน่ง (by code), with the caption "ระบบใช้ลำดับนี้เรียงตำแหน่งตอนหยิบและจัดเก็บในโซนนี้" `[OPEN D-12: exact effect]`
+**And** errors read "กรอกรหัสโซน", "โซน {CODE} มีอยู่แล้วในคลังนี้", "กรอกชื่อโซน", "กรอกความจุ", "ความจุต้องเป็นตัวเลขมากกว่า 0"
+**And** the toast reads "เพิ่มโซน {CODE} แล้ว" / "ต่อไปสร้างตำแหน่งในโซนนี้", and `zone.create` is logged (FR-107)
+
+**Given** the zone table
+**When** it renders
+**Then** columns are รหัสโซน (sticky, mono) · ชื่อโซน · ประเภทห้อง · ความจุ (m³) · ลำดับการเดิน (P2) · ตำแหน่ง (count, linking to the ตำแหน่ง tab filtered by that zone when > 0) · row menu ("แก้ไขโซน", "ดูตำแหน่งในโซนนี้", "สร้างตำแหน่งในโซนนี้" → bulk-create Sheet with the zone preselected)
+**And** the zone-to-location links are disabled with the tooltip "สลับคลังก่อนดูตำแหน่ง" when the zone belongs to a warehouse other than the current one
+**And** editing a zone ("แก้ไขโซน {CODE}") changes everything except the code, shows "บันทึกโซน {CODE} แล้ว" and logs `zone.edit` with only the changed fields old → new (FR-107)
+
+*Disable a warehouse*
 
 **Given** a warehouse that holds any stock
-**When** an admin tries to disable it
-**Then** it is refused; a warehouse with zero stock can be disabled only after approval (disabling a warehouse type) (FR-8, FR-105)
-**And** the change is logged (FR-107)
+**When** an admin chooses "ปิดใช้คลัง"
+**Then** an informational dialog "ปิดใช้{name} ({CODE}) ไม่ได้" / "ยังมีสต็อก {n} ชิ้นในคลังนี้ · ย้ายหรือตัดสต็อกออกให้เหลือ 0 ก่อน แล้วค่อยขอปิดใช้" offers only "เข้าใจแล้ว", and nothing changes (FR-8)
+**And** stock is read through a stock-check interface; until the stock ledger exists (Epic 4) it returns 0 `[PILOT]`
+
+**Given** a warehouse with zero stock
+**When** an admin chooses "ปิดใช้คลัง"
+**Then** a warning dialog "ขออนุมัติปิดใช้{name} ({CODE})?" / "คลังนี้ไม่มีสต็อกแล้ว · การปิดใช้ต้องผ่านผู้อนุมัติ เมื่ออนุมัติแล้วคลังนี้จะไม่แสดงในตัวเลือกคลัง" requires "เหตุผลที่ปิดใช้*" and confirms with "ส่งคำขอปิดใช้" (FR-8, FR-105, UX-DR16)
+**And** the warehouse becomes "รออนุมัติปิดใช้" and stays fully usable (still in the switcher) until the request is decided; the toast reads "ส่งคำขอปิดใช้ {CODE} แล้ว" / "รออนุมัติ · สถานะจะเปลี่ยนเมื่อมีผลอนุมัติ"; `warehouse.request-disable` is logged with the reason (FR-107)
+**And** "ยกเลิกคำขอปิดใช้" withdraws the request at once, shows "ยกเลิกคำขอปิดใช้ {CODE} แล้ว" and logs `warehouse.cancel-disable` (FR-107)
+**And** approval decides the request through the approvals engine (Story 1.11); stock is re-checked at approval and a warehouse that now holds stock is refused; on approval the warehouse becomes "ปิดใช้", disappears from every switcher and picker, and `warehouse.disable` is logged (FR-105, FR-107)
+**And** how the pilot completes a request without Story 1.11 follows decision `[OPEN D-2]` (A: no approval — confirming with a reason disables at once; B: build Story 1.11 in the pilot)
+
+*Out of scope*
+
+- Re-enabling a disabled warehouse, deleting a warehouse, and disabling or deleting a zone
+- Warehouse address and working calendar (Story 2.10/FR-16)
 
 ### Story 2.2: Locations and Location Labels
 
@@ -1006,25 +1303,86 @@ So that every place stock can sit is scannable.
 
 **Acceptance Criteria:**
 
+*List*
+
+**Given** ตั้งค่าคลัง › คลังและตำแหน่ง › ตำแหน่ง
+**When** the page opens
+**Then** the header reads "ตำแหน่ง" / "{n} ตำแหน่งใน {z} โซน · label ยังไม่พิมพ์ {k}" with "สร้างทีละตำแหน่ง" (outline) and "สร้างหลายตำแหน่ง" (primary) (FR-8)
+**And** the table follows Story 1.5 with columns รหัสตำแหน่ง (sticky, mono) · โซน · ประเภท · ขายได้ (P2, "✓ ขายได้" or muted "ไม่นับ") · ลำดับเดิน (P2) · ความจุ (P3, "{m³ 1 dp} m³" with "{kg} kg" below) · การผสม (P3) · Label (P2) · สถานะ · row menu; default sort is walk sequence ascending
+**And** status tabs are ทั้งหมด · ใช้งาน · ปิดใช้ · ล็อกนับ with counts; filters are search (placeholder "ค้นหาหรือสแกนรหัสตำแหน่ง", case-insensitive match on code), โซน, ประเภท and label (ยังไม่พิมพ์ / พิมพ์แล้ว / สำเนา); all filters live in the URL so `?zone=A` deep-links work
+**And** the first-use empty state reads "ยังไม่มีตำแหน่งในคลังนี้" / "สร้างทีละหลายตำแหน่งจากรูปแบบช่วง เช่น ทางเดิน A แถว 01–10 ชั้น 01–04" with "สร้างหลายตำแหน่ง"
+**And** Excel export (Story 1.5) has the columns รหัสตำแหน่ง, โซน, ประเภท, ขายได้, ลำดับเดิน, m³, kg, การผสม, label, สถานะ
+
+*Location fields*
+
 **Given** a zone
-**When** an admin creates a location
-**Then** it has one of 8 types (หยิบ pick, เก็บ storage, รับเข้า receiving, พักสินค้า staging, ส่งมอบ handover, คืน returns, รอคืนชั้น awaiting-restock, ชำรุด/กักกัน damaged/quarantine), a zone, walk sequence, sellable flag, capacity in m³ and kg, and a mixing policy (FR-8)
+**When** an admin creates a location with "สร้างทีละตำแหน่ง"
+**Then** the Sheet "สร้างตำแหน่ง" asks for: รหัสตำแหน่ง* (1–20 characters A–Z, 0–9, "." and "-", uppercased; hint "ไม่ซ้ำภายในคลัง เช่น A-01-01"), โซน* (default: the filtered zone, else the first), ประเภทตำแหน่ง* (default เก็บ), ลำดับการเดิน* (integer ≥ 0, default max + 1 in the warehouse), ความจุปริมาตร* (m³ > 0), รับน้ำหนักได้* (kg > 0), การผสมสินค้า* (default หลาย SKU · ห้ามผสมล็อต), switch "ขายได้" ("สต็อกในตำแหน่งนี้นับเป็นยอดพร้อมขาย") and switch "เปิดใช้" ("ปิดใช้แล้วจัดเก็บและย้ายของเข้าตำแหน่งนี้ไม่ได้") (FR-8)
+**And** the type is one of 8: หยิบ pick, เก็บ storage, รับเข้า receiving, พักสินค้า staging, ส่งมอบ handover, คืน returns, รอคืนชั้น awaiting-restock, ชำรุด/กักกัน damaged/quarantine (FR-8)
+**And** "ขายได้" defaults on for หยิบ/เก็บ and off for every other type, updates when the type changes, and can still be overridden
+**And** the mixing policy is one of SKU เดียว / หลาย SKU · ห้ามผสมล็อต / ผสมได้ `[OPEN D-13]`
+**And** errors read "กรอกรหัสตำแหน่ง", "{code} มีอยู่แล้วในคลังนี้", "ลำดับการเดินต้องเป็นตัวเลข", "กรอกความจุเป็นตัวเลขมากกว่า 0", "กรอกน้ำหนักเป็นตัวเลขมากกว่า 0"
+**And** a code does not have to start with its zone code; walk sequence does not have to be unique
+**And** on success the toast reads "สร้าง {code} แล้ว" / "label ยังไม่พิมพ์ · เลือกแล้วกดพิมพ์ label ได้จากรายการ", the label state is ยังไม่พิมพ์, and `location.create` is logged (FR-107)
+
+**Given** an existing location
+**When** the admin opens it (row click or "แก้ไขตำแหน่ง")
+**Then** the Sheet "ตำแหน่ง {code}" edits every field except the code, saves with "บันทึกตำแหน่ง", shows "บันทึก {code} แล้ว" and logs `location.edit` with changed fields old → new (FR-107)
+
+*Bulk create*
 
 **Given** a range pattern (e.g. aisle A, rows 01–10, levels 01–04)
-**When** the admin creates locations in bulk
-**Then** all matching locations are created in one action with unique codes per warehouse (FR-8)
+**When** the admin uses "สร้างหลายตำแหน่ง" ("กำหนดรูปแบบรหัสเป็นช่วง ระบบสร้างทุกรหัสในครั้งเดียว")
+**Then** they set โซน*, ประเภทตำแหน่ง*, ตัวหน้า* (1–6 characters A–Z/0–9, prefilled with the zone code and refilled when the zone changes), ตัวคั่น (ขีด "-" default / จุด "." / ไม่มี), and 1–4 numeric ranges "ช่วงที่ N" (ตั้งแต่ / ถึง; default 01–10 and 01–04) (FR-8)
+**And** codes are generated as PREFIX{sep}N1{sep}N2… for every combination; each range is zero-padded to the longer of its from/to lengths ("01" → 2 digits, "1" → none)
+**And** "เพิ่มช่วง" adds a range up to 4 ("เพิ่มได้สูงสุด 4 ช่วง"), and the last remaining range cannot be removed
+**And** defaults for all created locations are set once: ลำดับการเดินเริ่มที่* (default max + 1), การผสมสินค้า*, m³* (default 1.5), kg* (default 800), "ขายได้" (type-driven default)
+**And** a live preview (aria-live) shows "{n} ตำแหน่งใหม่", all codes when ≤ 10 or the first 6 + "…" + the last 2, "ข้าม {d} รหัสที่มีอยู่แล้ว" with the existing codes struck through, and "ลำดับเดิน {start}–{end}"; the button reads "สร้าง {n} ตำแหน่ง"
+**And** existing codes are skipped, not overwritten; the run is refused only if every code exists ("ทุกรหัสในช่วงนี้มีอยู่แล้ว · เปลี่ยนช่วงหรือตัวหน้า")
+**And** errors read "กรอกตัวหน้าของรหัส", "ช่วงต้องเป็นตัวเลข และ “ถึง” ต้องไม่น้อยกว่า “ตั้งแต่”", "สร้างได้ครั้งละไม่เกิน 2,000 ตำแหน่ง · แบ่งเป็นหลายรอบ", "ลำดับเริ่มต้องเป็นตัวเลข"
+**And** all locations of one run are created in one transaction (all or none), with unique codes per warehouse (FR-8)
+**And** walk sequence is assigned consecutively from the start value in the order given by the zone's walk-order pattern `[OPEN D-12]`
+**And** on success the list filters to the zone, new rows flash, and the toast "สร้าง {n} ตำแหน่งแล้ว" / "{first} – {last} · ข้าม {d} (มีอยู่แล้ว)" offers "พิมพ์ label {n} ใบ"; one `location.bulk-create` entry is logged with first, last and count (FR-107)
+**And** `?new=bulk&zone={code}` opens the bulk Sheet with the zone preselected
 
-**Given** a location
-**When** an admin sets it to ปิดใช้ (disabled)
-**Then** it is flagged as blocking putaway and moves for later flows; the ล็อกนับ (locked for counting) state cannot be set manually here (FR-8)
+*Disable / enable*
+
+**Given** an active location
+**When** an admin chooses "ปิดใช้" (row menu or the "เปิดใช้" switch)
+**Then** a confirm "ปิดใช้ตำแหน่ง {code}?" / "ตำแหน่งนี้จะรับของเข้าไม่ได้ ทั้งการจัดเก็บและการย้ายเข้า · เปิดใช้กลับได้ภายหลัง" with "ปิดใช้ {code}" sets the status to ปิดใช้ (neutral badge, muted row), which later flows treat as blocking putaway and moves in (FR-8)
+**And** "เปิดใช้" on a disabled location applies at once without a confirm
+**And** each change shows "ปิดใช้ {code} แล้ว" / "เปิดใช้ {code} แล้ว" and logs `location.disable` / `location.enable` (FR-107)
 
 **Given** selected locations
+**When** the admin uses bulk "ปิดใช้" or "เปิดใช้"
+**Then** a confirm "ปิดใช้ {n} ตำแหน่ง?" (bulk disable only) applies to eligible rows and reports "ทำได้ {ok} · ข้าม {s} ({reasons})" with reasons ล็อกนับอยู่ / ปิดใช้อยู่แล้ว / เปิดใช้อยู่แล้ว (UX-DR13)
+
+**Given** a location locked for counting (ล็อกนับ, info badge with lock icon, tooltip "ตั้งโดยระบบระหว่างรอบนับ")
+**When** an admin opens or acts on it
+**Then** ล็อกนับ cannot be set or cleared manually anywhere: the Sheet shows "ตำแหน่งนี้ล็อกนับอยู่ · ระบบปลดล็อกเองเมื่อรอบนับเสร็จ ระหว่างนี้แก้สถานะไม่ได้" with the "เปิดใช้" switch disabled, and the row menu shows "ปิดใช้ไม่ได้ · ล็อกนับอยู่" (FR-8)
+**And** other fields remain editable while locked
+**And** in the pilot this state exists only as seeded data, because counting is Epic 6 `[PILOT]`
+
+*Labels*
+
+**Given** selected locations (row menu "พิมพ์ label"/"พิมพ์ label ซ้ำ", or the bulk bar)
 **When** the admin prints labels
-**Then** QR labels print in bulk with the location code in mono type (FR-8)
+**Then** the dialog "พิมพ์ label ตำแหน่ง" ("{n} ใบ · พิมพ์ซ้ำ {r} · ข้าม {k} ที่พิมพ์แล้ว") offers size 50 × 30 มม. (default) or 100 × 50 มม., and "พิมพ์เฉพาะที่ยังไม่พิมพ์" (checked by default, shown only when the selection mixes printed and unprinted) (FR-8)
+**And** each label shows a QR encoding `LOC:{warehouse code}:{location code}`, the code in bold mono, "{warehouse code} · โซน {zone code} {zone name}" and the type
+**And** a reprint requires "เหตุผลที่พิมพ์ซ้ำ*" ("ระบุเหตุผลก่อนพิมพ์ซ้ำ") and reprinted labels carry "สำเนา"
+**And** the preview shows up to 60 labels ("แสดงตัวอย่าง 60 ใบแรกจาก {n}"), and "พิมพ์ {n} label" sends the sheet to browser print `[PILOT: D-3]`
+**And** label state becomes พิมพ์แล้ว, or สำเนา #{n} for reprints; the toast reads "ส่งพิมพ์ {n} label แล้ว"; `label.print` / `label.reprint` is logged with the reason (FR-107)
+
+*Data model*
 
 **Given** a SKU
 **When** stock is later placed
-**Then** the data model allows one SKU in many locations (FR-8)
+**Then** the data model allows one SKU in many locations and many SKUs in one location (subject to its mixing policy) (FR-8)
+**And** in the pilot this is verified at schema level, because SKUs arrive in Epic 3 `[PILOT]`
+
+*Out of scope*
+
+- Deleting locations; Excel import of locations (FR-112); stock columns
 
 ### Story 2.3: Container Types and Container Labels
 
@@ -1034,22 +1392,69 @@ So that pallets, totes, carts and bags can be tracked through every stage.
 
 **Acceptance Criteria:**
 
-**Given** the containers page
-**When** an admin registers a container type
-**Then** they set code prefix (PL, TT, BG, CG, C20/30/40, FC, PW, DMG-T), first code, count, stages used and capacity, and the system generates that many containers (FR-10)
+*Page*
 
-**Given** generated containers
-**When** labels print
-**Then** each container has one permanent QR, unique within the warehouse (FR-10)
+**Given** ตั้งค่าคลัง › คลังและตำแหน่ง › ภาชนะ
+**When** the page opens
+**Then** it shows two panels for the current warehouse: "ประเภทภาชนะ" ("{n} ประเภท · {n} ใบ", primary button "ลงทะเบียนภาชนะ") and "ภาชนะทั้งหมด" (FR-10)
+**And** the type table has columns ตัวหน้า (sticky) · ประเภท · จำนวน · ขั้นตอนที่ใช้ (tags) · ความจุ ("{kg} kg · {qty} ชิ้น", or "—") · การใช้งานตอนนี้ ("ใช้อยู่ {n} · ว่าง {n}", plus "ต้องเคลียร์ {n}" in warning when > 0) · row menu ("สร้างเพิ่ม", "พิมพ์ label ที่ยังไม่พิมพ์", "ดูภาชนะประเภทนี้")
+**And** clicking a type row filters the container table to that type and scrolls to it
+**And** the empty state reads "ยังไม่มีภาชนะ" / "ลงทะเบียนพาเลท ตะกร้า รถเข็น หรือถุงส่งมอบ แล้วพิมพ์ QR ติดภาชนะ" with "ลงทะเบียนภาชนะ"
 
-**Given** a container
-**When** it is created
-**Then** it always sits in a location (default: the location chosen at creation) (FR-10)
+*Register containers*
 
-**Given** the containers list
+**Given** the Sheet "ลงทะเบียนภาชนะ" ("ระบบสร้างภาชนะตามจำนวน ทุกใบมี QR ถาวรของตัวเอง")
+**When** an admin fills it
+**Then** ประเภทภาชนะ* is one of PL พาเลท, TT ตะกร้า, BG ถุงส่งมอบ, CG กรง, C20/C30/C40 รถเข็น 20/30/40 ช่อง, FC รถเข็นพื้นเรียบ, PW Put wall, DMG-T ตะกร้าของชำรุด, with the hint "มีอยู่แล้ว {n} ใบ · ใบใหม่ต่อจากรหัสล่าสุด" or "ประเภทใหม่ในคลังนี้" (FR-10)
+**And** รหัสแรก* defaults to the next free number after the highest existing code of that prefix ({PREFIX}-{number}, 3 digits, 4 when the type already has ≥ 100), จำนวน* defaults to 10 for a new type, ขั้นตอนที่ใช้* is one or more of รับเข้า · จัดเก็บ · หยิบ · คัดแยก · แพ็ค · ส่งมอบ · ตีกลับ `[OPEN D-14]`, and รับน้ำหนักได้ (kg) and จุได้ (ชิ้น) are optional
+**And** ตำแหน่งที่วางตอนสร้าง* accepts a typed or scanned location code from the warehouse ("ภาชนะทุกใบต้องอยู่ในตำแหน่งเสมอ · สแกน QR ตำแหน่งใส่ช่องนี้ได้"), prefilled with the type's last used location (FR-10)
+**And** for an existing type, the stages, capacity and default location are prefilled from the type
+**And** a live preview shows "{n} ใบ" and "{first} ถึง {last}", or "ชนกับรหัสที่มี {n} ใบ" in destructive; the button reads "สร้าง {n} ภาชนะ"
+
+**Given** the register form
+**When** the admin saves with invalid input
+**Then** errors read "รหัสแรกต้องขึ้นต้นด้วย {P}- แล้วตามด้วยตัวเลข เช่น {P}-001", "รหัส {code} มีอยู่แล้ว · เริ่มที่รหัสถัดไป", "กรอกจำนวนเป็นตัวเลขมากกว่า 0", "สร้างได้ครั้งละไม่เกิน 1,000 ใบ", "เลือกอย่างน้อย 1 ขั้นตอน", "เลือกตำแหน่งที่วางภาชนะ", "ไม่พบตำแหน่ง {code} ที่เปิดใช้ในคลังนี้"
+**And** capacity, when given, must be a number > 0 ("ความจุต้องเป็นตัวเลขมากกว่า 0")
+**And** any code collision in the range blocks the whole batch (no partial creation)
+
+**Given** a valid form
+**When** the admin saves
+**Then** the system generates exactly that many containers numbered consecutively from the first code (zero-padded to the first code's digit count; numbers longer than the padding just grow), each empty, in the chosen location, with label state ยังไม่พิมพ์, in one transaction (FR-10)
+**And** the type's stages, capacity and default location are updated to the values just entered
+**And** the container table filters to the new, unprinted containers, they flash, and the toast "สร้าง {n} ภาชนะแล้ว" / "{first} – {last} · วางที่ {loc}" offers "พิมพ์ QR {n} ใบ"
+**And** one `container.generate` entry is logged with the range, count and location (FR-107)
+
+*Container list*
+
+**Given** the container table
 **When** it renders
-**Then** it shows live usage (holding pick list or carrier wave, empty if none) and a *needs clearing* state that blocks reuse until a user clears it (FR-10)
-**And** later epics set and clear these states
+**Then** columns are checkbox · รหัสภาชนะ (sticky, mono) · ประเภท · ตำแหน่ง · การใช้งาน · Label · สถานะ · action; default sort is code (natural order) (FR-10)
+**And** การใช้งาน shows "ว่าง", "ถือใบหยิบ {ref}", "รอบขนส่ง {ref}" or "ของค้างจากใบหยิบที่ยกเลิก {ref}"; สถานะ is "ว่าง · พร้อมใช้" (success), "กำลังใช้" (info) or "ต้องเคลียร์" (warning, tooltip "ใช้ซ้ำไม่ได้จนกว่าจะเคลียร์") (FR-10, UX-DR10)
+**And** status tabs are ทั้งหมด · ว่าง · กำลังใช้ · ต้องเคลียร์ (destructive count chip when > 0); filters are search ("ค้นหาหรือสแกนรหัสภาชนะ ตำแหน่ง หรือใบหยิบ", matching code, location or usage ref), type and label (ยังไม่พิมพ์ / พิมพ์แล้ว incl. copies)
+**And** the panel shows "อัปเดตอัตโนมัติ · ข้อมูล ณ {HH:MM}" and refreshes usage and location every 30 s without losing filters or selection; changed rows flash (FR-10)
+**And** Excel export has the columns รหัสภาชนะ, ประเภท, ตำแหน่ง, การใช้งาน, label, สถานะ with Thai labels
+**And** a container always sits in exactly one location; there is no way to save a container without one (FR-10)
+
+*Needs clearing*
+
+**Given** a container in ต้องเคลียร์
+**When** an admin chooses "เคลียร์" (row button, or bulk "เคลียร์ {n}")
+**Then** a warning confirm "เคลียร์ภาชนะ {code}?" / "มีของค้างจากใบหยิบที่ยกเลิก {ref} · นำของออกจากภาชนะให้หมดก่อน แล้วเคลียร์เพื่อให้ใช้ซ้ำได้" with "เคลียร์ {code}" sets it to ว่าง · พร้อมใช้, keeps its location, shows "เคลียร์ {code} แล้ว" / "ภาชนะว่างและพร้อมใช้" and logs `container.clear` with the ref (FR-10, FR-107)
+**And** bulk clear confirms "เคลียร์ {n} ภาชนะ?" and reports "ทำได้ {n} · ข้าม {n} (ไม่ต้องเคลียร์)" (UX-DR13)
+**And** a container in ต้องเคลียร์ cannot be assigned to new work until cleared; later epics set the in-use and needs-clearing states, and in the pilot they exist only as seeded data `[PILOT]`
+
+*Labels*
+
+**Given** selected containers (row menu, type menu "พิมพ์ label ที่ยังไม่พิมพ์", bulk bar, or the toast)
+**When** labels print
+**Then** the dialog "พิมพ์ label ภาชนะ" works like Story 2.2 (two sizes, unprinted-only option, reprint reason, "สำเนา" mark, 60-label preview, browser print) (FR-10)
+**And** each label shows a QR encoding `CON:{warehouse code}:{container code}`, the code in large mono, "{warehouse code} · {type name}" and "QR ถาวร · ใช้ซ้ำได้"
+**And** the QR is permanent: it is derived from the code, never regenerated, and the code is unique within the warehouse (FR-10)
+**And** `label.print` / `label.reprint` is logged (FR-107)
+
+*Out of scope*
+
+- Editing or deleting a single container, retiring a type, moving containers between locations by hand `[OPEN D-14]`
 
 ### Story 2.4: Device Registry and Device Status
 
@@ -1288,33 +1693,127 @@ So that the system knows where each location physically is.
 
 **Acceptance Criteria:**
 
+*Editor frame*
+
 **Given** ตั้งค่าคลัง › คลังและตำแหน่ง › ผังคลัง
 **When** an admin opens the editor for a warehouse
-**Then** a scaled canvas (metres, grid snap) shows the draft layout with tools for zone area, rack, aisle, wall/obstacle, door/dock, pick start/end point and text label, plus select, move, rotate, resize, duplicate, delete, undo/redo, zoom and pan (FR-125)
+**Then** the page shows a tool rail (left), a scaled canvas in metres (centre) and a 340px side panel (right), with a top bar holding the version status, the mode switch "แก้ผัง" | "ทดสอบเส้นทาง", undo "ย้อนกลับ (Ctrl+Z)", redo "ทำซ้ำ (Ctrl+Shift+Z)", zoom out/in, a zoom % readout, "พอดีจอ" and the primary "ตรวจและเผยแพร่" (FR-125)
+**And** the canvas shows a 1 m grid, snaps all geometry to 0.5 m, and shows the pointer position as "x.x, y.y ม." (FR-125)
+**And** the canvas size defaults to 48 × 33 m and the admin can set its width and length in metres to match the building `[OPEN D-15]`
+**And** zoom works by wheel and buttons, from fit-to-screen ÷ 3 up to a 6 m wide view, "พอดีจอ" fits the whole canvas with 2 m padding, and pan works by dragging empty space, middle mouse, or any drag in read-only and route modes
+**And** with no layout yet, an empty state "ยังไม่มีผังของ{warehouse name}" / "วาดชั้นวาง ทางเดิน และจุดเริ่มหยิบ แล้วผูกตำแหน่ง ระบบจะใช้ผังนี้หาเส้นทางหยิบที่สั้นที่สุด" offers "เริ่มวาดผัง", which selects the aisle tool and shows "เริ่มจากวาดทางเดิน" / "แล้วตามด้วยชั้นวางและจุดเริ่มหยิบ"
 
-**Given** the rack tool
-**When** the admin draws a rack and sets bays × levels and its facing side
-**Then** the rack shows its slots and can be bound automatically by code pattern (prefix, row range, level range) or slot by slot; a location binds to at most one slot and the binding is shown on both the slot and the location record (FR-125, FR-8)
+*Drawing tools*
 
-**Given** locations in the warehouse
-**When** the admin opens the binding panel
-**Then** it lists unbound pick and storage locations with a count, filters by zone and type, and binding from the list highlights the slot on the canvas (FR-125)
+**Given** the tool rail
+**When** the admin picks a tool (button or key)
+**Then** the tools are เลือกและย้าย (V), ชั้นวาง (R), ทางเดิน (A), พื้นที่โซน (Z), ผนังและสิ่งกีดขวาง (W), ประตูและท่าโหลด (D), จุดเริ่มหยิบหรือจุดจบการหยิบ (S) and ป้ายข้อความ (T), each showing its key and a hint line (e.g. "ลากตามแนวยาวของชั้นวาง · ระบบแบ่งช่องละ 1.2 ม.", "ลากเพื่อวาดทางเดิน · ทางเดินคือที่ที่ระบบใช้หาเส้นทาง", "ลากเพื่อวาดผนังหรือเสา · เดินผ่านไม่ได้") (FR-125)
+**And** zone area, aisle, wall/obstacle and door/dock are drawn by dragging a rectangle (minimum 0.5 m per side; smaller drags are discarded); the new element is selected and the tool returns to select
+**And** a rack is drawn by dragging along its length: orientation follows the drag (horizontal 0°, vertical 90°), length rounds to whole 1.2 m bays, depth is 1.2 m, levels default to 4, facing side defaults to front, and its zone is taken from the zone area under it
+**And** a click with the start tool places a start point (the first) or an end point (later ones; "จุดจบการหยิบ (วางรถเข็น)"); a click with the label tool places "ป้ายข้อความ"
+**And** elements cannot be placed or moved outside the canvas bounds
+**And** drawn doors have no routing or door-assignment effect (FR-9 stays Defer) (FR-125)
 
-**Given** a disabled or locked-for-counting location
-**When** it is bound
-**Then** its slot shows the status tone and icon (FR-8, UX-DR10)
+*Editing*
+
+**Given** a selected element
+**When** the admin edits it
+**Then** it can be moved by drag (snapped) or arrow keys (0.5 m; Shift + arrow 1 m), duplicated with Ctrl+D (offset +1 m; a duplicated rack has no bindings and is named "{name}-สำเนา"), and deleted with Delete/Backspace; Esc clears the selection (FR-125)
+**And** rectangles (zone, aisle, wall, door) resize by their corner handle or the กว้าง/ยาว fields; racks change size through จำนวนช่อง, จำนวนชั้น, กว้างต่อช่อง and ลึก, and rotate with "หมุน 90°"
+**And** the property panel ("{type} · {name}") shows ชื่อ (or ข้อความ for labels), โซน (zone areas and racks), ประเภทจุด (points), ตำแหน่ง X/Y and size in metres, and for racks "ด้านหน้า (ฝั่งที่หยิบ)" (front/back named by orientation, or ทั้งสองด้าน); invalid numbers show an inline error and are not applied
+**And** deleting a rack with bindings, or lowering its bays or levels so that bindings would be lost, first asks "ลบชั้นวาง {name}?" / "ตำแหน่ง {n} ตำแหน่งที่ผูกไว้จะกลับเป็นยังไม่ผูก · ย้อนกลับได้ด้วย Ctrl+Z" (or the equivalent for resizing)
+**And** undo/redo covers every change (up to 100 steps in the session); any new change clears redo
+**And** with nothing selected, the panel shows the layout summary (ชั้นวาง, ช่อง, ตำแหน่งที่ผูก, ทางเดิน), canvas size and the shortcut list
+**And** keyboard shortcuts are ignored while typing in a field or when a dialog is open
+
+*Draft and versions*
+
+**Given** the layout has a draft and possibly a published version
+**When** the admin edits
+**Then** every change is saved to the draft on the server immediately; the draft never affects live work (FR-125)
+**And** the status shows "ใช้งานอยู่ v{n}" (success, tooltip "เผยแพร่ {d MMM} {HH:mm} โดย {name}") or "ยังไม่เคยเผยแพร่" (neutral), plus "แบบร่าง · แก้ล่าสุด {HH:mm} · ยังไม่เผยแพร่" (warning) or "แบบร่างตรงกับที่ใช้งานอยู่"
+**And** "ตรวจและเผยแพร่" is disabled when the draft equals the published version or when offline
+**And** if another user changed the draft meanwhile, saving shows "ข้อมูลเปลี่ยนแล้ว · โหลดใหม่" and nothing is overwritten (UX-DR20)
+**And** layout changes are logged as `layout.edit` with the element and old → new geometry; consecutive nudges of the same element may be merged into one entry (FR-125, FR-107)
+
+*Rack slots and slot status*
+
+**Given** a rack with bays × levels
+**When** it renders
+**Then** each bay is drawn as a cell labelled with its bound code prefix (e.g. "A-01") or its bay number, fully bound bays are filled `accent`, unbound or partly bound bays have a dashed `warning-strong` outline, the facing side is marked with a primary line, and the caption reads "{name} · {bays}×{levels}" (FR-125)
+**And** a bay with any level bound to a ล็อกนับ location shows the info tone with a lock icon, otherwise a bay with any ปิดใช้ location shows the neutral tone with a circle-slash icon (status shows on the layout) (FR-8, UX-DR10)
+
+*Binding by code pattern*
+
+**Given** a selected rack
+**When** the admin uses "ผูกตำแหน่งตามรูปแบบรหัส"
+**Then** they set ตัวหน้า (default: the rack's zone code), ช่องแรกเป็นแถว (the row number of bay 1; rows run to bay 1 + bays − 1), ชั้นตั้งแต่ and ถึงชั้น (within the rack's levels), and codes are matched as {prefix}-{row 2 digits}-{level 2 digits} (FR-125)
+**And** a live preview shows "{n} ตำแหน่งจะผูก", "{first} ถึง {last}" and "ข้าม: ไม่พบรหัส {n} · ผูกกับชั้นวางอื่นแล้ว {n} · ไม่ใช่ประเภทหยิบ/เก็บ {n}", or "กรอกตัวหน้า ช่องเริ่ม และช่วงชั้น" when invalid
+**And** "ผูกตามรูปแบบ" (disabled when 0 would bind) replaces this rack's existing bindings, shows "ผูก {n} ตำแหน่งกับ {rack} แล้ว" and logs `layout.bind` (FR-107)
+**And** "ล้างการผูก" asks "ล้างการผูกของ {rack}?" / "{n} ตำแหน่งจะกลับเป็นยังไม่ผูก · ย้อนกลับได้ด้วย Ctrl+Z" and logs `layout.unbind`
+**And** the code format of pattern binding is fixed in the pilot; locations with other formats bind slot by slot
+
+*Binding slot by slot*
+
+**Given** a selected rack
+**When** the admin opens "ช่องในชั้นวาง" and picks a bay ("ช่อง NN", "{bound}/{levels} ชั้น")
+**Then** each level from top down shows its bound code with status badge and "เลิกผูก {code}", or a select "ยังไม่ผูก · เลือกตำแหน่ง" listing unbound pick/storage locations of the rack's zone (all zones if the rack has none) (FR-125)
+
+*Binding panel*
+
+**Given** the side-panel tab "ผูกตำแหน่ง" (with a chip showing the unbound count)
+**When** the admin opens it
+**Then** it shows "ตำแหน่งที่ยังไม่ผูก" / "ผูกแล้ว {x} จาก {total} ตำแหน่งหยิบและเก็บ · ที่ยังไม่ผูกจะใช้ลำดับเดินแทนตอนหยิบ", filters โซน, ประเภท (หยิบ / เก็บ) and search (debounced, by code), and lists each unbound location with its zone, type and status and a select "เลือกช่องว่าง" of free slots ("{rack} · ช่อง NN · ชั้น NN") plus "ผูก" (FR-125)
+**And** when no free slot exists the row reads "ไม่มีช่องว่างในโซนนี้ · วาดชั้นวางก่อน"
+**And** binding selects and highlights the slot on the canvas, keeps the panel open, shows "ผูก {code} กับ {rack} ช่อง NN ชั้น NN แล้ว" and logs `layout.bind` (FR-107)
+**And** empty states read "ผูกครบทุกตำแหน่งแล้ว" or "ไม่มีตำแหน่งที่ยังไม่ผูกตามตัวกรอง"
+**And** only pick and storage locations need binding; other types may stay unbound without warnings
+
+*One location, one slot*
+
+**Given** any binding path
+**When** a location is bound
+**Then** it binds to at most one slot in the whole draft and a slot holds at most one location; any path that would break this is refused (FR-125)
+**And** the location record shows its binding: the ตำแหน่ง list (Story 2.2) gains a P3 column "ผัง" with "{rack} · ช่อง NN · ชั้น NN" or "ยังไม่ผูก" based on the published layout, and the location Sheet shows the same (FR-125)
+
+*Publish*
 
 **Given** the draft
-**When** the admin publishes it
-**Then** validation blocks racks whose face does not touch an aisle, aisles not connected to a pick start point and a missing start point; it warns with the count of unbound pick/storage locations that will fall back to walk sequence; on success the version number increases and the publish is logged (FR-125, FR-107)
+**When** the admin presses "ตรวจและเผยแพร่"
+**Then** the dialog "ตรวจผังก่อนเผยแพร่" lists blocking items and warnings, each with "ไปที่" that selects the element (blocked elements get a red dashed outline) or opens the binding panel (FR-125)
+**And** blocking items are: "ยังไม่มีจุดเริ่มหยิบ · วางจุดเริ่มบนทางเดินอย่างน้อย 1 จุด"; "{start} ไม่ได้อยู่บนทางเดิน"; "{end} ไม่ได้อยู่บนทางเดิน"; "{aisle} ไม่เชื่อมกับจุดเริ่มหยิบ"; "ชั้นวาง {rack} ด้านหน้าไม่ติดทางเดิน · หมุนด้านหน้าหรือเลื่อนให้ชิดทางเดิน"; "ชั้นวาง {rack} ช่อง {NN, NN} เดินไปไม่ถึง"
+**And** overlap of racks with walls or with other racks follows decision `[OPEN D-16]`
+**And** the warning is "ตำแหน่งหยิบและเก็บที่ยังไม่ผูก {n} ตำแหน่ง (โซน A: x · โซน C: y) · ใบหยิบจะใช้ลำดับเดินแทนสำหรับตำแหน่งเหล่านี้"; warnings do not block
+**And** the subtitle reads "แก้ {n} รายการก่อนจึงเผยแพร่ได้", "เผยแพร่ได้ · มีรายการที่ควรรู้" or "ผ่านการตรวจทั้งหมด" ("ชั้นวางทุกตัวเดินถึงได้ ทางเดินเชื่อมกับจุดเริ่มหยิบ และผูกตำแหน่งครบ")
+**And** the footer note reads "จะเป็น v{n+1} · ใบหยิบที่สร้างไว้แล้วยังใช้ลำดับเดิม"; "เผยแพร่" is disabled while any block remains or offline
+**And** the same checks run on the server at publish, so a stale dialog cannot publish an invalid draft
+
+**Given** a valid draft
+**When** the admin confirms "เผยแพร่"
+**Then** the draft is copied to a new published version v{n+1} (an immutable snapshot of geometry and bindings), the toast reads "เผยแพร่ผัง v{n} แล้ว" / "ใบหยิบที่สร้างหลังจากนี้ใช้เส้นทางตามผังนี้", and `layout.publish` is logged with the version (FR-125, FR-107)
+**And** earlier published versions are kept so that pick lists can refer to the version they were created with
 
 **Given** a published layout and pick lists already created
 **When** a new version is published
 **Then** existing lists keep their stop order and only lists created afterwards use the new layout (FR-125)
+**And** in the pilot, with no pick lists yet, this is verified by previewing the same sample on the old and new versions `[PILOT]`
 
-**Given** the editor on a screen narrower than 1280px or a user without edit permission
+*Read-only and accessibility*
+
+**Given** the editor on a screen narrower than 1280px, offline, or a user without edit permission
 **When** the page opens
-**Then** the layout is read-only with zoom and pan, and the binding panel stays available as a keyboard-accessible list alternative to the canvas (UX-DR46, UX-DR42)
+**Then** the layout is read-only with zoom, pan and selection; the tool rail, edit controls and publish are hidden, property fields are shown disabled, and route preview stays available (UX-DR46, UX-DR42)
+**And** the note reads "ดูผังอย่างเดียว · แก้ผังได้บนจอกว้าง 1280px ขึ้นไป" or "ออฟไลน์ · ดูผังได้ แต่แก้และเผยแพร่ไม่ได้จนกว่าจะเชื่อมต่อใหม่"
+**And** in the pilot the permission check is wired but only the seeded System Administrator exists `[PILOT]`
+
+**Given** a keyboard or screen-reader user
+**When** they use the editor
+**Then** a list "สิ่งของบนผัง" in the side panel lets them select every element by keyboard, after which the property panel edits it; the binding panel works fully by keyboard; drag is never the only way to do something (UX-DR42, UX-DR48)
+**And** the canvas has `role="application"` with the label "ผังคลัง ใช้ปุ่มลูกศรเลื่อนสิ่งที่เลือก"
+
+*Out of scope*
+
+- Occupancy view (Story 4.8, FR-126), door assignment (FR-9), automatic layout generation, writing walk sequence back to locations
 
 ### Story 2.14: Layout Route Engine and Route Preview
 
@@ -1324,21 +1823,48 @@ So that I can trust the pick order before pickers follow it.
 
 **Acceptance Criteria:**
 
+*Walkable network*
+
 **Given** a layout is published
 **When** publish completes
-**Then** the walkable network (aisles, start/end points, rack faces) is built and walking distances between all bound slots and start/end points are precomputed for that version `[ARCH-PENDING: precompute approach]` (FR-125)
+**Then** the walkable network for that version is built: aisles are walkable, walls/obstacles and racks are blocked, zone areas and doors add nothing; movement is on the 0.5 m grid in 4 directions (FR-125)
+**And** each bay has an access point 0.3 m in front of its facing side (both sides for ทั้งสองด้าน); all levels of a bay share its access point
+**And** walking distances between all bound access points and start/end points are precomputed for that version `[ARCH-PENDING: precompute approach]` (FR-125)
 
-**Given** a set of locations and a start point
+*Route service*
+
+**Given** a set of location codes, a warehouse and optionally a start point
 **When** the route service is called
-**Then** it returns the stops in shortest-walk order using the precomputed distances, with total distance in metres; unbound locations are appended in walk-sequence order; with no published layout all stops follow walk sequence (FR-67, FR-8)
+**Then** it returns the layout version used, the stops in shortest-walk order (nearest neighbour then 2-opt improvement) with cumulative distance per stop, and the total distance in metres including the walk from the last stop to the end point when one exists (FR-67, FR-125)
+**And** the start point is the one given, else the layout's first start point
+**And** unbound locations and bound-but-unreachable locations are appended after the routed stops in walk-sequence order, each marked "ตามลำดับเดิน" (FR-67, FR-8)
+**And** with no published layout, or no start point on an aisle, all stops follow walk sequence and the result carries the reason (e.g. "ยังไม่มีจุดเริ่มหยิบบนทางเดิน") (FR-67)
+**And** the same input always gives the same output (ties broken by walk sequence, then code), so tests and re-runs are stable
+**And** pick lists (Epic 8) call the service with the published version only; the draft is never used for real work
+**And** how the zone walk-order pattern affects the walk-sequence fallback follows decision `[OPEN D-12]`
+
+*Performance*
 
 **Given** peak load
 **When** pick lists are created
 **Then** route ordering adds no more than an agreed latency per list `[ARCH-PENDING: target]` (NFR-1)
+**And** a benchmark test with the Bangkhen layout and a realistic list size runs in CI and reports the time
 
-**Given** ผังคลัง › ทดสอบเส้นทาง
-**When** the admin picks sample locations (or a sample of real pending order lines once Epic 7 exists)
-**Then** the canvas draws the route with numbered stops, total distance and the comparison to walk-sequence order (FR-125)
+*Route preview*
+
+**Given** ผังคลัง › "ทดสอบเส้นทาง"
+**When** the admin opens it
+**Then** the tool rail and selection are cleared, and the panel offers "ใช้ผัง" (แบบร่าง or v{n} ที่ใช้งานอยู่), "เริ่มที่" (the layout's start points) and "ตำแหน่งตัวอย่าง ({n})" — 10 random bound locations by default, "สุ่มใหม่", and checkboxes for every pick/storage location (unbound ones suffixed "· ไม่ผูก") (FR-125)
+**And** the canvas draws the route as a 3px primary line with numbered stop markers, and the panel shows "{total} ม. ตามผัง", "{seqTotal} ม. ถ้าเดินตามลำดับเดิน · สั้นลง {n}%" (percentage shown only when positive), and "ลำดับจุดหยิบ" listing each stop as text with number, code and cumulative metres; fallback stops show "–" and "ตามลำดับเดิน" (FR-125, UX-DR42)
+**And** if the route cannot be computed the panel shows "{reason} · ทุกจุดจะใช้ลำดับเดินแทน" (destructive alert)
+**And** previewing the draft is allowed for checking before publish; it is clearly labelled แบบร่าง
+**And** once Epic 7 exists, the sample can be taken from real pending order lines (FR-125)
+
+*Pilot acceptance*
+
+**Given** the real Bangkhen warehouse drawn and published
+**When** the warehouse supervisor walks 3 previewed routes
+**Then** they confirm the order and the distances match the real walk, or the gaps are fixed before Epic 8 starts `[PILOT]`
 
 ## Epic 3: Product Master & OMS Connection
 

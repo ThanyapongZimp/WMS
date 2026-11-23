@@ -36,7 +36,8 @@ Read only the files the current task needs. Reading order: `docs/Guidelines.md`.
 
 ## Commands
 
-- `npm run lint` — Vale (Thai/English terms) and markdownlint on `docs/` and root Markdown
+- `npm run lint` — Vale (Thai/English terms), markdownlint and lychee (offline link check)
+- `npm run lint:links` — lychee only
 - `npm run lint:vale` — Vale only
 - `npm run lint:md` — markdownlint only
 - `npm test` — rule fixtures and repo checks

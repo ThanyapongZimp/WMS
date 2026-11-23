@@ -4,8 +4,9 @@
   "scripts": {
     "lint:vale": "vale docs CLAUDE.md AGENTS.md",
     "lint:md": "markdownlint-cli2",
-    "lint": "npm run lint:vale && npm run lint:md",
-    "test": "node --test \"tests/*.test.mjs\""
+    "lint": "npm run lint:vale && npm run lint:md && npm run lint:links",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "lint:links": "lychee --offline --no-progress --config lychee.toml docs/*.md docs/foundation docs/patterns"
   },
   "devDependencies": {
     "markdownlint-cli2": "^0.24.2"

@@ -19,7 +19,8 @@ Read only the files the current task needs. Reading order: `docs/Guidelines.md`.
 ## UI rules the code cannot tell you
 
 - Use semantic tokens only. No hex colours, no raw px values in components.
-- Thai body text: `line-height: 1.8` (range 1.7 to 2.0), enough vertical padding so marks are not clipped.
+- Pick tokens from `build/agent/tokens.json` by `usageRule`. Never invent a token; add it under `tokens/` and run `npm run tokens:build`.
+- Thai line-height never below 1.45 (UI registers per `docs/foundation/Typography.md`); long-form text uses `--typography-prose` (1.8). Leave enough vertical padding so marks are not clipped.
 - Thai wrapping: `word-break: normal` with `overflow-wrap: break-word`. Never `word-break: break-all`.
 - Font stack: `'IBM Plex Sans Thai', 'Sarabun', Tahoma, sans-serif`.
 - Dates: Gregorian (ค.ศ.), `DD/MM/YYYY`. Pin the calendar with `-u-ca-gregory` in every date formatter.
@@ -45,7 +46,7 @@ Read only the files the current task needs. Reading order: `docs/Guidelines.md`.
 - Run only when named: `ux-researcher`, `ux-designer`, `design-bridge` (read-only Figma), `qa-evaluator`, `ui-designer` (fallback when impeccable is unavailable).
 - Flow, run by the main session, asking the user before each next step: `context-manager` -> `ux-researcher` -> `ux-designer` (brief) -> `qa-evaluator` (contract) -> impeccable builds -> `accessibility-tester` and `qa-evaluator` check in parallel -> fixes -> `context-manager` updates the index.
 - Outputs go to `_bmad-output/ux/<feature>/`. Save files for agents that have no write tools.
-- No design tokens yet: agents stop visual work and say so instead of inventing values.
+- Agents take visual values only from `build/agent/tokens.json`. When no token fits, they say so and propose one instead of inventing values.
 
 ## Commands
 
@@ -53,6 +54,8 @@ Read only the files the current task needs. Reading order: `docs/Guidelines.md`.
 - `npm run lint:links` — lychee only
 - `npm run lint:vale` — Vale only
 - `npm run lint:md` — markdownlint only
-- `npm test` — rule fixtures and repo checks
+- `npm test` — rule fixtures, token rules and repo checks
+- `npm run tokens:build` — rebuild `build/` from `tokens/` (commit the result)
+- `npm run tokens:check` — fail if `build/` is stale
 
 Run `npm run lint` and `npm test` before you finish a task.

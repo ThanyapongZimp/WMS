@@ -6,11 +6,32 @@
     "lint:md": "markdownlint-cli2",
     "lint": "npm run lint:vale && npm run lint:md && npm run lint:links",
     "test": "node --test \"tests/*.test.mjs\"",
-    "lint:links": "lychee --offline --no-progress --config lychee.toml docs/*.md docs/foundation docs/patterns"
+    "lint:links": "lychee --offline --no-progress --config lychee.toml docs/*.md docs/foundation docs/patterns docs/components",
+    "tokens:build": "node sd.config.mjs",
+    "tokens:check": "node scripts/tokens-check.mjs",
+    "storybook": "storybook dev -p 6006",
+    "test:ui": "vitest run --project=storybook"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.65.1",
-    "markdownlint-cli2": "^0.24.2"
-  }
+    "@storybook/addon-a11y": "^10.6.8",
+    "@storybook/addon-vitest": "^10.6.8",
+    "@storybook/react-vite": "^10.6.8",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/browser": "^5.1.1",
+    "@vitest/browser-playwright": "^5.1.1",
+    "markdownlint-cli2": "^0.24.2",
+    "playwright": "^1.65.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "storybook": "^10.6.8",
+    "style-dictionary": "^5.8.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  },
+  "type": "module"
 }

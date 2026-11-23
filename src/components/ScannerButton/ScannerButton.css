@@ -1,0 +1,78 @@
+.wms-scanner-button {
+  --_bg: var(--component-scanner-button-bg);
+  --_fg: var(--component-scanner-button-fg);
+  --_bg-hover: var(--component-scanner-button-bg-hover);
+  --_bg-active: var(--component-scanner-button-bg-active);
+  --_border: transparent;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--component-scanner-button-gap);
+  inline-size: 100%;
+  min-inline-size: var(--target-pda);
+  min-block-size: var(--component-scanner-button-min-height);
+  padding-inline: var(--component-scanner-button-padding-x);
+  padding-block: var(--inset-control-y);
+  border: var(--border-width-control) solid var(--_border);
+  border-radius: var(--component-scanner-button-radius);
+  background: var(--_bg);
+  color: var(--_fg);
+  font: var(--component-scanner-button-font);
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.wms-scanner-button[data-size='lg'] { min-block-size: var(--component-scanner-button-min-height-lg); }
+
+.wms-scanner-button[data-variant='secondary'] {
+  --_bg: var(--component-scanner-button-secondary-bg);
+  --_fg: var(--component-scanner-button-secondary-fg);
+  --_bg-hover: var(--component-scanner-button-secondary-bg-hover);
+  --_bg-active: var(--component-scanner-button-secondary-bg-active);
+  --_border: var(--component-scanner-button-secondary-border);
+}
+
+.wms-scanner-button[data-variant='danger'] {
+  --_bg: var(--component-scanner-button-danger-bg);
+  --_fg: var(--component-scanner-button-danger-fg);
+  --_bg-hover: var(--component-scanner-button-danger-bg-hover);
+  --_bg-active: var(--component-scanner-button-danger-bg-active);
+}
+
+.wms-scanner-button:hover:not(:disabled, [aria-busy='true']) { background: var(--_bg-hover); }
+.wms-scanner-button:active:not(:disabled, [aria-busy='true']) { background: var(--_bg-active); }
+
+.wms-scanner-button:focus-visible {
+  outline: var(--border-width-focus) solid var(--component-scanner-button-ring);
+  outline-offset: var(--border-width-focus);
+}
+
+.wms-scanner-button:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.wms-scanner-button[aria-busy='true'] { cursor: progress; }
+
+.wms-scanner-button__label {
+  min-inline-size: 0;
+  /* Room for stacked Thai vowels and tone marks above and below the line box. */
+  padding-block: var(--inset-glyph);
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wms-scanner-button__spinner {
+  inline-size: 1.25em;
+  block-size: 1.25em;
+  flex: none;
+  animation: wms-spin var(--motion-duration-spin) linear infinite;
+}
+
+@keyframes wms-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .wms-scanner-button__spinner { animation: none; }
+}

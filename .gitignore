@@ -6,3 +6,7 @@ node_modules/
 styles/*
 !styles/WMS/
 !styles/config/
+storybook-static/
+test-results/
+.vitest-attachments/
+*.tsbuildinfo

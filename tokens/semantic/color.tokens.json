@@ -1,0 +1,305 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "color": {
+    "background": {
+      "$type": "color",
+      "$value": "{color.gray.50}",
+      "$description": "Page background behind cards."
+    },
+    "foreground": {
+      "$type": "color",
+      "$value": "{color.gray.900}",
+      "$description": "Default text on background and card."
+    },
+    "card": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Card, table and panel surface."
+    },
+    "card-foreground": {
+      "$type": "color",
+      "$value": "{color.gray.900}",
+      "$description": "Text on card."
+    },
+    "popover": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Menus and popovers."
+    },
+    "popover-foreground": {
+      "$type": "color",
+      "$value": "{color.gray.900}",
+      "$description": "Text in menus and popovers."
+    },
+    "primary": {
+      "$type": "color",
+      "$value": "{color.indigo.600}",
+      "$description": "The one main action per view, links, selected state. Tenant brand colour overrides this only."
+    },
+    "primary-hover": {
+      "$type": "color",
+      "$value": "{color.indigo.700}",
+      "$description": "Hover and pressed state of primary."
+    },
+    "primary-active": {
+      "$type": "color",
+      "$value": "{color.indigo.800}",
+      "$description": "Pressed state of primary."
+    },
+    "primary-foreground": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Text and icons on primary."
+    },
+    "secondary": {
+      "$type": "color",
+      "$value": "{color.gray.100}",
+      "$description": "Neutral button fill. Never a coloured fill."
+    },
+    "secondary-hover": {
+      "$type": "color",
+      "$value": "{color.gray.200}",
+      "$description": "Hover state of secondary."
+    },
+    "secondary-active": {
+      "$type": "color",
+      "$value": "{color.gray.300}",
+      "$description": "Pressed state of secondary."
+    },
+    "secondary-foreground": {
+      "$type": "color",
+      "$value": "{color.gray.900}",
+      "$description": "Text on secondary."
+    },
+    "muted": {
+      "$type": "color",
+      "$value": "{color.gray.100}",
+      "$description": "Subtle surface: table header, skeleton."
+    },
+    "muted-foreground": {
+      "$type": "color",
+      "$value": "{color.gray.550}",
+      "$description": "Secondary text and meta lines. Not for disabled."
+    },
+    "accent": {
+      "$type": "color",
+      "$value": "{color.indigo.50}",
+      "$description": "Hover and selected row or nav item background."
+    },
+    "accent-foreground": {
+      "$type": "color",
+      "$value": "{color.indigo.800}",
+      "$description": "Text on accent."
+    },
+    "destructive": {
+      "$type": "color",
+      "$value": "{color.red.600}",
+      "$description": "Destructive actions only (delete, cancel order). Same variant in trigger and confirm dialog."
+    },
+    "destructive-hover": {
+      "$type": "color",
+      "$value": "{color.red.700}",
+      "$description": "Hover state of destructive."
+    },
+    "destructive-active": {
+      "$type": "color",
+      "$value": "{color.red.800}",
+      "$description": "Pressed state of destructive."
+    },
+    "destructive-foreground": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Text on destructive."
+    },
+    "border": {
+      "$type": "color",
+      "$value": "{color.gray.200}",
+      "$description": "Decorative dividers and card edges only (below 3:1). Not for control borders."
+    },
+    "input": {
+      "$type": "color",
+      "$value": "{color.gray.450}",
+      "$description": "Control borders: inputs, checkboxes, selects (3:1 on card)."
+    },
+    "ring": {
+      "$type": "color",
+      "$value": "{color.indigo.600}",
+      "$description": "Focus ring, 2px, never removed."
+    },
+    "disabled-foreground": {
+      "$type": "color",
+      "$value": "{color.gray.400}",
+      "$description": "Disabled text. Exempt from contrast; never use for readable content."
+    },
+    "success": {
+      "$type": "color",
+      "$value": "{color.green.600}",
+      "$description": "Success tone fill. Always pair with icon and label."
+    },
+    "success-foreground": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Text on success."
+    },
+    "success-soft": {
+      "$type": "color",
+      "$value": "{color.green.50}",
+      "$description": "Success pill and banner background."
+    },
+    "success-soft-foreground": {
+      "$type": "color",
+      "$value": "{color.green.700}",
+      "$description": "Text on success-soft."
+    },
+    "warning": {
+      "$type": "color",
+      "$value": "{color.amber.400}",
+      "$description": "Fill only, under dark text. Never text or thin icons on white (2.07:1)."
+    },
+    "warning-foreground": {
+      "$type": "color",
+      "$value": "{color.amber.950}",
+      "$description": "Text on warning fill."
+    },
+    "warning-strong": {
+      "$type": "color",
+      "$value": "{color.amber.600}",
+      "$description": "Amber icons, dots and borders on white (3.99:1). Not for body text."
+    },
+    "warning-soft": {
+      "$type": "color",
+      "$value": "{color.amber.50}",
+      "$description": "Warning pill and banner background."
+    },
+    "warning-soft-foreground": {
+      "$type": "color",
+      "$value": "{color.amber.700}",
+      "$description": "Text on warning-soft."
+    },
+    "danger-soft": {
+      "$type": "color",
+      "$value": "{color.red.50}",
+      "$description": "Danger pill and banner background."
+    },
+    "danger-soft-foreground": {
+      "$type": "color",
+      "$value": "{color.red.700}",
+      "$description": "Text on danger-soft."
+    },
+    "info": {
+      "$type": "color",
+      "$value": "{color.blue.600}",
+      "$description": "Info tone fill."
+    },
+    "info-foreground": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Text on info."
+    },
+    "info-soft": {
+      "$type": "color",
+      "$value": "{color.blue.50}",
+      "$description": "Info pill and banner background."
+    },
+    "info-soft-foreground": {
+      "$type": "color",
+      "$value": "{color.blue.700}",
+      "$description": "Text on info-soft."
+    },
+    "neutral": {
+      "$type": "color",
+      "$value": "{color.gray.500}",
+      "$description": "Neutral status tone fill."
+    },
+    "neutral-foreground": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Text on neutral."
+    },
+    "neutral-soft": {
+      "$type": "color",
+      "$value": "{color.gray.110}",
+      "$description": "Neutral pill background."
+    },
+    "neutral-soft-foreground": {
+      "$type": "color",
+      "$value": "{color.gray.600}",
+      "$description": "Text on neutral-soft."
+    },
+    "scan-accept": {
+      "$type": "color",
+      "$value": "{color.green.600}",
+      "$description": "Full-screen scan accepted. Pair with icon, headline and sound."
+    },
+    "scan-reject": {
+      "$type": "color",
+      "$value": "{color.red.600}",
+      "$description": "Full-screen scan rejected. Pair with icon, headline and sound."
+    },
+    "scan-blocked": {
+      "$type": "color",
+      "$value": "{color.amber.400}",
+      "$description": "Full-screen scan blocked. Dark text only."
+    },
+    "scan-blocked-foreground": {
+      "$type": "color",
+      "$value": "{color.amber.950}",
+      "$description": "Text on scan-blocked."
+    },
+    "scan-notice": {
+      "$type": "color",
+      "$value": "{color.amber.50}",
+      "$description": "Inline non-blocking scan notice under the scan field."
+    },
+    "scan-notice-foreground": {
+      "$type": "color",
+      "$value": "{color.amber.700}",
+      "$description": "Text on scan-notice."
+    },
+    "scan-notice-border": {
+      "$type": "color",
+      "$value": "{color.amber.600}",
+      "$description": "Border of scan-notice."
+    },
+    "feedback-focus-outline": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Focus outline on full-screen tone surfaces."
+    },
+    "pda-bar": {
+      "$type": "color",
+      "$value": "{color.gray.800}",
+      "$description": "PDA top bar."
+    },
+    "pda-bar-foreground": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Text on pda-bar."
+    },
+    "chart-1": {
+      "$type": "color",
+      "$value": "{color.indigo.600}",
+      "$description": "Chart series 1."
+    },
+    "chart-2": {
+      "$type": "color",
+      "$value": "{color.blue.600}",
+      "$description": "Chart series 2."
+    },
+    "chart-3": {
+      "$type": "color",
+      "$value": "{color.teal.600}",
+      "$description": "Chart series 3."
+    },
+    "chart-4": {
+      "$type": "color",
+      "$value": "{color.amber.600}",
+      "$description": "Chart series 4."
+    },
+    "chart-5": {
+      "$type": "color",
+      "$value": "{color.violet.600}",
+      "$description": "Chart series 5."
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "space": {
+    "1": {
+      "$type": "dimension",
+      "$value": "4px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "2": {
+      "$type": "dimension",
+      "$value": "8px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "3": {
+      "$type": "dimension",
+      "$value": "12px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "4": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "5": {
+      "$type": "dimension",
+      "$value": "20px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "6": {
+      "$type": "dimension",
+      "$value": "24px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "8": {
+      "$type": "dimension",
+      "$value": "32px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "10": {
+      "$type": "dimension",
+      "$value": "40px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
+  },
+  "radius": {
+    "sm": {
+      "$type": "dimension",
+      "$value": "4px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "md": {
+      "$type": "dimension",
+      "$value": "6px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "lg": {
+      "$type": "dimension",
+      "$value": "8px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "xl": {
+      "$type": "dimension",
+      "$value": "12px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "full": {
+      "$type": "dimension",
+      "$value": "9999px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
+  },
+  "size": {
+    "24": {
+      "$type": "dimension",
+      "$value": "24px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "36": {
+      "$type": "dimension",
+      "$value": "36px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "44": {
+      "$type": "dimension",
+      "$value": "44px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "48": {
+      "$type": "dimension",
+      "$value": "48px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "56": {
+      "$type": "dimension",
+      "$value": "56px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "64": {
+      "$type": "dimension",
+      "$value": "64px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
+  },
+  "border-width": {
+    "1": {
+      "$type": "dimension",
+      "$value": "1px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "2": {
+      "$type": "dimension",
+      "$value": "2px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
+  },
+  "opacity": {
+    "50": {
+      "$type": "number",
+      "$value": 0.5,
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
+  },
+  "duration": {
+    "150": {
+      "$type": "duration",
+      "$value": "150ms",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "800": {
+      "$type": "duration",
+      "$value": "800ms",
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
+  }
+}

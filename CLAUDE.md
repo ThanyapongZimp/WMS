@@ -34,6 +34,14 @@ Read only the files the current task needs. Reading order: `docs/Guidelines.md`.
 - No full stop after Thai text, buttons, labels or headings. English uses sentence case.
 - Use glossary terms: หยิบสินค้า (Pick), จัดเก็บเข้าพื้นที่ (Putaway), รอบการหยิบ (Wave), สินค้าขาด (Short Pick), ช่องเก็บสินค้า (Bin Location).
 
+## UX Writer
+
+- Delegate UI copy work to the `ux-writer` agent. Check copy with `/ux-writing-review` before you finish.
+
+## UX/UI subagents
+
+Flow: `context-manager` (load context) -> `ux-researcher` -> `ux-designer` -> `ui-designer` with `ux-writer` and `design-bridge` -> `qa-evaluator` writes the contract -> build -> `accessibility-tester` and `qa-evaluator` in parallel -> fixes -> `context-manager` (update `docs/discovery.md`).
+
 ## Commands
 
 - `npm run lint` — Vale (Thai/English terms), markdownlint and lychee (offline link check)

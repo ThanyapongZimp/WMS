@@ -46,7 +46,7 @@ export function resolve(tokens, path, seen = new Set()) {
   const v = token.$value;
   const target = aliasTarget(v);
   if (target) return resolve(tokens, target, seen);
-  if (v && typeof v === 'object') {
+  if (v && typeof v === 'object' && !Array.isArray(v)) {
     return Object.fromEntries(Object.entries(v).map(([k, x]) => {
       const t = aliasTarget(x);
       return [k, t ? resolve(tokens, t, new Set()) : x];

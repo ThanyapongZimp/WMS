@@ -41,6 +41,11 @@
       "$value": "{color.indigo.700}",
       "$description": "Hover and pressed state of primary."
     },
+    "primary-active": {
+      "$type": "color",
+      "$value": "{color.indigo.800}",
+      "$description": "Pressed state of primary."
+    },
     "primary-foreground": {
       "$type": "color",
       "$value": "{color.white}",
@@ -50,6 +55,16 @@
       "$type": "color",
       "$value": "{color.gray.100}",
       "$description": "Neutral button fill. Never a coloured fill."
+    },
+    "secondary-hover": {
+      "$type": "color",
+      "$value": "{color.gray.200}",
+      "$description": "Hover state of secondary."
+    },
+    "secondary-active": {
+      "$type": "color",
+      "$value": "{color.gray.300}",
+      "$description": "Pressed state of secondary."
     },
     "secondary-foreground": {
       "$type": "color",
@@ -80,6 +95,16 @@
       "$type": "color",
       "$value": "{color.red.600}",
       "$description": "Destructive actions only (delete, cancel order). Same variant in trigger and confirm dialog."
+    },
+    "destructive-hover": {
+      "$type": "color",
+      "$value": "{color.red.700}",
+      "$description": "Hover state of destructive."
+    },
+    "destructive-active": {
+      "$type": "color",
+      "$value": "{color.red.800}",
+      "$description": "Pressed state of destructive."
     },
     "destructive-foreground": {
       "$type": "color",

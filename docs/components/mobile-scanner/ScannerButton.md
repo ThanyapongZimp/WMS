@@ -18,15 +18,16 @@ A large, high-contrast button for floor staff on PDAs and stations, often wearin
 | :--- | :--- | :--- | :--- |
 | `variant` | `'primary' \| 'secondary' \| 'danger'` | `'primary'` | Intent. `danger` for destructive and exception actions |
 | `size` | `'lg' \| 'scanner'` | `'scanner'` | `scanner` = `--target-pda-primary` (64px), `lg` = `--target-pda` (56px) |
-| `isLoading` | `boolean` | `false` | In-flight action: full strength, `aria-busy="true"`, clicks ignored |
-| `isDisabled` | `boolean` | `false` | Sets `disabled` and `aria-disabled="true"` |
+| `isLoading` | `boolean` | `false` | In-flight action: full strength, `aria-busy="true"`, clicks and form submit ignored |
+| `isDisabled` | `boolean` | `false` | Sets native `disabled` (removed from the tab order) |
 
 ## Variants & States
 
 - **Primary:** `--component-scanner-button-bg` on `--component-scanner-button-fg`.
 - **Secondary:** neutral fill with a 3:1 border (`--color-input`). Never a coloured fill.
 - **Danger:** `--color-destructive`. Use the same variant in the confirm step.
-- **Hover / Active:** darker fill (`-bg-hover`).
+- **Hover:** `-bg-hover`, one step darker.
+- **Active (pressed):** `-bg-active`, two steps darker. Distinct from hover because PDAs are touch-only.
 - **Focus:** 2px ring in `--color-ring` with 2px offset, never removed.
 - **Disabled:** `--state-disabled-opacity`, `not-allowed` cursor.
 - **Loading:** spinner and busy state at full strength. Loading is not disabled.
@@ -41,7 +42,7 @@ A large, high-contrast button for floor staff on PDAs and stations, often wearin
 ## Accessibility (a11y)
 
 - **Keyboard:** reachable with `Tab`, activated with `Enter` or `Space` (native button).
-- **ARIA:** `aria-busy` while loading, `aria-disabled` with `disabled`. Icon-only use needs `aria-label`.
+- **ARIA:** `aria-busy` while loading. Disabled uses native `disabled`. Icon-only use needs `aria-label`.
 - **Contrast and target:** text at least 4.5:1, focus ring 3:1, height at least 56px on PDA. Storybook fails on any axe violation (`a11y: { test: 'error' }`).
 
 ## Usage Guidelines

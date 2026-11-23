@@ -2,6 +2,7 @@
   --_bg: var(--component-scanner-button-bg);
   --_fg: var(--component-scanner-button-fg);
   --_bg-hover: var(--component-scanner-button-bg-hover);
+  --_bg-active: var(--component-scanner-button-bg-active);
   --_border: transparent;
 
   display: inline-flex;
@@ -28,18 +29,20 @@
 .wms-scanner-button[data-variant='secondary'] {
   --_bg: var(--component-scanner-button-secondary-bg);
   --_fg: var(--component-scanner-button-secondary-fg);
-  --_bg-hover: var(--color-muted);
+  --_bg-hover: var(--component-scanner-button-secondary-bg-hover);
+  --_bg-active: var(--component-scanner-button-secondary-bg-active);
   --_border: var(--component-scanner-button-secondary-border);
 }
 
 .wms-scanner-button[data-variant='danger'] {
   --_bg: var(--component-scanner-button-danger-bg);
   --_fg: var(--component-scanner-button-danger-fg);
-  --_bg-hover: var(--color-danger-soft-foreground);
+  --_bg-hover: var(--component-scanner-button-danger-bg-hover);
+  --_bg-active: var(--component-scanner-button-danger-bg-active);
 }
 
-.wms-scanner-button:hover:not(:disabled),
-.wms-scanner-button:active:not(:disabled) { background: var(--_bg-hover); }
+.wms-scanner-button:hover:not(:disabled, [aria-busy='true']) { background: var(--_bg-hover); }
+.wms-scanner-button:active:not(:disabled, [aria-busy='true']) { background: var(--_bg-active); }
 
 .wms-scanner-button:focus-visible {
   outline: var(--border-width-focus) solid var(--component-scanner-button-ring);

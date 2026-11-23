@@ -51,3 +51,29 @@ test('targets meet PRODUCT.md floors', () => {
   assert.ok(px('target.pda-primary') >= 64);
   assert.equal(tokens['component.scanner-button.min-height'].$value, '{target.pda-primary}');
 });
+
+const SB = 'component.scanner-button';
+const VARIANTS = [['', 'fg'], ['danger-', 'danger-fg'], ['secondary-', 'secondary-fg']];
+
+test('every ScannerButton variant has distinct rest, hover and active fills', () => {
+  for (const [v] of VARIANTS) {
+    const rest = resolve(tokens, `${SB}.${v}bg`);
+    const hover = resolve(tokens, `${SB}.${v}bg-hover`);
+    const active = resolve(tokens, `${SB}.${v}bg-active`);
+    assert.equal(new Set([rest, hover, active]).size, 3, `${v || 'primary-'} rest ${rest} hover ${hover} active ${active}`);
+  }
+});
+
+for (const [v, fg] of VARIANTS) {
+  for (const state of ['bg', 'bg-hover', 'bg-active']) {
+    test(`ScannerButton ${v || 'primary-'}${state} label >= 4.5:1`, () => {
+      const r = contrastRatio(resolve(tokens, `${SB}.${fg}`), resolve(tokens, `${SB}.${v}${state}`));
+      assert.ok(r >= 4.5, `${r.toFixed(2)}:1`);
+    });
+  }
+}
+
+for (const [fg, bg] of [['muted-foreground', 'background'], ['muted-foreground', 'muted']]) {
+  test(`text ${fg} on ${bg} >= 4.5:1`, () => assert.ok(contrastRatio(col(fg), col(bg)) >= 4.5));
+}
+test('ring on background >= 3:1', () => assert.ok(contrastRatio(col('ring'), col('background')) >= 3));

@@ -23,6 +23,7 @@
   --color-red-50: #fdecea; /** Raw red step 50. Do not use in components; use a semantic colour. */
   --color-red-600: #c4281c; /** Raw red step 600. Do not use in components; use a semantic colour. */
   --color-red-700: #b0261b; /** Raw red step 700. Do not use in components; use a semantic colour. */
+  --color-red-800: #8f1f16; /** Raw red step 800. Do not use in components; use a semantic colour. */
   --color-green-50: #e5f5ec; /** Raw green step 50. Do not use in components; use a semantic colour. */
   --color-green-600: #13794a; /** Raw green step 600. Do not use in components; use a semantic colour. */
   --color-green-700: #106a40; /** Raw green step 700. Do not use in components; use a semantic colour. */
@@ -97,14 +98,19 @@
   --color-popover-foreground: var(--color-gray-900); /** Text in menus and popovers. */
   --color-primary: var(--color-indigo-600); /** The one main action per view, links, selected state. Tenant brand colour overrides this only. */
   --color-primary-hover: var(--color-indigo-700); /** Hover and pressed state of primary. */
+  --color-primary-active: var(--color-indigo-800); /** Pressed state of primary. */
   --color-primary-foreground: var(--color-white); /** Text and icons on primary. */
   --color-secondary: var(--color-gray-100); /** Neutral button fill. Never a coloured fill. */
+  --color-secondary-hover: var(--color-gray-200); /** Hover state of secondary. */
+  --color-secondary-active: var(--color-gray-300); /** Pressed state of secondary. */
   --color-secondary-foreground: var(--color-gray-900); /** Text on secondary. */
   --color-muted: var(--color-gray-100); /** Subtle surface: table header, skeleton. */
   --color-muted-foreground: var(--color-gray-550); /** Secondary text and meta lines. Not for disabled. */
   --color-accent: var(--color-indigo-50); /** Hover and selected row or nav item background. */
   --color-accent-foreground: var(--color-indigo-800); /** Text on accent. */
   --color-destructive: var(--color-red-600); /** Destructive actions only (delete, cancel order). Same variant in trigger and confirm dialog. */
+  --color-destructive-hover: var(--color-red-700); /** Hover state of destructive. */
+  --color-destructive-active: var(--color-red-800); /** Pressed state of destructive. */
   --color-destructive-foreground: var(--color-white); /** Text on destructive. */
   --color-border: var(--color-gray-200); /** Decorative dividers and card edges only (below 3:1). Not for control borders. */
   --color-input: var(--color-gray-450); /** Control borders: inputs, checkboxes, selects (3:1 on card). */
@@ -182,7 +188,12 @@
   --typography-line-height-prose: var(--font-line-height-1-8); /** Line height for long-form Thai text (spec default 1.8). */
   --component-scanner-button-bg: var(--color-primary); /** ScannerButton primary fill. */
   --component-scanner-button-fg: var(--color-primary-foreground); /** ScannerButton primary label. */
-  --component-scanner-button-bg-hover: var(--color-primary-hover); /** ScannerButton primary hover and pressed. */
+  --component-scanner-button-bg-hover: var(--color-primary-hover); /** ScannerButton primary hover. */
+  --component-scanner-button-bg-active: var(--color-primary-active); /** ScannerButton primary pressed. */
+  --component-scanner-button-danger-bg-hover: var(--color-destructive-hover); /** ScannerButton danger hover. */
+  --component-scanner-button-danger-bg-active: var(--color-destructive-active); /** ScannerButton danger pressed. */
+  --component-scanner-button-secondary-bg-hover: var(--color-secondary-hover); /** ScannerButton secondary hover. */
+  --component-scanner-button-secondary-bg-active: var(--color-secondary-active); /** ScannerButton secondary pressed. */
   --component-scanner-button-danger-bg: var(--color-destructive); /** ScannerButton danger fill. */
   --component-scanner-button-danger-fg: var(--color-destructive-foreground); /** ScannerButton danger label. */
   --component-scanner-button-secondary-bg: var(--color-secondary); /** ScannerButton secondary fill. */

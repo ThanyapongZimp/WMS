@@ -41,7 +41,6 @@ export const Disabled: Story = {
   play: async ({ canvasElement }) => {
     const button = within(canvasElement).getByRole('button');
     await expect(button).toBeDisabled();
-    await expect(button).toHaveAttribute('aria-disabled', 'true');
   },
 };
 
@@ -54,13 +53,37 @@ export const Loading: Story = {
   },
 };
 
+export const LoadingInForm: Story = {
+  args: { isLoading: true, type: 'submit', children: 'กำลังยืนยันการหยิบ' },
+  decorators: [(Story) => <form aria-label="ยืนยันการหยิบ" onSubmit={(e) => { e.preventDefault(); (e.currentTarget as HTMLFormElement).dataset.submitted = 'true'; }}><Story /></form>],
+  play: async ({ canvasElement, args }) => {
+    const button = within(canvasElement).getByRole('button');
+    await userEvent.click(button);
+    button.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(args.onClick).not.toHaveBeenCalled();
+    await expect(canvasElement.querySelector('form')?.dataset.submitted).toBeUndefined();
+  },
+};
+
 export const LongThaiLabel: Story = {
   args: { children: 'บันทึกตำแหน่งจัดเก็บเข้าพื้นที่สำรองของช่องเก็บสินค้าที่เต็มแล้ว' },
   decorators: [(Story) => <div style={{ inlineSize: '328px' }}><Story /></div>],
   play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole('button');
     const label = canvasElement.querySelector('[data-part="label"]') as HTMLElement;
     await expect(label).not.toBeNull();
-    await expect(label.scrollHeight).toBeLessThanOrEqual(label.clientHeight);
-    await expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth);
+    // Measure the text's line boxes, not the span: stacked Thai marks must stay inside the label's padding box.
+    const range = document.createRange();
+    range.selectNodeContents(label);
+    const ink = range.getBoundingClientRect();
+    const box = label.getBoundingClientRect();
+    const outer = button.getBoundingClientRect();
+    const pad = parseFloat(getComputedStyle(label).paddingBlockStart);
+    await expect(pad).toBeGreaterThan(0);
+    await expect(ink.top).toBeGreaterThanOrEqual(box.top);
+    await expect(ink.bottom).toBeLessThanOrEqual(box.bottom);
+    await expect(box.bottom).toBeLessThanOrEqual(outer.bottom);
+    await expect(box.right).toBeLessThanOrEqual(outer.right);
   },
 };

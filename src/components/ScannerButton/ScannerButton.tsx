@@ -1,4 +1,4 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type MouseEvent, type ReactNode } from 'react';
 import './ScannerButton.css';
 
 export type ScannerButtonProps = {
@@ -16,6 +16,15 @@ export const ScannerButton = forwardRef<HTMLButtonElement, ScannerButtonProps>(f
   { variant = 'primary', size = 'scanner', isLoading = false, isDisabled = false, children, type = 'button', onClick, ...rest },
   ref,
 ) {
+  // While loading, swallow the click so a submit button cannot post the form twice.
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (isLoading) {
+      event.preventDefault();
+      return;
+    }
+    onClick?.(event);
+  };
+
   return (
     <button
       ref={ref}
@@ -24,9 +33,8 @@ export const ScannerButton = forwardRef<HTMLButtonElement, ScannerButtonProps>(f
       data-variant={variant}
       data-size={size}
       disabled={isDisabled}
-      aria-disabled={isDisabled || undefined}
       aria-busy={isLoading || undefined}
-      onClick={isLoading ? undefined : onClick}
+      onClick={handleClick}
       {...rest}
     >
       {isLoading && (

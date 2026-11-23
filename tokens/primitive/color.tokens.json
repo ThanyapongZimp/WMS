@@ -105,6 +105,11 @@
         "$type": "color",
         "$value": "#B0261B",
         "$description": "Raw red step 700. Do not use in components; use a semantic colour."
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#8F1F16",
+        "$description": "Raw red step 800. Do not use in components; use a semantic colour."
       }
     },
     "green": {

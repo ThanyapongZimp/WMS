@@ -15,7 +15,32 @@
       "bg-hover": {
         "$type": "color",
         "$value": "{color.primary-hover}",
-        "$description": "ScannerButton primary hover and pressed."
+        "$description": "ScannerButton primary hover."
+      },
+      "bg-active": {
+        "$type": "color",
+        "$value": "{color.primary-active}",
+        "$description": "ScannerButton primary pressed."
+      },
+      "danger-bg-hover": {
+        "$type": "color",
+        "$value": "{color.destructive-hover}",
+        "$description": "ScannerButton danger hover."
+      },
+      "danger-bg-active": {
+        "$type": "color",
+        "$value": "{color.destructive-active}",
+        "$description": "ScannerButton danger pressed."
+      },
+      "secondary-bg-hover": {
+        "$type": "color",
+        "$value": "{color.secondary-hover}",
+        "$description": "ScannerButton secondary hover."
+      },
+      "secondary-bg-active": {
+        "$type": "color",
+        "$value": "{color.secondary-active}",
+        "$description": "ScannerButton secondary pressed."
       },
       "danger-bg": {
         "$type": "color",

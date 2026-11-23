@@ -5,6 +5,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { build } from 'esbuild';
+import { sourceHash } from './build-artifact-hash.mjs';
 
 const tpl = readFileSync('artifact/tokens/template.html', 'utf8');
 const vars = readFileSync('build/css/variables.css', 'utf8').trim();
@@ -28,6 +29,6 @@ const fill = (s, start, end, body) => s.replace(`${start}\n${end}`, () => `${sta
 let html = fill(tpl, '/* tokens:start */', '/* tokens:end */', vars);
 html = fill(html, '/* registers:start */', '/* registers:end */', registers);
 html = html.replace('/*TOKENS_JSON*/[]', () => JSON.stringify(tokens).replace(/</g, '\\u003c'));
-html = html.replace('/*TENANT_JS*/', () => bundle.outputFiles[0].text.replace(/<\/script/gi, '<\\/script'));
+html = html.replace('/*TENANT_JS*/', () => `/* tenant-src:${sourceHash()} */\n` + bundle.outputFiles[0].text.replace(/<\/script/gi, '<\\/script'));
 writeFileSync('artifact/tokens/index.html', html);
 console.log(`artifact/tokens/index.html ${(html.length / 1024).toFixed(1)} KB`);

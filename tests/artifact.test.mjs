@@ -29,3 +29,14 @@ test('every inline script parses', () => {
   assert.ok(scripts.length >= 2);
   for (const s of scripts) assert.doesNotThrow(() => new Function(s));
 });
+
+test('artifact embeds the current token list', () => {
+  const m = html.match(/const TOKENS = (\[[\s\S]*?\]);\n/);
+  assert.ok(m, 'TOKENS array not found');
+  assert.deepEqual(JSON.parse(m[1]), JSON.parse(readFileSync('build/agent/tokens.json', 'utf8')).tokens);
+});
+
+test('artifact tenant bundle matches current source', async () => {
+  const { sourceHash } = await import('../scripts/build-artifact-hash.mjs');
+  assert.ok(html.includes(`/* tenant-src:${sourceHash()} */`), 'tenant bundle is stale; run npm run artifact:build');
+});

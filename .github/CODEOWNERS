@@ -1,17 +1,17 @@
-# Replace @org/* with the real GitHub team slugs before merging.
+# Owner: @ThanyapongZimp (personal repo, no teams). Switch to a team when the repo moves to an org.
 
-*                     @org/design-system-core
+*                     @ThanyapongZimp
 
-/docs/foundation/     @org/ux-writers
-/docs/patterns/       @org/ux-writers
-/styles/WMS/          @org/ux-writers @org/design-system-core
+/docs/foundation/     @ThanyapongZimp
+/docs/patterns/       @ThanyapongZimp
+/styles/WMS/          @ThanyapongZimp
 
-/tokens/              @org/design-system-core
-/docs/components/     @org/design-system-core
-/.claude/             @org/design-system-core
-/.github/             @org/design-system-core
-CLAUDE.md             @org/design-system-core
-AGENTS.md             @org/design-system-core
+/tokens/              @ThanyapongZimp
+/docs/components/     @ThanyapongZimp
+/.claude/             @ThanyapongZimp
+/.github/             @ThanyapongZimp
+CLAUDE.md             @ThanyapongZimp
+AGENTS.md             @ThanyapongZimp
 
 # Protects this file itself. Keep last so it wins.
-/.github/CODEOWNERS   @org/design-system-core
+/.github/CODEOWNERS   @ThanyapongZimp

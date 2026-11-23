@@ -3,12 +3,12 @@
   "color": {
     "background": {
       "$type": "color",
-      "$value": "{color.neutral.50}",
+      "$value": "{color.gray.50}",
       "$description": "Page background behind cards."
     },
     "foreground": {
       "$type": "color",
-      "$value": "{color.neutral.900}",
+      "$value": "{color.gray.900}",
       "$description": "Default text on background and card."
     },
     "card": {
@@ -18,7 +18,7 @@
     },
     "card-foreground": {
       "$type": "color",
-      "$value": "{color.neutral.900}",
+      "$value": "{color.gray.900}",
       "$description": "Text on card."
     },
     "popover": {
@@ -28,7 +28,7 @@
     },
     "popover-foreground": {
       "$type": "color",
-      "$value": "{color.neutral.900}",
+      "$value": "{color.gray.900}",
       "$description": "Text in menus and popovers."
     },
     "primary": {
@@ -48,22 +48,22 @@
     },
     "secondary": {
       "$type": "color",
-      "$value": "{color.neutral.100}",
+      "$value": "{color.gray.100}",
       "$description": "Neutral button fill. Never a coloured fill."
     },
     "secondary-foreground": {
       "$type": "color",
-      "$value": "{color.neutral.900}",
+      "$value": "{color.gray.900}",
       "$description": "Text on secondary."
     },
     "muted": {
       "$type": "color",
-      "$value": "{color.neutral.100}",
+      "$value": "{color.gray.100}",
       "$description": "Subtle surface: table header, skeleton."
     },
     "muted-foreground": {
       "$type": "color",
-      "$value": "{color.neutral.550}",
+      "$value": "{color.gray.550}",
       "$description": "Secondary text and meta lines. Not for disabled."
     },
     "accent": {
@@ -88,12 +88,12 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{color.neutral.200}",
+      "$value": "{color.gray.200}",
       "$description": "Decorative dividers and card edges only (below 3:1). Not for control borders."
     },
     "input": {
       "$type": "color",
-      "$value": "{color.neutral.450}",
+      "$value": "{color.gray.450}",
       "$description": "Control borders: inputs, checkboxes, selects (3:1 on card)."
     },
     "ring": {
@@ -103,7 +103,7 @@
     },
     "disabled-foreground": {
       "$type": "color",
-      "$value": "{color.neutral.400}",
+      "$value": "{color.gray.400}",
       "$description": "Disabled text. Exempt from contrast; never use for readable content."
     },
     "success": {
@@ -183,7 +183,7 @@
     },
     "neutral": {
       "$type": "color",
-      "$value": "{color.neutral.500}",
+      "$value": "{color.gray.500}",
       "$description": "Neutral status tone fill."
     },
     "neutral-foreground": {
@@ -193,12 +193,12 @@
     },
     "neutral-soft": {
       "$type": "color",
-      "$value": "{color.neutral.110}",
+      "$value": "{color.gray.110}",
       "$description": "Neutral pill background."
     },
     "neutral-soft-foreground": {
       "$type": "color",
-      "$value": "{color.neutral.600}",
+      "$value": "{color.gray.600}",
       "$description": "Text on neutral-soft."
     },
     "scan-accept": {
@@ -243,7 +243,7 @@
     },
     "pda-bar": {
       "$type": "color",
-      "$value": "{color.neutral.800}",
+      "$value": "{color.gray.800}",
       "$description": "PDA top bar."
     },
     "pda-bar-foreground": {

@@ -23,6 +23,7 @@ Central index of the WMS design system. Every document and component is listed h
 | Tokens | Token source | `tokens/` | Trial | ไฟล์ DTCG 2025.10 สามชั้น primitive, semantic, component |
 | Tokens | Agent tokens | `build/agent/tokens.json` | Trial | รายการ token พร้อม cssVar, aliasOf และ usageRule สำหรับ AI agent |
 | Tokens | CSS variables | `build/css/variables.css` | Trial | CSS custom properties สำหรับ UI import ครั้งเดียวที่ root |
+| Components (Scanner) | Scanner Button | [components/mobile-scanner/ScannerButton.md](components/mobile-scanner/ScannerButton.md) | Trial | ปุ่มขนาดใหญ่คอนทราสต์สูงสำหรับพนักงานหน้างาน |
 | Patterns | Error Messages | [patterns/ErrorMessages.md](patterns/ErrorMessages.md) | Trial | โครงสร้างข้อความแจ้งข้อผิดพลาดและทางแก้ไข |
 | Patterns | Empty States | [patterns/EmptyStates.md](patterns/EmptyStates.md) | Trial | หน้าจอว่าง แยกกรณียังไม่มีข้อมูลกับกรองแล้วไม่พบ |
 | Patterns | Accessible Copy | [patterns/Accessibility.md](patterns/Accessibility.md) | Trial | alt, aria-label และ aria-hidden สำหรับโปรแกรมอ่านหน้าจอ |

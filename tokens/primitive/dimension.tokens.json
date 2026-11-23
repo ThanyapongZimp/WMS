@@ -100,5 +100,36 @@
       "$value": "64px",
       "$description": "Raw scale value. Use a semantic token in components."
     }
+  },
+  "border-width": {
+    "1": {
+      "$type": "dimension",
+      "$value": "1px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "2": {
+      "$type": "dimension",
+      "$value": "2px",
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
+  },
+  "opacity": {
+    "50": {
+      "$type": "number",
+      "$value": 0.5,
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
+  },
+  "duration": {
+    "150": {
+      "$type": "duration",
+      "$value": "150ms",
+      "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "800": {
+      "$type": "duration",
+      "$value": "800ms",
+      "$description": "Raw scale value. Use a semantic token in components."
+    }
   }
 }

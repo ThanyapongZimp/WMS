@@ -34,11 +34,52 @@
       "$description": "Cards and sheets."
     }
   },
+  "border-width": {
+    "control": {
+      "$type": "dimension",
+      "$value": "{border-width.2}",
+      "$description": "Border of outlined controls."
+    },
+    "focus": {
+      "$type": "dimension",
+      "$value": "{border-width.2}",
+      "$description": "Focus ring width and offset. Never removed."
+    }
+  },
+  "state": {
+    "disabled-opacity": {
+      "$type": "number",
+      "$value": "{opacity.50}",
+      "$description": "Disabled controls only. Never for loading."
+    }
+  },
+  "motion": {
+    "duration-fast": {
+      "$type": "duration",
+      "$value": "{duration.150}",
+      "$description": "Hover and press transitions."
+    },
+    "duration-spin": {
+      "$type": "duration",
+      "$value": "{duration.800}",
+      "$description": "One spinner revolution. Stops under reduced motion."
+    }
+  },
   "inset": {
     "control": {
       "$type": "dimension",
       "$value": "{space.4}",
       "$description": "Horizontal padding inside buttons."
+    },
+    "control-y": {
+      "$type": "dimension",
+      "$value": "{space.2}",
+      "$description": "Vertical padding inside buttons."
+    },
+    "glyph": {
+      "$type": "dimension",
+      "$value": "{space.1}",
+      "$description": "Block padding around Thai text so stacked marks are not clipped."
     },
     "gap": {
       "$type": "dimension",

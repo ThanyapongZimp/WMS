@@ -55,6 +55,11 @@
   --size-48: 48px; /** Raw scale value. Use a semantic token in components. */
   --size-56: 56px; /** Raw scale value. Use a semantic token in components. */
   --size-64: 64px; /** Raw scale value. Use a semantic token in components. */
+  --border-width-1: 1px; /** Raw scale value. Use a semantic token in components. */
+  --border-width-2: 2px; /** Raw scale value. Use a semantic token in components. */
+  --opacity-50: 0.5; /** Raw scale value. Use a semantic token in components. */
+  --duration-150: 0.15s; /** Raw scale value. Use a semantic token in components. */
+  --duration-800: 0.8s; /** Raw scale value. Use a semantic token in components. */
   --font-family-sans: 'IBM Plex Sans Thai', Sarabun, Tahoma, sans-serif; /** Thai-first UI family with fallbacks. */
   --font-family-mono: 'IBM Plex Mono', ui-monospace, monospace; /** Codes read aloud or matched by eye. */
   --font-weight-400: 400; /** Raw scale value. Use a semantic token in components. */
@@ -141,11 +146,18 @@
   --color-chart-5: var(--color-violet-600); /** Chart series 5. */
   --radius-control: var(--radius-lg); /** Buttons and inputs. */
   --radius-card: var(--radius-xl); /** Cards and sheets. */
+  --border-width-control: var(--border-width-2); /** Border of outlined controls. */
+  --border-width-focus: var(--border-width-2); /** Focus ring width and offset. Never removed. */
   --target-office: var(--size-24); /** Minimum target on office web (WCAG 2.5.8). */
   --target-station: var(--size-48); /** Minimum target on stations. */
   --target-pda: var(--size-56); /** Minimum target on PDA. */
   --target-pda-primary: var(--size-64); /** Primary action on PDA. */
+  --state-disabled-opacity: var(--opacity-50); /** Disabled controls only. Never for loading. */
+  --motion-duration-fast: var(--duration-150); /** Hover and press transitions. */
+  --motion-duration-spin: var(--duration-800); /** One spinner revolution. Stops under reduced motion. */
   --inset-control: var(--space-4); /** Horizontal padding inside buttons. */
+  --inset-control-y: var(--space-2); /** Vertical padding inside buttons. */
+  --inset-glyph: var(--space-1); /** Block padding around Thai text so stacked marks are not clipped. */
   --inset-gap: var(--space-2); /** Gap between icon and label. */
   --typography-display-kpi: var(--font-weight-700) var(--font-size-28)/var(--font-line-height-1-45) var(--font-family-sans); /** KPI values on dashboards. */
   --typography-h1: var(--font-weight-600) var(--font-size-24)/var(--font-line-height-1-45) var(--font-family-sans); /** Page title, once per page. */

@@ -17,6 +17,12 @@ Central index of the WMS design system. Every document and component is listed h
 | Foundation | Voice and Tone | [foundation/VoiceAndTone.md](foundation/VoiceAndTone.md) | Trial | บุคลิกแบรนด์และการปรับระดับภาษาตามสถานการณ์ |
 | Foundation | Glossary | [foundation/Glossary.md](foundation/Glossary.md) | Trial | คลังคำศัพท์บังคับใช้ทั้งทั่วไปและเฉพาะทาง WMS |
 | Foundation | Grammar and Spelling | [foundation/GrammarAndSpelling.md](foundation/GrammarAndSpelling.md) | Trial | กฎการทับศัพท์ เว้นวรรค ตัวเลข วันที่ และวรรคตอน |
+| Foundation | Color | [foundation/Color.md](foundation/Color.md) | Trial | semantic colour tokens และกฎการใช้สีสถานะ |
+| Foundation | Typography | [foundation/Typography.md](foundation/Typography.md) | Trial | type ramp และกฎตัวอักษรไทย line-height ไม่ต่ำกว่า 1.45 |
+| Foundation | Spacing | [foundation/Spacing.md](foundation/Spacing.md) | Trial | spacing, radius และขนาดเป้ากดขั้นต่ำ (PDA 56px) |
+| Tokens | Token source | `tokens/` | Trial | ไฟล์ DTCG 2025.10 สามชั้น primitive, semantic, component |
+| Tokens | Agent tokens | `build/agent/tokens.json` | Trial | รายการ token พร้อม cssVar, aliasOf และ usageRule สำหรับ AI agent |
+| Tokens | CSS variables | `build/css/variables.css` | Trial | CSS custom properties สำหรับ UI import ครั้งเดียวที่ root |
 | Patterns | Error Messages | [patterns/ErrorMessages.md](patterns/ErrorMessages.md) | Trial | โครงสร้างข้อความแจ้งข้อผิดพลาดและทางแก้ไข |
 | Patterns | Empty States | [patterns/EmptyStates.md](patterns/EmptyStates.md) | Trial | หน้าจอว่าง แยกกรณียังไม่มีข้อมูลกับกรองแล้วไม่พบ |
 | Patterns | Accessible Copy | [patterns/Accessibility.md](patterns/Accessibility.md) | Trial | alt, aria-label และ aria-hidden สำหรับโปรแกรมอ่านหน้าจอ |

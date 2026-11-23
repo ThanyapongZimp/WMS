@@ -1,0 +1,242 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 11-19-2026 16:25
+last_updated: 11-23-2026 10:00
+project: WMS
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+development_status:
+  epic-1: backlog
+  1-1-project-foundation-and-design-system-shell: backlog
+  1-2-immutable-activity-log-recording: backlog
+  1-3-office-web-sign-in-and-session-management: backlog
+  1-4-office-shell-navigation-and-visibility-rules: backlog
+  1-5-shared-list-components-status-badge-data-table-filter-bar-bu: backlog
+  1-6-shared-hub-sheet-and-confirmation-components: backlog
+  1-7-user-management: backlog
+  1-8-roles-and-page-action-permission-matrix: backlog
+  1-9-special-permissions-and-buyer-pii-masking: backlog
+  1-10-activity-log-viewer-and-export: backlog
+  1-11-approvals-engine-and-approvals-panel: backlog
+  1-12-notifications-engine-and-notification-centre: backlog
+  1-13-global-search-command-palette-and-keyboard-shortcuts: backlog
+  1-14-pda-shell-and-badge-sign-in: backlog
+  1-15-tenant-branding-with-contrast-guard: backlog
+  1-16-accessibility-localization-and-ux-guardrail-conformance: backlog
+  1-17-day-labour-cards: backlog
+  1-18-time-boxed-zimple-support-access: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-warehouses-and-zones: backlog
+  2-2-locations-and-location-labels: backlog
+  2-3-container-types-and-container-labels: backlog
+  2-4-device-registry-and-device-status: backlog
+  2-5-stations-work-points-and-6-digit-pc-binding: backlog
+  2-6-device-test-and-station-readiness-gate: backlog
+  2-7-settings-precedence-engine: backlog
+  2-8-warehouse-rules-hub: backlog
+  2-9-carrier-pickup-rounds: backlog
+  2-10-document-numbering: backlog
+  2-11-warehouse-working-calendar: backlog
+  2-12-bulk-import-of-zones-and-locations: backlog
+  2-13-warehouse-layout-editor-and-location-binding: backlog
+  2-14-layout-route-engine-and-route-preview: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-oms-connection-settings: backlog
+  3-2-carrier-accounts-and-carrier-name-mapping: backlog
+  3-3-generic-api-keys-and-webhooks: backlog
+  3-4-sku-master-sync-from-oms: backlog
+  3-5-kit-bom-and-asn-sync-from-oms: backlog
+  3-6-warehouse-measured-sku-attributes: backlog
+  3-7-units-of-measure-and-barcodes: backlog
+  3-8-lot-expiry-and-serial-tracking-settings: backlog
+  3-9-packaging-and-material-items: backlog
+  3-10-bulk-import-of-warehouse-local-sku-attributes: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-immutable-stock-ledger: backlog
+  4-2-stock-buckets-reservation-and-atp: backlog
+  4-3-stock-views-by-sku-location-and-lot: backlog
+  4-4-opening-balance-import-with-approval: backlog
+  4-5-available-to-sell-push-to-oms-with-failed-sends-queue: backlog
+  4-6-ledger-reversal-request: backlog
+  4-7-daily-06-00-reconciliation: backlog
+  4-8-layout-map-with-occupancy: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-expected-arrival-queue: backlog
+  5-2-station-shell-and-floor-feedback-components: backlog
+  5-3-temporary-receipt-for-a-vehicle-arrival: backlog
+  5-4-receiving-station-count-by-carton-pattern: backlog
+  5-5-lot-expiry-and-serial-capture-with-shelf-life-check: backlog
+  5-6-receiving-exceptions-without-stopping-the-job: backlog
+  5-7-decision-cases-to-oms-after-sales: backlog
+  5-8-carton-labels-and-loading-onto-containers: backlog
+  5-9-receiving-video-evidence: backlog
+  5-10-pda-task-queue-and-putaway-suggestion: backlog
+  5-11-putaway-confirm-stock-becomes-sellable: backlog
+  5-12-receipt-close-and-inbound-result-to-oms: backlog
+  5-13-closed-receipt-search-and-export: backlog
+  5-14-web-and-paper-fallback-for-receiving-and-putaway: backlog
+  5-15-warehouse-created-asn: backlog
+  5-16-unmatched-parcels-at-parcel-staging: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-three-scan-stock-move: backlog
+  6-2-ad-hoc-move-with-reason: backlog
+  6-3-scheduled-and-urgent-replenishment: backlog
+  6-4-count-round-creation: backlog
+  6-5-blind-counting-on-pda: backlog
+  6-6-count-resolution-recount-and-variance-approval: backlog
+  6-7-urgent-single-location-count: backlog
+  6-8-move-damaged-units-to-damaged-quarantine: backlog
+  6-9-disposition-via-oms-decision-case: backlog
+  6-10-web-and-paper-fallback-for-moves-and-counts: backlog
+  6-11-material-issue-for-use: backlog
+  6-12-lot-hold-and-recall: backlog
+  6-13-inventory-accuracy-kpi: backlog
+  6-14-inventory-dashboard: backlog
+  6-15-kit-buildable-quantity-and-assembly-orders: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-ingest-orders-from-the-oms-and-reserve-stock: backlog
+  7-2-hold-orders-awaiting-carrier-data: backlog
+  7-3-explode-kit-order-lines-into-components: backlog
+  7-4-compute-the-ship-by-due-date: backlog
+  7-5-push-order-status-and-tracking-to-the-oms: backlog
+  7-6-order-list-with-stage-buckets-and-search: backlog
+  7-7-order-detail-with-timeline: backlog
+  7-8-hold-and-release-orders: backlog
+  7-9-ingest-cancellations-and-classify-them-by-stage: backlog
+  7-10-ingest-owner-change-requests: backlog
+  7-11-decide-owner-change-requests-after-picking-started: backlog
+  7-12-cut-off-board: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-versioned-pick-rules-with-approval: backlog
+  8-2-fefo-lot-and-location-allocation: backlog
+  8-3-build-a-draft-wave: backlog
+  8-4-edit-and-confirm-a-draft-wave-into-pick-lists: backlog
+  8-5-pick-queue-claiming-and-print-status: backlog
+  8-6-pick-on-a-pda-along-the-layout-route: backlog
+  8-7-offline-picking-queue: backlog
+  8-8-pick-by-unit-of-measure-and-cartons: backlog
+  8-9-short-pick-resolution-flow: backlog
+  8-10-drop-at-staging-and-complete-the-pick-list: backlog
+  8-11-stop-cancelled-and-held-orders-at-picking: backlog
+  8-12-pick-on-the-web-or-by-paper-task-sheet: backlog
+  8-13-confirm-empty-location-after-the-last-piece: backlog
+  8-14-sort-batch-picked-goods-to-a-put-wall: backlog
+  8-15-picking-overview: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-create-pack-jobs-from-pick-lists: backlog
+  9-2-route-pack-jobs-to-stations: backlog
+  9-3-open-a-job-and-scan-verify-by-order-at-the-pack-station: backlog
+  9-4-pack-by-pick-list: backlog
+  9-5-weight-check: backlog
+  9-6-box-suggestion-and-material-deduction: backlog
+  9-7-pre-print-cancellation-check-and-label-printing: backlog
+  9-8-record-pack-video-per-order: backlog
+  9-9-multi-box-packing: backlog
+  9-10-packing-exceptions-queue: backlog
+  9-11-issue-in-box-receipt-or-tax-invoice: backlog
+  9-12-owner-packing-rules: backlog
+  9-13-value-added-service-tasks: backlog
+  9-14-reopen-a-packed-box: backlog
+  epic-9-retrospective: optional
+
+  epic-10: backlog
+  10-1-sort-packed-parcels-into-carrier-containers: backlog
+  10-2-configure-container-use-per-carrier: backlog
+  10-3-close-and-seal-a-container: backlog
+  10-4-register-vehicle-and-load-containers: backlog
+  10-5-confirm-handover-and-deduct-stock: backlog
+  10-6-produce-and-sign-the-manifest: backlog
+  10-7-reconcile-carrier-receipt-per-parcel: backlog
+  10-8-roll-missed-wave-orders-to-the-next-wave: backlog
+  10-9-handover-overview-and-daily-balance: backlog
+  10-10-close-the-day-with-a-checklist: backlog
+  10-11-web-fallback-for-sorting-and-handover: backlog
+  10-12-instant-and-express-rider-orders: backlog
+  10-13-customer-pickup-by-appointment: backlog
+  epic-10-retrospective: optional
+
+  epic-11: backlog
+  11-1-reconcile-carrier-rejected-labels: backlog
+  11-2-process-a-cancel-return-job: backlog
+  11-3-auto-close-return-to-shelf-containers: backlog
+  11-4-restock-cancelled-goods: backlog
+  11-5-approve-cancellation-after-picking-started: backlog
+  epic-11-retrospective: optional
+
+  epic-12: backlog
+  12-1-expected-returns-queue: backlog
+  12-2-receive-a-carrier-return-drop-off: backlog
+  12-3-raise-problem-reports-with-evidence: backlog
+  12-4-quarantine-unmatched-returns: backlog
+  12-5-inspect-and-grade-returned-units: backlog
+  12-6-restock-inspected-returns: backlog
+  12-7-web-fallback-for-returns: backlog
+  12-8-return-job-board: backlog
+  12-9-record-post-handover-tracking-events: backlog
+  epic-12-retrospective: optional
+
+  epic-13: backlog
+  13-1-warehouse-overview-dashboard: backlog
+  13-2-report-catalogue-with-inbound-stock-and-accuracy-reports: backlog
+  13-3-outbound-packaging-handover-returns-and-staff-reports: backlog
+  13-4-saved-views-drill-down-and-scheduled-reports: backlog
+  13-5-overdue-alerts-for-every-stage-sla: backlog
+  epic-13-retrospective: optional
+
+  epic-14: backlog
+  14-1-run-the-cutover-check: backlog
+  14-2-gate-the-first-live-wave: backlog
+  14-3-peak-load-and-availability-release-gate: backlog
+  epic-14-retrospective: optional
+
+  epic-15: backlog
+  15-1-doors-and-staging-points: backlog
+  15-2-automatic-pick-lists: backlog
+  15-3-production-line-packing: backlog
+  15-4-pre-pack-prep: backlog
+  epic-15-retrospective: optional

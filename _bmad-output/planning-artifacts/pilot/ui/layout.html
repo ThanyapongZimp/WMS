@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ผังคลัง · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/zwms.css">
+<!-- Story 2.13 Warehouse Layout Editor and Location Binding · Story 2.14 Layout Route Engine and Route Preview · FR-125 -->
+<style>
+  .editor { display: grid; grid-template-columns: 52px minmax(0, 1fr) 340px; grid-template-rows: auto minmax(0, 1fr); height: calc(100vh - 300px); min-height: 560px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+  .ed-bar { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .ed-bar .sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+  .ed-bar .status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ed-bar .end { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .zoom-val { min-width: 52px; text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted-foreground); }
+  .tools { border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; background: var(--background); }
+  .tool { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border-radius: var(--r-md); color: var(--muted-foreground); }
+  .tool:hover { background: var(--muted); color: var(--foreground); }
+  .tool[aria-pressed="true"] { background: var(--accent); color: var(--accent-foreground); box-shadow: inset 0 0 0 1px var(--primary); }
+  .tool .k { position: absolute; right: 2px; bottom: 1px; font-family: var(--font-mono); font-size: 10px; line-height: 1; color: var(--muted-foreground); }
+  .tools hr { width: 28px; border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+  .stage { position: relative; min-width: 0; min-height: 0; background: var(--background); overflow: hidden; }
+  .stage svg { width: 100%; height: 100%; display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .stage.tool-draw svg { cursor: crosshair; }
+  .stage.panning svg { cursor: grabbing; }
+  .stage .hint { position: absolute; left: 12px; bottom: 12px; display: flex; gap: 12px; align-items: center; padding: 6px 10px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r-md); font-size: 12px; color: var(--muted-foreground); pointer-events: none; }
+  .stage .coord { position: absolute; right: 12px; bottom: 12px; padding: 4px 8px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r-md); font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); pointer-events: none; }
+  .side-panel { border-left: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+  .side-panel .tabs { padding: 0 12px; flex: none; }
+  .side-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .side-body h3 { font-size: 14px; }
+  .side-body .form-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .bay-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 4px; }
+  .bay-btn { height: 40px; border: 1px solid var(--input); border-radius: var(--r-sm); font-family: var(--font-mono); font-size: 12px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; background: var(--card); }
+  .bay-btn.full { background: var(--accent); color: var(--accent-foreground); border-color: transparent; }
+  .bay-btn.partial, .bay-btn.empty { border-style: dashed; border-color: var(--warning-strong); }
+  .bay-btn[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ring); }
+  .bay-btn small { font-family: var(--font); font-size: 11px; color: var(--muted-foreground); }
+  .level-rows { display: flex; flex-direction: column; gap: 6px; }
+  .level-row { display: grid; grid-template-columns: 52px 1fr auto; gap: 8px; align-items: center; }
+  .unbound-list, .stop-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--r-md); max-height: 340px; overflow-y: auto; }
+  .ub-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .ub-row:last-child { border-bottom: 0; }
+  .ub-row .select { height: 32px; font-size: 13px; }
+  .ub-row .ub-act { display: flex; gap: 6px; grid-column: 1 / -1; }
+  .stop { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  .stop:last-child { border-bottom: 0; }
+  .stop .n { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: var(--primary-foreground); display: grid; place-items: center; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stop .n.fb { background: var(--neutral-soft); color: var(--neutral-soft-foreground); }
+  .metric { display: flex; align-items: baseline; gap: 6px; }
+  .metric b { font-size: 28px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .pick-loc { display: flex; flex-wrap: wrap; gap: 4px; max-height: 160px; overflow-y: auto; padding: 2px; }
+  .pick-loc label { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 8px; border: 1px solid var(--input); border-radius: var(--r-full); font-family: var(--font-mono); font-size: 12px; cursor: pointer; }
+  .pick-loc label:has(input:checked) { background: var(--accent); border-color: var(--primary); color: var(--accent-foreground); }
+  .pick-loc input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .pick-loc label:has(input:focus-visible) { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .val-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; }
+  .val-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--r-md); }
+  .val-item.block { background: var(--danger-soft); color: var(--danger-soft-foreground); }
+  .val-item.warn { background: var(--warning-soft); color: var(--warning-soft-foreground); }
+  .val-item.ok { background: var(--success-soft); color: var(--success-soft-foreground); }
+  .val-item .ic { margin-top: 3px; }
+  .val-item .grow { flex: 1; }
+  .val-item .btn { height: 28px; padding: 0 8px; font-size: 13px; }
+  /* SVG layer styling via tokens */
+  .l-aisle { fill: var(--muted); }
+  .l-wall { fill: var(--neutral); }
+  .l-hall { fill: var(--card); stroke: var(--input); }
+  .l-rack { fill: var(--card); stroke: var(--input); }
+  .l-bay { fill: var(--card); stroke: var(--border); }
+  .l-bay.full { fill: var(--accent); }
+  .l-bay.partial, .l-bay.empty { stroke: var(--warning-strong); stroke-dasharray: 0.15 0.1; }
+  .l-bay.st-disabled { fill: var(--neutral-soft); }
+  .l-bay.st-counting { fill: var(--info-soft); }
+  .l-bay.sel { stroke: var(--ring); stroke-width: 2.5px; stroke-dasharray: none; }
+  .l-face { stroke: var(--primary); }
+  .l-door { fill: var(--warning-soft); stroke: var(--warning-strong); }
+  .l-start { fill: var(--primary); }
+  .l-text { fill: var(--foreground); font-family: var(--font); }
+  .l-muted { fill: var(--muted-foreground); font-family: var(--font); }
+  .l-mono { fill: var(--accent-foreground); font-family: var(--font-mono); font-weight: 500; }
+  .l-sel { fill: none; stroke: var(--ring); stroke-dasharray: 0.25 0.15; }
+  .l-handle { fill: var(--card); stroke: var(--ring); cursor: nwse-resize; }
+  .l-draft { fill: var(--accent); fill-opacity: 0.5; stroke: var(--primary); stroke-dasharray: 0.2 0.12; }
+  .l-route { fill: none; stroke: var(--primary); stroke-linejoin: round; stroke-linecap: round; }
+  .l-route.fb { stroke: var(--neutral); stroke-dasharray: 0.4 0.3; }
+  .l-stop { fill: var(--primary); }
+  .l-stop-t { fill: var(--primary-foreground); font-family: var(--font); font-weight: 600; }
+  .l-err { fill: none; stroke: var(--destructive); stroke-dasharray: 0.3 0.15; }
+  .z-1 { fill: var(--chart-1); stroke: var(--chart-1); } .z-2 { fill: var(--chart-2); stroke: var(--chart-2); } .z-3 { fill: var(--chart-3); stroke: var(--chart-3); } .z-4 { fill: var(--chart-4); stroke: var(--chart-4); } .z-5 { fill: var(--chart-5); stroke: var(--chart-5); }
+  .zone-fill { fill-opacity: 0.08; }
+  .zone-label { stroke: none; fill-opacity: 1; font-family: var(--font); font-weight: 600; }
+  .readonly .tools, .readonly .edit-only { display: none !important; }
+  .readonly .editor { grid-template-columns: minmax(0, 1fr) 340px; }
+  @media (max-width: 1279px) { .editor { grid-template-columns: minmax(0, 1fr) 300px; } .tools, .edit-only { display: none !important; } }
+  @media (max-width: 1023px) { .editor { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 420px auto; height: auto; } .side-panel { border-left: 0; border-top: 1px solid var(--border); } }
+</style>
+</head>
+<body>
+<main id="content">
+  <div id="chrome"></div>
+
+  <div class="alert alert-info" id="ro-note" hidden><span data-ic="info"></span><p>ดูผังอย่างเดียว · แก้ผังได้บนจอกว้าง 1280px ขึ้นไป</p></div>
+
+  <section class="editor" aria-label="ผังคลัง" id="editor">
+    <div class="ed-bar">
+      <div class="status" id="status"></div>
+      <span class="sep edit-only"></span>
+      <div class="segment" role="group" aria-label="โหมด">
+        <button type="button" data-mode="edit" aria-pressed="true"><span data-ic="pencil"></span>แก้ผัง</button>
+        <button type="button" data-mode="route" aria-pressed="false"><span data-ic="route"></span>ทดสอบเส้นทาง</button>
+      </div>
+      <div class="end">
+        <button class="btn btn-ghost btn-icon edit-only" type="button" id="btn-undo" aria-label="ย้อนกลับ (Ctrl+Z)" title="ย้อนกลับ (Ctrl+Z)"><span data-ic="undo"></span></button>
+        <button class="btn btn-ghost btn-icon edit-only" type="button" id="btn-redo" aria-label="ทำซ้ำ (Ctrl+Shift+Z)" title="ทำซ้ำ (Ctrl+Shift+Z)"><span data-ic="redo"></span></button>
+        <span class="sep edit-only"></span>
+        <button class="btn btn-ghost btn-icon" type="button" id="btn-zout" aria-label="ซูมออก"><span data-ic="zoom-out"></span></button>
+        <span class="zoom-val" id="zoom-val" aria-live="polite">100%</span>
+        <button class="btn btn-ghost btn-icon" type="button" id="btn-zin" aria-label="ซูมเข้า"><span data-ic="zoom-in"></span></button>
+        <button class="btn btn-ghost btn-icon" type="button" id="btn-fit" aria-label="พอดีจอ" title="พอดีจอ"><span data-ic="maximize"></span></button>
+        <span class="sep edit-only"></span>
+        <button class="btn btn-primary edit-only" type="button" id="btn-publish" data-write><span data-ic="upload"></span>ตรวจและเผยแพร่</button>
+      </div>
+    </div>
+    <div class="tools" role="toolbar" aria-label="เครื่องมือวาด" aria-orientation="vertical" id="tools"></div>
+    <div class="stage" id="stage">
+      <svg id="svg" role="application" aria-label="ผังคลัง ใช้ปุ่มลูกศรเลื่อนสิ่งที่เลือก" tabindex="0"></svg>
+      <div class="hint" id="hint"></div>
+      <div class="coord" id="coord" aria-hidden="true">0.0, 0.0 ม.</div>
+    </div>
+    <aside class="side-panel" aria-label="รายละเอียด">
+      <nav class="tabs" role="tablist" id="side-tabs"></nav>
+      <div class="side-body" id="side"></div>
+    </aside>
+  </section>
+</main>
+
+<!-- Publish validation -->
+<dialog class="dlg wide" id="dlg-pub" aria-labelledby="pub-t" style="width:min(640px, calc(100vw - 32px))">
+  <div class="dlg-body">
+    <div style="display:flex;align-items:flex-start;gap:12px"><div style="flex:1"><h2 id="pub-t">ตรวจผังก่อนเผยแพร่</h2><p id="pub-sub"></p></div><button class="btn btn-ghost btn-icon" type="button" data-pub-x aria-label="ปิด"></button></div>
+    <div class="val-list" id="val-list"></div>
+  </div>
+  <div class="dlg-foot"><span class="caption" id="pub-note" style="margin-right:auto;align-self:center"></span><button class="btn btn-outline" type="button" data-pub-x>ปิด</button><button class="btn btn-primary" type="button" id="btn-do-pub" data-write>เผยแพร่</button></div>
+</dialog>
+
+<script src="assets/zwms.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, esc, fmt, pad, DB, save, logAction, toast, confirmDialog, busy, MOCK } = Z;
+  $$('[data-ic]').forEach((s) => { s.outerHTML = icon(s.dataset.ic); });
+  $$('[data-pub-x][aria-label]').forEach((b) => { b.innerHTML = icon('x'); });
+
+  Z.shell({ active: 'settings', title: 'ผังคลัง' });
+  $('#chrome').outerHTML = Z.settingsChrome('layout');
+
+  const wh = Z.currentWh();
+  const GRID = 0.5; // m, snap and routing resolution
+  const uid = () => Math.random().toString(36).slice(2, 9);
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const nowIso = () => new Date().toISOString();
+  const hm = (iso) => new Date(iso).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const dmy = (iso) => new Date(iso).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+  const snap = (v) => Math.round(v / GRID) * GRID;
+  const locByCode = (c) => DB.locations.find((l) => l.wh === wh.code && l.code === c);
+  const needsBinding = (l) => ['pick', 'storage'].includes(l.type);
+  const zoneIdx = (code) => (Math.max(0, DB.zones.filter((z) => z.wh === wh.code).findIndex((z) => z.code === code)) % 5) + 1;
+
+  // ── Seed layout for the sample warehouse ──────────────────
+  function seedLayout() {
+    const bindRack = (prefix, bayStart, bays, levels) => {
+      const s = {};
+      for (let b = 1; b <= bays; b++) for (let l = 1; l <= levels; l++) s[`${b}-${l}`] = `${prefix}-${pad(bayStart + b - 1, 2)}-${pad(l, 2)}`;
+      return s;
+    };
+    const el = [
+      { id: uid(), type: 'zone', name: 'R · ลานรับสินค้า', zone: 'R', x: 1, y: 2, w: 7, h: 11 },
+      { id: uid(), type: 'zone', name: 'A · ชั้นวางสินค้าทั่วไป', zone: 'A', x: 12, y: 2.5, w: 9.5, h: 7 },
+      { id: uid(), type: 'zone', name: 'B · ชั้นวางชิ้นเล็ก', zone: 'B', x: 22, y: 2.5, w: 9, h: 7 },
+      { id: uid(), type: 'zone', name: 'C · ห้องควบคุมอุณหภูมิ', zone: 'C', x: 38, y: 2, w: 9, h: 8 },
+      { id: uid(), type: 'zone', name: 'S · พักสินค้า', zone: 'S', x: 38, y: 16, w: 9, h: 7 },
+      { id: uid(), type: 'zone', name: 'H · ลานส่งมอบ', zone: 'H', x: 38, y: 24, w: 9, h: 7.5 },
+      { id: uid(), type: 'zone', name: 'RT · สินค้าคืน', zone: 'RT', x: 1, y: 15, w: 7, h: 7 },
+      { id: uid(), type: 'zone', name: 'Q · ชำรุดและกักกัน', zone: 'Q', x: 1, y: 24, w: 7, h: 7.5 },
+      { id: uid(), type: 'aisle', name: 'ทางเดินซ้าย', x: 9, y: 1, w: 2, h: 31 },
+      { id: uid(), type: 'aisle', name: 'ทางเดินขวา', x: 35, y: 1, w: 2, h: 31 },
+      { id: uid(), type: 'aisle', name: 'ทางเดินหลัก', x: 11, y: 11, w: 24, h: 2.5 },
+      { id: uid(), type: 'aisle', name: 'ทางหยิบ A–B', x: 11, y: 5, w: 24, h: 2 },
+      { id: uid(), type: 'aisle', name: 'ทางหยิบ C', x: 37, y: 5.5, w: 10, h: 2 },
+      { id: uid(), type: 'aisle', name: 'ทางไปพักสินค้า', x: 37, y: 19, w: 1.5, h: 2 },
+      { id: uid(), type: 'wall', name: 'ผนังห้อง C', x: 37.5, y: 1, w: 0.3, h: 4.5 },
+      { id: uid(), type: 'wall', name: 'ผนังห้อง C', x: 37.5, y: 7.5, w: 0.3, h: 3 },
+      { id: uid(), type: 'wall', name: 'เสา', x: 22.5, y: 15.5, w: 1, h: 1 },
+      { id: uid(), type: 'rack', name: 'A1', zone: 'A', x: 13, y: 3.8, rot: 0, bays: 6, levels: 4, bayW: 1.2, depth: 1.2, face: 'front', slots: bindRack('A', 1, 6, 4) },
+      { id: uid(), type: 'rack', name: 'A2', zone: 'A', x: 13, y: 7, rot: 0, bays: 6, levels: 4, bayW: 1.2, depth: 1.2, face: 'back', slots: bindRack('A', 7, 6, 4) },
+      { id: uid(), type: 'rack', name: 'B1', zone: 'B', x: 23, y: 3.8, rot: 0, bays: 6, levels: 5, bayW: 1.2, depth: 1.2, face: 'front', slots: bindRack('B', 1, 6, 5) },
+      { id: uid(), type: 'door', name: 'ท่ารับสินค้า', x: 0, y: 5, w: 0.5, h: 3 },
+      { id: uid(), type: 'door', name: 'ท่าส่งมอบ', x: 47.5, y: 26, w: 0.5, h: 3 },
+      { id: uid(), type: 'start', name: 'จุดเริ่มหยิบ (S-01)', kind: 'start', x: 36, y: 20 },
+      { id: uid(), type: 'start', name: 'จุดวางรถเข็น', kind: 'end', x: 36, y: 22 },
+      { id: uid(), type: 'label', text: 'สำนักงาน', x: 18, y: 25 },
+    ];
+    const published = clone(el);
+    // Draft adds rack C1 in the cold room, still unbound.
+    el.push({ id: uid(), type: 'rack', name: 'C1', zone: 'C', x: 39, y: 4.3, rot: 0, bays: 4, levels: 3, bayW: 1.2, depth: 1.2, face: 'front', slots: {} });
+    return { wh: wh.code, w: 48, h: 33, draft: el, editedAt: nowIso(),
+      published: { version: 3, at: '2026-11-22T16:05:00', by: 'ต้น', elements: published } };
+  }
+  DB.layouts = DB.layouts || {};
+  if (!(wh.code in DB.layouts)) DB.layouts[wh.code] = wh.code === 'BKN' ? seedLayout() : null;
+  let L = DB.layouts[wh.code];
+  const persist = () => { DB.layouts[wh.code] = L; save(); };
+
+  // ── State ─────────────────────────────────────────────────
+  const S = { tool: 'select', mode: 'edit', sel: null, bay: null, tab: 'props', undo: [], redo: [], view: null, readOnly: false, route: null, routeSrc: 'draft', routePick: [], dirtyPub: false };
+  const els = () => (S.mode === 'route' && S.routeSrc === 'published' ? L.published.elements : L.draft);
+  const byId = (id) => L.draft.find((e) => e.id === id);
+  const draftChanged = () => !L.published || JSON.stringify(L.draft) !== JSON.stringify(L.published.elements);
+
+  // Callers take snapshot() before mutating; commit() only persists and re-renders.
+  function commit(label) {
+    L.editedAt = nowIso();
+    persist();
+    if (label) logAction('layout-edit', `layout:${wh.code}`, label);
+    renderAll();
+  }
+  const snapshot = () => { S.undo.push(JSON.stringify(L.draft)); if (S.undo.length > 100) S.undo.shift(); S.redo = []; };
+  function undo() { if (!S.undo.length) return; S.redo.push(JSON.stringify(L.draft)); L.draft = JSON.parse(S.undo.pop()); if (S.sel && !byId(S.sel)) S.sel = null; L.editedAt = nowIso(); persist(); renderAll(); }
+  function redo() { if (!S.redo.length) return; S.undo.push(JSON.stringify(L.draft)); L.draft = JSON.parse(S.redo.pop()); if (S.sel && !byId(S.sel)) S.sel = null; L.editedAt = nowIso(); persist(); renderAll(); }
+
+  // ── Geometry ──────────────────────────────────────────────
+  function rackBox(r) { const len = r.bays * r.bayW; return r.rot === 90 ? { x: r.x, y: r.y, w: r.depth, h: len } : { x: r.x, y: r.y, w: len, h: r.depth }; }
+  function box(e) {
+    if (e.type === 'rack') return rackBox(e);
+    if (e.type === 'start') return { x: e.x - 0.6, y: e.y - 0.6, w: 1.2, h: 1.2 };
+    if (e.type === 'label') return { x: e.x - 0.2, y: e.y - 0.8, w: Math.max(2, (e.text || '').length * 0.45), h: 1.1 };
+    return { x: e.x, y: e.y, w: e.w, h: e.h };
+  }
+  // Bay rect (world) and access point(s) in front of the face.
+  function bayRect(r, b) {
+    const o = (b - 1) * r.bayW;
+    return r.rot === 90 ? { x: r.x, y: r.y + o, w: r.depth, h: r.bayW } : { x: r.x + o, y: r.y, w: r.bayW, h: r.depth };
+  }
+  function bayAccess(r, b) {
+    const br = bayRect(r, b);
+    const cx = br.x + br.w / 2, cy = br.y + br.h / 2;
+    const pts = [];
+    if (r.rot === 90) {
+      if (r.face !== 'back') pts.push({ x: br.x + br.w + 0.3, y: cy });
+      if (r.face !== 'front') pts.push({ x: br.x - 0.3, y: cy });
+    } else {
+      if (r.face !== 'back') pts.push({ x: cx, y: br.y + br.h + 0.3 });
+      if (r.face !== 'front') pts.push({ x: cx, y: br.y - 0.3 });
+    }
+    return pts;
+  }
+  const bayCodes = (r, b) => Array.from({ length: r.levels }, (_, i) => r.slots[`${b}-${i + 1}`]).filter(Boolean);
+  const bayState = (r, b) => {
+    const codes = bayCodes(r, b);
+    const st = codes.map(locByCode).filter(Boolean);
+    return {
+      fill: codes.length === r.levels ? 'full' : codes.length ? 'partial' : 'empty',
+      status: st.some((l) => l.status === 'counting') ? 'counting' : st.some((l) => l.status === 'disabled') ? 'disabled' : '',
+      codes,
+    };
+  };
+  const boundMap = (list = L.draft) => {
+    const m = new Map();
+    list.filter((e) => e.type === 'rack').forEach((r) => Object.entries(r.slots).forEach(([k, c]) => { const [b, l] = k.split('-').map(Number); m.set(c, { rack: r, bay: b, level: l }); }));
+    return m;
+  };
+
+  // ── Walkable grid + routing (Story 2.14) ──────────────────
+  function buildGrid(list) {
+    const W = Math.ceil(L.w / GRID), H = Math.ceil(L.h / GRID);
+    const g = new Uint8Array(W * H);
+    const paint = (b, v) => {
+      for (let y = Math.max(0, Math.floor(b.y / GRID)); y < Math.min(H, Math.ceil((b.y + b.h) / GRID)); y++)
+        for (let x = Math.max(0, Math.floor(b.x / GRID)); x < Math.min(W, Math.ceil((b.x + b.w) / GRID)); x++) g[y * W + x] = v;
+    };
+    list.filter((e) => e.type === 'aisle').forEach((e) => paint(box(e), 1));
+    list.filter((e) => e.type === 'wall' || e.type === 'rack').forEach((e) => paint(box(e), 0));
+    return { W, H, g, cell: (p) => { const x = Math.floor(p.x / GRID), y = Math.floor(p.y / GRID); return x >= 0 && y >= 0 && x < W && y < H ? y * W + x : -1; } };
+  }
+  function bfs(G, from) {
+    const dist = new Int32Array(G.W * G.H).fill(-1), prev = new Int32Array(G.W * G.H).fill(-1);
+    if (from < 0 || !G.g[from]) return { dist, prev };
+    const q = [from]; dist[from] = 0;
+    for (let i = 0; i < q.length; i++) {
+      const c = q[i], x = c % G.W, y = (c / G.W) | 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= G.W || ny >= G.H) continue;
+        const n = ny * G.W + nx; if (!G.g[n] || dist[n] >= 0) continue;
+        dist[n] = dist[c] + 1; prev[n] = c; q.push(n);
+      }
+    }
+    return { dist, prev };
+  }
+  const accessCell = (G, r, b) => { for (const p of bayAccess(r, b)) { const c = G.cell(p); if (c >= 0 && G.g[c]) return c; } return -1; };
+  const pathCells = (prev, to) => { const out = []; for (let c = to; c >= 0; c = prev[c]) out.push(c); return out.reverse(); };
+  const cellPt = (G, c) => ({ x: (c % G.W) * GRID + GRID / 2, y: ((c / G.W) | 0) * GRID + GRID / 2 });
+
+  // Order stops: nearest neighbour + 2-opt on precomputed distances; unbound appended by walk sequence.
+  function computeRoute(codes, list, startId) {
+    const G = buildGrid(list);
+    const bm = boundMap(list);
+    const starts = list.filter((e) => e.type === 'start');
+    const start = starts.find((s) => s.id === startId) || starts.find((s) => s.kind === 'start');
+    const end = starts.find((s) => s.kind === 'end');
+    const seqOf = (c) => locByCode(c)?.seq ?? 9999;
+    const routed = [], fallback = [];
+    codes.forEach((c) => { const b = bm.get(c); const cell = b ? accessCell(G, b.rack, b.bay) : -1; if (b && cell >= 0) routed.push({ code: c, cell }); else fallback.push(c); });
+    fallback.sort((a, b) => seqOf(a) - seqOf(b));
+    if (!start || G.cell(start) < 0 || !G.g[G.cell(start)]) return { ok: false, reason: 'ยังไม่มีจุดเริ่มหยิบบนทางเดิน', fallback: codes.slice().sort((a, b) => seqOf(a) - seqOf(b)) };
+    const sCell = G.cell(start), eCell = end ? G.cell(end) : -1;
+    const nodes = [sCell, ...routed.map((r) => r.cell)];
+    const runs = nodes.map((c) => bfs(G, c));
+    const D = (i, j) => runs[i].dist[nodes[j]];
+    const unreachable = routed.filter((_, i) => D(0, i + 1) < 0).map((r) => r.code);
+    const idx = routed.map((_, i) => i + 1).filter((i) => D(0, i) >= 0);
+    // nearest neighbour
+    const order = []; let cur = 0; const left = new Set(idx);
+    while (left.size) { let best = -1, bd = Infinity; left.forEach((j) => { const d = D(cur, j); if (d >= 0 && d < bd) { bd = d; best = j; } }); if (best < 0) break; order.push(best); left.delete(best); cur = best; }
+    // 2-opt
+    const tour = [0, ...order];
+    const len = (t) => t.slice(1).reduce((s, n, i) => s + D(t[i], n), 0);
+    let improved = true, guard = 0;
+    while (improved && guard++ < 50) {
+      improved = false;
+      for (let i = 1; i < tour.length - 1; i++) for (let k = i + 1; k < tour.length; k++) {
+        const t2 = [...tour.slice(0, i), ...tour.slice(i, k + 1).reverse(), ...tour.slice(k + 1)];
+        if (len(t2) < len(tour)) { tour.splice(0, tour.length, ...t2); improved = true; }
+      }
+    }
+    // path polyline + distances
+    const pts = [], stops = [];
+    let total = 0;
+    for (let i = 1; i < tour.length; i++) {
+      const a = tour[i - 1], b = tour[i];
+      const cells = pathCells(runs[a].prev, nodes[b]);
+      cells.forEach((c) => pts.push(cellPt(G, c)));
+      total += D(a, b);
+      stops.push({ code: routed[b - 1].code, at: cellPt(G, nodes[b]), dist: total * GRID });
+    }
+    if (eCell >= 0 && G.g[eCell] && tour.length > 1) {
+      const last = tour[tour.length - 1];
+      if (runs[last].dist[eCell] >= 0) { pathCells(runs[last].prev, eCell).forEach((c) => pts.push(cellPt(G, c))); total += runs[last].dist[eCell]; }
+    }
+    // walk-sequence comparison over the same network
+    const bySeq = [...idx].sort((a, b) => seqOf(routed[a - 1].code) - seqOf(routed[b - 1].code));
+    let seqTotal = 0, c0 = 0; bySeq.forEach((j) => { seqTotal += D(c0, j); c0 = j; });
+    if (eCell >= 0 && bySeq.length && runs[c0].dist[eCell] >= 0) seqTotal += runs[c0].dist[eCell];
+    return { ok: true, pts: simplify(pts), stops, fallback: [...unreachable, ...fallback], total: total * GRID, seqTotal: seqTotal * GRID, start, end };
+  }
+  function simplify(pts) {
+    if (pts.length < 3) return pts;
+    const out = [pts[0]];
+    for (let i = 1; i < pts.length - 1; i++) {
+      const a = out[out.length - 1], b = pts[i], c = pts[i + 1];
+      if ((b.x - a.x) * (c.y - b.y) !== (b.y - a.y) * (c.x - b.x)) out.push(b);
+    }
+    out.push(pts[pts.length - 1]);
+    return out;
+  }
+
+  // ── Validation (publish gate) ─────────────────────────────
+  function validateLayout() {
+    const list = L.draft, G = buildGrid(list);
+    const items = [];
+    const starts = list.filter((e) => e.type === 'start' && e.kind === 'start');
+    const startOn = starts.filter((s) => { const c = G.cell(s); return c >= 0 && G.g[c]; });
+    if (!starts.length) items.push({ lvl: 'block', text: 'ยังไม่มีจุดเริ่มหยิบ · วางจุดเริ่มบนทางเดินอย่างน้อย 1 จุด', target: null });
+    starts.filter((s) => !startOn.includes(s)).forEach((s) => items.push({ lvl: 'block', text: `${s.name} ไม่ได้อยู่บนทางเดิน`, target: s.id }));
+    const reach = new Uint8Array(G.W * G.H);
+    startOn.forEach((s) => { const r = bfs(G, G.cell(s)); r.dist.forEach((d, i) => { if (d >= 0) reach[i] = 1; }); });
+    list.filter((e) => e.type === 'aisle').forEach((a) => {
+      const b = box(a); let has = false, ok = false;
+      for (let y = Math.floor(b.y / GRID); y < Math.ceil((b.y + b.h) / GRID); y++) for (let x = Math.floor(b.x / GRID); x < Math.ceil((b.x + b.w) / GRID); x++) { const c = y * G.W + x; if (G.g[c]) { has = true; if (reach[c]) ok = true; } }
+      if (has && !ok && startOn.length) items.push({ lvl: 'block', text: `${a.name || 'ทางเดิน'} ไม่เชื่อมกับจุดเริ่มหยิบ`, target: a.id });
+    });
+    list.filter((e) => e.type === 'rack').forEach((r) => {
+      const bad = []; for (let b = 1; b <= r.bays; b++) { const c = accessCell(G, r, b); if (c < 0 || (startOn.length && !reach[c])) bad.push(b); }
+      if (bad.length === r.bays) items.push({ lvl: 'block', text: `ชั้นวาง ${r.name} ด้านหน้าไม่ติดทางเดิน · หมุนด้านหน้าหรือเลื่อนให้ชิดทางเดิน`, target: r.id });
+      else if (bad.length) items.push({ lvl: 'block', text: `ชั้นวาง ${r.name} ช่อง ${bad.map((b) => pad(b, 2)).join(', ')} เดินไปไม่ถึง`, target: r.id });
+    });
+    const bm = boundMap(list);
+    const unbound = DB.locations.filter((l) => l.wh === wh.code && needsBinding(l) && !bm.has(l.code));
+    if (unbound.length) {
+      const byZone = {}; unbound.forEach((l) => { byZone[l.zone] = (byZone[l.zone] || 0) + 1; });
+      items.push({ lvl: 'warn', text: `ตำแหน่งหยิบและเก็บที่ยังไม่ผูก ${fmt(unbound.length)} ตำแหน่ง (${Object.entries(byZone).map(([z, n]) => `โซน ${z}: ${n}`).join(' · ')}) · ใบหยิบจะใช้ลำดับเดินแทนสำหรับตำแหน่งเหล่านี้`, target: 'bind' });
+    }
+    return items;
+  }
+
+  // ── Rendering ─────────────────────────────────────────────
+  const svg = $('#svg');
+  const NS = 'http://www.w3.org/2000/svg';
+  function fit() {
+    const r = $('#stage').getBoundingClientRect();
+    const pad = 2, ar = r.width / Math.max(1, r.height);
+    let w = L.w + pad * 2, h = L.h + pad * 2;
+    if (w / h > ar) h = w / ar; else w = h * ar;
+    S.view = { x: -pad - (w - L.w - pad * 2) / 2, y: -pad - (h - L.h - pad * 2) / 2, w, h };
+    S.fitW = w;
+  }
+  const applyView = () => {
+    svg.setAttribute('viewBox', `${S.view.x} ${S.view.y} ${S.view.w} ${S.view.h}`);
+    $('#zoom-val').textContent = `${Math.round((S.fitW / S.view.w) * 100)}%`;
+  };
+  const toWorld = (ev) => { const p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+
+  function renderCanvas() {
+    if (!L) { svg.innerHTML = ''; return; }
+    const list = els();
+    const sel = S.mode === 'edit' ? S.sel : null;
+    let h = `<defs><pattern id="grid" width="1" height="1" patternUnits="userSpaceOnUse"><path d="M1 0H0V1" fill="none" style="stroke:var(--border)" stroke-width="0.03"/></pattern>
+      <symbol id="ico-lock" viewBox="0 0 24 24">${ICON_RAW.lock}</symbol><symbol id="ico-slash" viewBox="0 0 24 24">${ICON_RAW.slash}</symbol></defs>
+      <rect class="l-hall" x="0" y="0" width="${L.w}" height="${L.h}" stroke-width="0.08"/><rect x="0" y="0" width="${L.w}" height="${L.h}" fill="url(#grid)"/>`;
+    const order = ['zone', 'aisle', 'wall', 'rack', 'door', 'start', 'label'];
+    order.forEach((t) => list.filter((e) => e.type === t).forEach((e) => { h += drawEl(e, e.id === sel); }));
+    if (S.mode === 'route' && S.route?.ok) h += drawRoute(S.route);
+    if (S.mode === 'edit' && S.valTargets) S.valTargets.forEach((id) => { const e = byId(id); if (e) { const b = box(e); h += `<rect class="l-err" x="${b.x - 0.3}" y="${b.y - 0.3}" width="${b.w + 0.6}" height="${b.h + 0.6}" stroke-width="0.08" rx="0.2"/>`; } });
+    if (S.draftBox) { const b = S.draftBox; h += `<rect class="l-draft" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" stroke-width="0.06"/>`; }
+    svg.innerHTML = h;
+  }
+  const ICON_RAW = {
+    lock: '<g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></g>',
+    slash: '<g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="9" x2="15" y1="15" y2="9"/></g>',
+  };
+  function drawEl(e, selected) {
+    const b = box(e);
+    let s = `<g data-id="${e.id}" data-type="${e.type}">`;
+    if (e.type === 'zone') {
+      const z = zoneIdx(e.zone);
+      s += `<rect class="z-${z} zone-fill" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" stroke-width="0.06" rx="0.15"/>`;
+      s += `<text class="z-${z} zone-label" x="${b.x + 0.35}" y="${b.y + b.h - 0.35}" font-size="0.55">${esc(e.name)}</text>`;
+    } else if (e.type === 'aisle') {
+      s += `<rect class="l-aisle" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}"/>`;
+    } else if (e.type === 'wall') {
+      s += `<rect class="l-wall" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}"/>`;
+    } else if (e.type === 'rack') {
+      s += `<rect class="l-rack" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" stroke-width="0.06"/>`;
+      for (let i = 1; i <= e.bays; i++) {
+        const br = bayRect(e, i), st = bayState(e, i);
+        const isSel = selected && S.bay === i;
+        s += `<rect class="l-bay ${st.fill} ${st.status ? `st-${st.status}` : ''} ${isSel ? 'sel' : ''}" data-bay="${i}" x="${br.x + 0.04}" y="${br.y + 0.04}" width="${br.w - 0.08}" height="${br.h - 0.08}" stroke-width="0.04" vector-effect="${isSel ? 'non-scaling-stroke' : ''}"/>`;
+        const label = st.codes[0] ? st.codes[0].split('-').slice(0, 2).join('-') : pad(i, 2);
+        s += `<text class="${st.codes.length ? 'l-mono' : 'l-muted'}" x="${br.x + br.w / 2}" y="${br.y + br.h / 2 + 0.14}" font-size="0.34" text-anchor="middle" pointer-events="none">${esc(label)}</text>`;
+        if (st.status) s += `<use href="#ico-${st.status === 'counting' ? 'lock' : 'slash'}" x="${br.x + br.w - 0.42}" y="${br.y + 0.06}" width="0.36" height="0.36" style="color:${st.status === 'counting' ? 'var(--info)' : 'var(--neutral)'}" pointer-events="none"/>`;
+      }
+      // face marker
+      const f = (side) => {
+        if (e.rot === 90) { const x = side === 'front' ? b.x + b.w : b.x; return `<line class="l-face" x1="${x}" y1="${b.y}" x2="${x}" y2="${b.y + b.h}" stroke-width="0.12"/>`; }
+        const y = side === 'front' ? b.y + b.h : b.y; return `<line class="l-face" x1="${b.x}" y1="${y}" x2="${b.x + b.w}" y2="${y}" stroke-width="0.12"/>`;
+      };
+      if (e.face !== 'back') s += f('front');
+      if (e.face !== 'front') s += f('back');
+      s += `<text class="l-text" x="${b.x}" y="${b.y - 0.2}" font-size="0.5" font-weight="600">${esc(e.name)} · ${e.bays}×${e.levels}</text>`;
+    } else if (e.type === 'door') {
+      s += `<rect class="l-door" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" stroke-width="0.06"/>`;
+      s += `<text class="l-muted" x="${b.x + b.w / 2}" y="${b.y - 0.25}" font-size="0.45" text-anchor="middle">${esc(e.name)}</text>`;
+    } else if (e.type === 'start') {
+      s += `<circle class="l-start" cx="${e.x}" cy="${e.y}" r="0.55"/><text class="l-stop-t" x="${e.x}" y="${e.y + 0.18}" font-size="0.5" text-anchor="middle" pointer-events="none">${e.kind === 'end' ? 'E' : 'S'}</text>`;
+      s += `<text class="l-text" x="${e.x + 0.8}" y="${e.y + 0.18}" font-size="0.45">${esc(e.name)}</text>`;
+    } else if (e.type === 'label') {
+      s += `<text class="l-muted" x="${e.x}" y="${e.y}" font-size="0.7" font-weight="500">${esc(e.text)}</text>`;
+    }
+    if (selected) {
+      s += `<rect class="l-sel" x="${b.x - 0.15}" y="${b.y - 0.15}" width="${b.w + 0.3}" height="${b.h + 0.3}" stroke-width="0.06" pointer-events="none"/>`;
+      if (['zone', 'aisle', 'wall', 'door'].includes(e.type) && !S.readOnly) s += `<rect class="l-handle" data-handle="se" x="${b.x + b.w - 0.25}" y="${b.y + b.h - 0.25}" width="0.5" height="0.5" stroke-width="0.06"/>`;
+    }
+    return `${s}</g>`;
+  }
+  function drawRoute(r) {
+    let s = '';
+    if (r.pts.length > 1) s += `<polyline class="l-route" points="${r.pts.map((p) => `${p.x},${p.y}`).join(' ')}" stroke-width="0.22"/>`;
+    r.stops.forEach((st, i) => { s += `<circle class="l-stop" cx="${st.at.x}" cy="${st.at.y}" r="0.42"/><text class="l-stop-t" x="${st.at.x}" y="${st.at.y + 0.15}" font-size="0.42" text-anchor="middle">${i + 1}</text>`; });
+    return s;
+  }
+
+  // ── Status bar ────────────────────────────────────────────
+  function renderStatus() {
+    if (!L) { $('#status').innerHTML = ''; return; }
+    const changed = draftChanged();
+    $('#status').innerHTML = `${L.published ? Z.badge('success', 'check-circle', `ใช้งานอยู่ v${L.published.version}`, `เผยแพร่ ${dmy(L.published.at)} ${hm(L.published.at)} โดย ${L.published.by}`) : Z.badge('neutral', 'circle-slash', 'ยังไม่เคยเผยแพร่')}
+      ${changed ? `<span class="badge t-warning">${icon('pencil')}แบบร่าง · แก้ล่าสุด ${hm(L.editedAt)} · ยังไม่เผยแพร่</span>` : '<span class="caption">แบบร่างตรงกับที่ใช้งานอยู่</span>'}`;
+    $('#btn-undo').disabled = !S.undo.length; $('#btn-redo').disabled = !S.redo.length;
+    $('#btn-publish').disabled = !changed || MOCK.offline;
+  }
+
+  // ── Tools ─────────────────────────────────────────────────
+  const TOOLS = [
+    ['select', 'mouse-pointer', 'เลือกและย้าย', 'V'], '-',
+    ['rack', 'rows', 'ชั้นวาง', 'R'], ['aisle', 'square-dashed', 'ทางเดิน', 'A'], ['zone', 'layers', 'พื้นที่โซน', 'Z'], ['wall', 'brick-wall', 'ผนังและสิ่งกีดขวาง', 'W'], '-',
+    ['door', 'door-open', 'ประตูและท่าโหลด', 'D'], ['start', 'flag', 'จุดเริ่มหรือจุดจบการหยิบ', 'S'], ['label', 'type', 'ป้ายข้อความ', 'T'],
+  ];
+  $('#tools').innerHTML = TOOLS.map((t) => t === '-' ? '<hr>' : `<button class="tool" type="button" data-tool="${t[0]}" aria-pressed="${t[0] === 'select'}" aria-label="${t[2]} (${t[3]})" title="${t[2]} (${t[3]})">${icon(t[1], 'ic-20')}<span class="k">${t[3]}</span></button>`).join('');
+  const HINTS = {
+    select: 'คลิกเพื่อเลือก · ลากเพื่อย้าย · ลากพื้นที่ว่างเพื่อเลื่อนผัง · ลูกศรเลื่อนทีละ 0.5 ม.',
+    rack: 'ลากตามแนวยาวของชั้นวาง · ระบบแบ่งช่องละ 1.2 ม.',
+    aisle: 'ลากเพื่อวาดทางเดิน · ทางเดินคือที่ที่ระบบใช้หาเส้นทาง',
+    zone: 'ลากเพื่อวาดพื้นที่โซน', wall: 'ลากเพื่อวาดผนังหรือเสา · เดินผ่านไม่ได้',
+    door: 'ลากเพื่อวาดประตูหรือท่าโหลด', start: 'คลิกบนทางเดินเพื่อวางจุดเริ่มหยิบ', label: 'คลิกเพื่อวางป้ายข้อความ',
+    route: 'เลือกตำแหน่งตัวอย่างทางขวา ระบบวาดเส้นทางที่สั้นที่สุด',
+  };
+  function setTool(t) {
+    if (S.readOnly && t !== 'select') return;
+    S.tool = t;
+    $$('[data-tool]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === t)));
+    $('#stage').classList.toggle('tool-draw', t !== 'select');
+    $('#hint').textContent = HINTS[t];
+  }
+  $('#tools').addEventListener('click', (e) => { const b = e.target.closest('[data-tool]'); if (b) setTool(b.dataset.tool); });
+
+  // ── Pointer interaction ───────────────────────────────────
+  let drag = null;
+  const capture = (ev) => { try { svg.setPointerCapture(ev.pointerId); } catch { /* pointer already released */ } };
+  svg.addEventListener('pointerdown', (ev) => {
+    if (!L) return;
+    svg.focus({ preventScroll: true });
+    const p = toWorld(ev);
+    const g = ev.target.closest('[data-id]');
+    const handle = ev.target.closest('[data-handle]');
+    if (ev.button === 1 || S.mode === 'route' || S.readOnly || (S.tool === 'select' && !g)) {
+      if (S.mode === 'edit' && S.tool === 'select' && !g) { S.sel = null; S.bay = null; renderCanvas(); renderSide(); }
+      drag = { kind: 'pan', sx: ev.clientX, sy: ev.clientY, v: { ...S.view } };
+      $('#stage').classList.add('panning');
+      capture(ev);
+      if (S.readOnly && g) { S.sel = g.dataset.id; S.bay = ev.target.dataset.bay ? +ev.target.dataset.bay : null; renderCanvas(); renderSide(); }
+      return;
+    }
+    if (S.tool === 'select') {
+      const e = byId(g.dataset.id);
+      S.sel = e.id; S.bay = ev.target.dataset.bay ? +ev.target.dataset.bay : null;
+      if (S.bay) S.tab = 'props';
+      snapshot();
+      drag = handle ? { kind: 'resize', e, p0: p, b0: { ...box(e) } } : { kind: 'move', e, p0: p, x0: e.x, y0: e.y, moved: false };
+      capture(ev);
+      renderCanvas(); renderSide();
+      return;
+    }
+    if (S.tool === 'start' || S.tool === 'label') {
+      const e = S.tool === 'start'
+        ? { id: uid(), type: 'start', kind: L.draft.some((x) => x.type === 'start' && x.kind === 'start') ? 'end' : 'start', name: '', x: snap(p.x), y: snap(p.y) }
+        : { id: uid(), type: 'label', text: 'ป้ายข้อความ', x: snap(p.x), y: snap(p.y) };
+      if (e.type === 'start') e.name = e.kind === 'start' ? 'จุดเริ่มหยิบ' : 'จุดจบการหยิบ';
+      snapshot(); L.draft.push(e); S.sel = e.id; setTool('select'); commit(`add ${e.type}`);
+      return;
+    }
+    drag = { kind: 'draw', p0: { x: snap(p.x), y: snap(p.y) } };
+    capture(ev);
+  });
+  svg.addEventListener('pointermove', (ev) => {
+    if (!L) return;
+    const p = toWorld(ev);
+    $('#coord').textContent = `${fmt(Math.max(0, p.x), 1)}, ${fmt(Math.max(0, p.y), 1)} ม.`;
+    if (!drag) return;
+    if (drag.kind === 'pan') {
+      const r = svg.getBoundingClientRect(), k = S.view.w / r.width;
+      S.view.x = drag.v.x - (ev.clientX - drag.sx) * k; S.view.y = drag.v.y - (ev.clientY - drag.sy) * k; applyView(); return;
+    }
+    if (drag.kind === 'move') {
+      const nx = snap(drag.x0 + p.x - drag.p0.x), ny = snap(drag.y0 + p.y - drag.p0.y);
+      if (nx !== drag.e.x || ny !== drag.e.y) { drag.e.x = nx; drag.e.y = ny; drag.moved = true; renderCanvas(); }
+      return;
+    }
+    if (drag.kind === 'resize') {
+      drag.e.w = Math.max(GRID, snap(drag.b0.w + p.x - drag.p0.x)); drag.e.h = Math.max(GRID, snap(drag.b0.h + p.y - drag.p0.y)); renderCanvas(); return;
+    }
+    if (drag.kind === 'draw') {
+      const x1 = drag.p0.x, y1 = drag.p0.y, x2 = snap(p.x), y2 = snap(p.y);
+      let b = { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) };
+      if (S.tool === 'rack') { const horiz = b.w >= b.h; const bays = Math.max(1, Math.round((horiz ? b.w : b.h) / 1.2)); b = horiz ? { x: b.x, y: y1, w: bays * 1.2, h: 1.2 } : { x: x1, y: b.y, w: 1.2, h: bays * 1.2 }; }
+      S.draftBox = b; renderCanvas();
+    }
+  });
+  const endDrag = () => {
+    if (!drag) return;
+    const d = drag; drag = null; $('#stage').classList.remove('panning');
+    if (d.kind === 'move') { if (d.moved) commit(`move ${d.e.type} ${d.e.name || ''}`); else S.undo.pop(); renderSide(); }
+    if (d.kind === 'resize') commit(`resize ${d.e.type}`);
+    if (d.kind === 'draw' && S.draftBox) {
+      const b = S.draftBox; S.draftBox = null;
+      if (b.w < GRID && b.h < GRID) { renderCanvas(); return; }
+      let e;
+      if (S.tool === 'rack') {
+        const horiz = b.w >= b.h, bays = Math.round((horiz ? b.w : b.h) / 1.2);
+        const zone = DB.zones.find((z) => z.wh === wh.code && b.x >= 0 && L.draft.some((x) => x.type === 'zone' && x.zone === z.code && b.x >= x.x && b.x <= x.x + x.w && b.y >= x.y && b.y <= x.y + x.h))?.code || '';
+        const n = L.draft.filter((x) => x.type === 'rack' && x.zone === zone).length + 1;
+        e = { id: uid(), type: 'rack', name: `${zone || 'R'}${n}`, zone, x: b.x, y: b.y, rot: horiz ? 0 : 90, bays, levels: 4, bayW: 1.2, depth: 1.2, face: 'front', slots: {} };
+      } else {
+        const names = { aisle: 'ทางเดิน', zone: 'โซนใหม่', wall: 'ผนัง', door: 'ประตู' };
+        e = { id: uid(), type: S.tool, name: names[S.tool], x: b.x, y: b.y, w: Math.max(GRID, b.w), h: Math.max(GRID, b.h) };
+        if (S.tool === 'zone') e.zone = '';
+      }
+      snapshot(); L.draft.push(e); S.sel = e.id; S.bay = null; S.tab = 'props'; setTool('select'); commit(`add ${e.type}`);
+    }
+  };
+  svg.addEventListener('pointerup', endDrag);
+  svg.addEventListener('pointercancel', endDrag);
+  svg.addEventListener('wheel', (ev) => {
+    if (!L) return;
+    ev.preventDefault();
+    const p = toWorld(ev), k = Math.exp(ev.deltaY * 0.0015);
+    zoomAt(p, k);
+  }, { passive: false });
+  function zoomAt(p, k) {
+    const w = Math.min(Math.max(S.view.w * k, 6), S.fitW * 3);
+    const kk = w / S.view.w;
+    S.view = { x: p.x - (p.x - S.view.x) * kk, y: p.y - (p.y - S.view.y) * kk, w, h: S.view.h * kk };
+    applyView();
+  }
+  const center = () => ({ x: S.view.x + S.view.w / 2, y: S.view.y + S.view.h / 2 });
+  $('#btn-zin').addEventListener('click', () => zoomAt(center(), 0.8));
+  $('#btn-zout').addEventListener('click', () => zoomAt(center(), 1.25));
+  $('#btn-fit').addEventListener('click', () => { fit(); applyView(); });
+  $('#btn-undo').addEventListener('click', undo);
+  $('#btn-redo').addEventListener('click', redo);
+
+  // ── Keyboard ──────────────────────────────────────────────
+  document.addEventListener('keydown', (ev) => {
+    if (!L || ev.target.closest?.('input, textarea, select, dialog')) return;
+    const k = ev.key.toLowerCase();
+    if ((ev.ctrlKey || ev.metaKey) && k === 'z') { ev.preventDefault(); if (S.readOnly) return; ev.shiftKey ? redo() : undo(); return; }
+    if ((ev.ctrlKey || ev.metaKey) && k === 'd') { ev.preventDefault(); duplicate(); return; }
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const map = { v: 'select', r: 'rack', a: 'aisle', z: 'zone', w: 'wall', d: 'door', s: 'start', t: 'label' };
+    if (map[k] && S.mode === 'edit') { setTool(map[k]); return; }
+    if (k === 'escape') { S.sel = null; S.bay = null; setTool('select'); renderCanvas(); renderSide(); return; }
+    const e = S.sel && byId(S.sel);
+    if (!e || S.readOnly || S.mode !== 'edit') return;
+    if (k === 'delete' || k === 'backspace') { ev.preventDefault(); removeSel(); return; }
+    const step = ev.shiftKey ? 1 : GRID;
+    const mv = { arrowleft: [-step, 0], arrowright: [step, 0], arrowup: [0, -step], arrowdown: [0, step] }[k];
+    if (mv) { ev.preventDefault(); snapshot(); e.x = snap(e.x + mv[0]); e.y = snap(e.y + mv[1]); commit(); }
+  });
+  function duplicate() {
+    const e = S.sel && byId(S.sel); if (!e || S.readOnly) return;
+    const c = clone(e); c.id = uid(); c.x += 1; c.y += 1;
+    if (c.type === 'rack') { c.slots = {}; c.name = `${c.name}-สำเนา`; }
+    snapshot(); L.draft.push(c); S.sel = c.id; commit(`duplicate ${e.type}`);
+  }
+  async function removeSel() {
+    const e = byId(S.sel); if (!e) return;
+    if (e.type === 'rack' && Object.keys(e.slots).length) {
+      const ok = await confirmDialog({ tone: 'warning', title: `ลบชั้นวาง ${esc(e.name)}?`, body: `ตำแหน่ง ${fmt(Object.keys(e.slots).length)} ตำแหน่งที่ผูกไว้จะกลับเป็นยังไม่ผูก · ย้อนกลับได้ด้วย Ctrl+Z`, confirmLabel: `ลบ ${esc(e.name)}` });
+      if (!ok) return;
+    }
+    snapshot(); L.draft = L.draft.filter((x) => x.id !== e.id); S.sel = null; S.bay = null; commit(`delete ${e.type} ${e.name || ''}`);
+  }
+
+  // ── Side panel ────────────────────────────────────────────
+  function renderSideTabs() {
+    const tabs = S.mode === 'route' ? [['route', 'ทดสอบเส้นทาง']] : [['props', 'คุณสมบัติ'], ['bind', `ผูกตำแหน่ง`]];
+    if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
+    const unb = L ? DB.locations.filter((l) => l.wh === wh.code && needsBinding(l) && !boundMap().has(l.code)).length : 0;
+    $('#side-tabs').innerHTML = tabs.map(([k, t]) => `<a href="#" role="tab" data-tab="${k}" ${S.tab === k ? 'aria-current="page" aria-selected="true"' : 'aria-selected="false"'}>${t}${k === 'bind' && unb ? `<span class="chip over">${fmt(unb)}</span>` : ''}</a>`).join('');
+  }
+  $('#side-tabs').addEventListener('click', (e) => { const a = e.target.closest('[data-tab]'); if (a) { e.preventDefault(); S.tab = a.dataset.tab; renderSide(); } });
+
+  const num = (id, label, v, opts = {}) => `<div class="field"><label for="${id}">${label}</label><div class="input-group"><input class="input tnum" id="${id}" inputmode="decimal" value="${v}" ${S.readOnly ? 'disabled' : ''} ${opts.suffix ? 'style="padding-right:34px"' : ''}>${opts.suffix ? `<span class="input-suffix">${opts.suffix}</span>` : ''}</div></div>`;
+  const zoneOpts = (sel) => `<option value="">ไม่ระบุโซน</option>${DB.zones.filter((z) => z.wh === wh.code).map((z) => `<option value="${esc(z.code)}" ${z.code === sel ? 'selected' : ''}>${esc(z.code)} · ${esc(z.name)}</option>`).join('')}`;
+
+  function renderSide() {
+    renderSideTabs(); renderStatus();
+    const side = $('#side');
+    if (!L) { side.innerHTML = ''; return; }
+    if (S.mode === 'route') { renderRoutePanel(side); return; }
+    if (S.tab === 'bind') { renderBindPanel(side); return; }
+    const e = S.sel && byId(S.sel);
+    if (!e) {
+      const racks = L.draft.filter((x) => x.type === 'rack');
+      const bm = boundMap();
+      side.innerHTML = `<div><h3>ผัง${esc(wh.name)}</h3><p class="caption">${L.w} × ${L.h} ม. · grid ${GRID} ม.</p></div>
+        <dl class="kv"><div><dt>ชั้นวาง</dt><dd class="tnum">${fmt(racks.length)}</dd></div><div><dt>ช่อง</dt><dd class="tnum">${fmt(racks.reduce((s, r) => s + r.bays, 0))}</dd></div>
+        <div><dt>ตำแหน่งที่ผูก</dt><dd class="tnum">${fmt(bm.size)}</dd></div><div><dt>ทางเดิน</dt><dd class="tnum">${fmt(L.draft.filter((x) => x.type === 'aisle').length)}</dd></div></dl>
+        <div class="alert alert-info"><span>${icon('info')}</span><p>เลือกสิ่งของบนผังเพื่อแก้คุณสมบัติ หรือเลือกเครื่องมือทางซ้ายเพื่อวาดเพิ่ม</p></div>
+        <div><h3 style="margin-bottom:8px">คีย์ลัด</h3><p class="caption" style="line-height:1.9">
+          <span class="kbd">V</span> เลือก · <span class="kbd">R</span> ชั้นวาง · <span class="kbd">A</span> ทางเดิน · <span class="kbd">Z</span> โซน · <span class="kbd">W</span> ผนัง · <span class="kbd">D</span> ประตู · <span class="kbd">S</span> จุดเริ่ม · <span class="kbd">T</span> ป้าย<br>
+          <span class="kbd">Ctrl Z</span> ย้อนกลับ · <span class="kbd">Ctrl D</span> ทำสำเนา · <span class="kbd">Delete</span> ลบ · <span class="kbd">←↑→↓</span> เลื่อน 0.5 ม. · <span class="kbd">Shift</span> + ลูกศร 1 ม.</p></div>`;
+      return;
+    }
+    const TYPE_TH = { rack: 'ชั้นวาง', aisle: 'ทางเดิน', zone: 'พื้นที่โซน', wall: 'ผนัง/สิ่งกีดขวาง', door: 'ประตู/ท่าโหลด', start: 'จุดหยิบ', label: 'ป้ายข้อความ' };
+    let h = `<div style="display:flex;align-items:center;gap:8px"><h3 style="flex:1">${TYPE_TH[e.type]}${e.name ? ` · ${esc(e.name)}` : ''}</h3>
+      <button class="btn btn-ghost btn-icon btn-sm edit-only" type="button" data-act="dup" aria-label="ทำสำเนา (Ctrl+D)" title="ทำสำเนา (Ctrl+D)">${icon('copy')}</button>
+      <button class="btn btn-ghost btn-icon btn-sm edit-only" type="button" data-act="del" aria-label="ลบ (Delete)" title="ลบ (Delete)">${icon('trash')}</button></div>`;
+    if (e.type === 'label') h += `<div class="field"><label for="p-text">ข้อความ</label><input class="input" id="p-text" value="${esc(e.text)}" ${S.readOnly ? 'disabled' : ''}></div>`;
+    else h += `<div class="field"><label for="p-name">ชื่อ</label><input class="input" id="p-name" value="${esc(e.name)}" ${S.readOnly ? 'disabled' : ''}></div>`;
+    if (e.type === 'zone' || e.type === 'rack') h += `<div class="field"><label for="p-zone">โซน</label><select class="select" id="p-zone" ${S.readOnly ? 'disabled' : ''}>${zoneOpts(e.zone)}</select></div>`;
+    if (e.type === 'start') h += `<div class="field"><label for="p-kind">ประเภทจุด</label><select class="select" id="p-kind" ${S.readOnly ? 'disabled' : ''}><option value="start" ${e.kind === 'start' ? 'selected' : ''}>จุดเริ่มหยิบ</option><option value="end" ${e.kind === 'end' ? 'selected' : ''}>จุดจบการหยิบ (วางรถเข็น)</option></select></div>`;
+    h += `<div class="form-grid">${num('p-x', 'ตำแหน่ง X', e.x, { suffix: 'ม.' })}${num('p-y', 'ตำแหน่ง Y', e.y, { suffix: 'ม.' })}`;
+    if (['zone', 'aisle', 'wall', 'door'].includes(e.type)) h += `${num('p-w', 'กว้าง', e.w, { suffix: 'ม.' })}${num('p-h', 'ยาว', e.h, { suffix: 'ม.' })}`;
+    if (e.type === 'rack') h += `${num('p-bays', 'จำนวนช่อง', e.bays)}${num('p-levels', 'จำนวนชั้น', e.levels)}${num('p-bayw', 'กว้างต่อช่อง', e.bayW, { suffix: 'ม.' })}${num('p-depth', 'ลึก', e.depth, { suffix: 'ม.' })}`;
+    h += '</div>';
+    if (e.type === 'rack') {
+      const sides = e.rot === 90 ? ['ด้านขวา', 'ด้านซ้าย'] : ['ด้านล่าง', 'ด้านบน'];
+      h += `<div class="form-grid"><div class="field"><label for="p-face">ด้านหน้า (ฝั่งที่หยิบ)</label><select class="select" id="p-face" ${S.readOnly ? 'disabled' : ''}><option value="front" ${e.face === 'front' ? 'selected' : ''}>${sides[0]}</option><option value="back" ${e.face === 'back' ? 'selected' : ''}>${sides[1]}</option><option value="both" ${e.face === 'both' ? 'selected' : ''}>ทั้งสองด้าน</option></select></div>
+        <div class="field edit-only"><span class="field-label">แนวชั้นวาง</span><button class="btn btn-outline" type="button" data-act="rot">${icon('rotate-cw')}หมุน 90°</button></div></div>`;
+      h += rackBindingHtml(e);
+    }
+    side.innerHTML = h;
+    bindPropInputs(e);
+  }
+  function bindPropInputs(e) {
+    const side = $('#side');
+    const on = (id, fn) => { const el = $(`#${id}`, side); if (el) el.addEventListener('change', () => { snapshot(); fn(el.value); commit(`edit ${e.type} ${e.name || ''}`); }); };
+    const n = (v, min = 0) => { const x = parseFloat(v); return Number.isFinite(x) ? Math.max(min, x) : min; };
+    on('p-name', (v) => { e.name = v.trim(); }); on('p-text', (v) => { e.text = v; });
+    on('p-zone', (v) => { e.zone = v; if (e.type === 'zone') { const z = DB.zones.find((x) => x.wh === wh.code && x.code === v); if (z) e.name = `${z.code} · ${z.name}`; } });
+    on('p-kind', (v) => { e.kind = v; });
+    on('p-x', (v) => { e.x = snap(n(v)); }); on('p-y', (v) => { e.y = snap(n(v)); });
+    on('p-w', (v) => { e.w = snap(n(v, GRID)); }); on('p-h', (v) => { e.h = snap(n(v, GRID)); });
+    on('p-bays', (v) => { e.bays = Math.max(1, Math.round(n(v, 1))); Object.keys(e.slots).forEach((k) => { if (+k.split('-')[0] > e.bays) delete e.slots[k]; }); });
+    on('p-levels', (v) => { e.levels = Math.max(1, Math.round(n(v, 1))); Object.keys(e.slots).forEach((k) => { if (+k.split('-')[1] > e.levels) delete e.slots[k]; }); });
+    on('p-bayw', (v) => { e.bayW = Math.max(0.5, n(v, 0.5)); }); on('p-depth', (v) => { e.depth = Math.max(0.5, n(v, 0.5)); });
+    on('p-face', (v) => { e.face = v; });
+    side.querySelector('[data-act="rot"]')?.addEventListener('click', () => { snapshot(); e.rot = e.rot === 90 ? 0 : 90; commit(`rotate rack ${e.name}`); });
+    side.querySelector('[data-act="dup"]')?.addEventListener('click', duplicate);
+    side.querySelector('[data-act="del"]')?.addEventListener('click', removeSel);
+    // pattern binding
+    const pat = () => ({ prefix: $('#b-prefix', side).value.trim().toUpperCase(), from: parseInt($('#b-from', side).value, 10), l1: parseInt($('#b-l1', side).value, 10), l2: parseInt($('#b-l2', side).value, 10) });
+    const preview = () => {
+      const p = pat(); const out = $('#b-prev', side); if (!out) return null;
+      if (!p.prefix || !(p.from >= 0) || !(p.l1 >= 1) || !(p.l2 >= p.l1)) { out.innerHTML = '<span class="muted">กรอกตัวหน้า ช่องเริ่ม และช่วงชั้น</span>'; return null; }
+      const bm = boundMap(); const plan = []; let missing = 0, taken = 0, wrong = 0;
+      for (let b = 1; b <= e.bays; b++) for (let lv = p.l1; lv <= Math.min(p.l2, p.l1 + e.levels - 1); lv++) {
+        const code = `${p.prefix}-${pad(p.from + b - 1, 2)}-${pad(lv, 2)}`; const loc = locByCode(code);
+        if (!loc) { missing++; continue; } if (!needsBinding(loc)) { wrong++; continue; }
+        const at = bm.get(code); if (at && at.rack.id !== e.id) { taken++; continue; }
+        plan.push({ key: `${b}-${lv - p.l1 + 1}`, code });
+      }
+      out.innerHTML = `<div class="preview-count"><b>${fmt(plan.length)}</b><span>ตำแหน่งจะผูก</span></div>
+        <div class="codes">${plan.length ? `<span class="mono">${esc(plan[0].code)}</span><span class="ellipsis">ถึง</span><span class="mono">${esc(plan[plan.length - 1].code)}</span>` : ''}</div>
+        ${missing || taken || wrong ? `<span class="caption">ข้าม: ไม่พบรหัส ${fmt(missing)} · ผูกกับชั้นวางอื่นแล้ว ${fmt(taken)} · ไม่ใช่ประเภทหยิบ/เก็บ ${fmt(wrong)}</span>` : ''}`;
+      $('#b-apply', side).disabled = !plan.length || S.readOnly;
+      return plan;
+    };
+    ['#b-prefix', '#b-from', '#b-l1', '#b-l2'].forEach((s) => $(s, side)?.addEventListener('input', preview));
+    preview();
+    $('#b-apply', side)?.addEventListener('click', () => {
+      const plan = preview(); if (!plan?.length) return;
+      snapshot(); e.slots = {}; plan.forEach((x) => { e.slots[x.key] = x.code; });
+      commit(`bind rack ${e.name} by pattern (${plan.length})`);
+      toast({ title: `ผูก ${fmt(plan.length)} ตำแหน่งกับ ${e.name} แล้ว` });
+    });
+    $('#b-clear', side)?.addEventListener('click', async () => {
+      const ok = await confirmDialog({ tone: 'warning', title: `ล้างการผูกของ ${esc(e.name)}?`, body: `${fmt(Object.keys(e.slots).length)} ตำแหน่งจะกลับเป็นยังไม่ผูก · ย้อนกลับได้ด้วย Ctrl+Z`, confirmLabel: 'ล้างการผูก' });
+      if (!ok) return; snapshot(); e.slots = {}; commit(`unbind rack ${e.name}`);
+    });
+    $$('[data-baybtn]', side).forEach((b) => b.addEventListener('click', () => { S.bay = +b.dataset.baybtn; renderCanvas(); renderSide(); }));
+    $$('[data-lvl-bind]', side).forEach((sel) => sel.addEventListener('change', () => {
+      const key = sel.dataset.lvlBind; if (!sel.value) return;
+      snapshot(); e.slots[key] = sel.value; commit(`bind ${sel.value} → ${e.name}`);
+    }));
+    $$('[data-lvl-unbind]', side).forEach((b) => b.addEventListener('click', () => { snapshot(); delete e.slots[b.dataset.lvlUnbind]; commit(`unbind slot ${e.name}`); }));
+  }
+  function rackBindingHtml(r) {
+    const first = Object.values(r.slots)[0];
+    const guess = first ? first.split('-') : [r.zone || '', '01', '01'];
+    const from = first ? parseInt(guess[1], 10) - 0 : 1;
+    let h = `<div class="form-section" style="padding-top:16px;border-top:1px solid var(--border)"><h3>ผูกตำแหน่งตามรูปแบบรหัส</h3>
+      <div class="form-grid"><div class="field"><label for="b-prefix">ตัวหน้า</label><input class="input mono" id="b-prefix" value="${esc(guess[0])}" ${S.readOnly ? 'disabled' : ''}></div>
+      <div class="field"><label for="b-from">ช่องแรกเป็นแถว</label><input class="input tnum" id="b-from" inputmode="numeric" value="${from}" ${S.readOnly ? 'disabled' : ''}></div>
+      <div class="field"><label for="b-l1">ชั้นตั้งแต่</label><input class="input tnum" id="b-l1" inputmode="numeric" value="1" ${S.readOnly ? 'disabled' : ''}></div>
+      <div class="field"><label for="b-l2">ถึงชั้น</label><input class="input tnum" id="b-l2" inputmode="numeric" value="${r.levels}" ${S.readOnly ? 'disabled' : ''}></div></div>
+      <div class="preview" id="b-prev" aria-live="polite"></div>
+      <div style="display:flex;gap:8px" class="edit-only"><button class="btn btn-primary" type="button" id="b-apply">${icon('link')}ผูกตามรูปแบบ</button>${Object.keys(r.slots).length ? `<button class="btn btn-outline" type="button" id="b-clear">${icon('unlink')}ล้างการผูก</button>` : ''}</div></div>`;
+    h += `<div class="form-section" style="padding-top:16px;border-top:1px solid var(--border)"><h3>ช่องในชั้นวาง</h3><div class="bay-grid" role="group" aria-label="ช่อง">`;
+    for (let b = 1; b <= r.bays; b++) {
+      const st = bayState(r, b);
+      h += `<button class="bay-btn ${st.fill}" type="button" data-baybtn="${b}" aria-pressed="${S.bay === b}">ช่อง ${pad(b, 2)}<small>${st.codes.length}/${r.levels} ชั้น</small></button>`;
+    }
+    h += '</div>';
+    if (S.bay && S.bay <= r.bays) {
+      const bm = boundMap();
+      const free = DB.locations.filter((l) => l.wh === wh.code && needsBinding(l) && !bm.has(l.code) && (!r.zone || l.zone === r.zone));
+      h += `<div class="level-rows" style="margin-top:8px"><p class="label">ช่อง ${pad(S.bay, 2)} · แต่ละชั้น</p>`;
+      for (let lv = r.levels; lv >= 1; lv--) {
+        const key = `${S.bay}-${lv}`, code = r.slots[key], loc = code && locByCode(code);
+        h += `<div class="level-row"><span class="caption">ชั้น ${pad(lv, 2)}</span>`;
+        if (code) h += `<span style="display:flex;gap:6px;align-items:center;min-width:0"><span class="mono">${esc(code)}</span>${loc?.status === 'disabled' ? Z.badge('neutral', 'circle-slash', 'ปิดใช้') : loc?.status === 'counting' ? Z.badge('info', 'lock', 'ล็อกนับ') : ''}</span><button class="btn btn-ghost btn-icon btn-sm edit-only" type="button" data-lvl-unbind="${key}" aria-label="เลิกผูก ${esc(code)}">${icon('unlink')}</button>`;
+        else h += `<select class="select" data-lvl-bind="${key}" aria-label="ผูกตำแหน่งกับชั้น ${lv}" ${S.readOnly ? 'disabled' : ''}><option value="">ยังไม่ผูก · เลือกตำแหน่ง</option>${free.map((l) => `<option value="${esc(l.code)}">${esc(l.code)}</option>`).join('')}</select><span></span>`;
+        h += '</div>';
+      }
+      h += '</div>';
+    }
+    return `${h}</div>`;
+  }
+
+  // Binding list: keyboard-operable alternative to the canvas (UX-DR42).
+  let bindFilter = { zone: '', q: '' };
+  function renderBindPanel(side) {
+    const bm = boundMap();
+    const racks = L.draft.filter((e) => e.type === 'rack');
+    const freeSlots = [];
+    racks.forEach((r) => { for (let b = 1; b <= r.bays; b++) for (let l = 1; l <= r.levels; l++) if (!r.slots[`${b}-${l}`]) freeSlots.push({ r, b, l }); });
+    const all = DB.locations.filter((l) => l.wh === wh.code && needsBinding(l));
+    const list = all.filter((l) => !bm.has(l.code) && (!bindFilter.zone || l.zone === bindFilter.zone) && (!bindFilter.q || l.code.includes(bindFilter.q.toUpperCase())));
+    const zones = [...new Set(all.map((l) => l.zone))];
+    side.innerHTML = `<div><h3>ตำแหน่งที่ยังไม่ผูก</h3><p class="caption">ผูกแล้ว ${fmt(all.length - all.filter((l) => !bm.has(l.code)).length)} จาก ${fmt(all.length)} ตำแหน่งหยิบและเก็บ · ที่ยังไม่ผูกจะใช้ลำดับเดินแทนตอนหยิบ</p></div>
+      <div class="form-grid"><div class="field"><label for="bf-zone">โซน</label><select class="select" id="bf-zone"><option value="">ทุกโซน</option>${zones.map((z) => `<option ${z === bindFilter.zone ? 'selected' : ''}>${esc(z)}</option>`).join('')}</select></div>
+      <div class="field"><label for="bf-q">ค้นหา</label><input class="input mono" id="bf-q" value="${esc(bindFilter.q)}" placeholder="C-01"></div></div>
+      ${list.length ? `<div class="unbound-list">${list.slice(0, 80).map((l) => {
+        const opts = freeSlots.filter((s) => !s.r.zone || s.r.zone === l.zone);
+        return `<div class="ub-row"><span><span class="mono">${esc(l.code)}</span> <span class="caption">โซน ${esc(l.zone)} · ${esc(Z.typeLabel(l.type))}${l.status !== 'active' ? ` · ${l.status === 'disabled' ? 'ปิดใช้' : 'ล็อกนับ'}` : ''}</span></span><span></span>
+          <div class="ub-act edit-only"><label class="sr-only" for="ub-${esc(l.code)}">ผูก ${esc(l.code)} กับช่อง</label><select class="select" id="ub-${esc(l.code)}" data-ub="${esc(l.code)}" ${S.readOnly || !opts.length ? 'disabled' : ''}><option value="">${opts.length ? 'เลือกช่องว่าง' : 'ไม่มีช่องว่างในโซนนี้ · วาดชั้นวางก่อน'}</option>${opts.slice(0, 120).map((s) => `<option value="${s.r.id}|${s.b}|${s.l}">${esc(s.r.name)} · ช่อง ${pad(s.b, 2)} · ชั้น ${pad(s.l, 2)}</option>`).join('')}</select>
+          <button class="btn btn-outline btn-sm" type="button" data-ub-go="${esc(l.code)}" disabled>${icon('link')}ผูก</button></div></div>`;
+      }).join('')}</div>${list.length > 80 ? `<p class="caption">แสดง 80 จาก ${fmt(list.length)}</p>` : ''}`
+      : `<div class="state" style="min-height:0;padding:24px">${icon('check-circle', 'ic-48')}<h3>${bindFilter.zone || bindFilter.q ? 'ไม่มีตำแหน่งที่ยังไม่ผูกตามตัวกรอง' : 'ผูกครบทุกตำแหน่งแล้ว'}</h3></div>`}`;
+    $('#bf-zone', side).addEventListener('change', (ev) => { bindFilter.zone = ev.target.value; renderBindPanel(side); });
+    let t; $('#bf-q', side).addEventListener('input', (ev) => { clearTimeout(t); t = setTimeout(() => { bindFilter.q = ev.target.value.trim(); renderBindPanel(side); $('#bf-q', side).focus(); }, 300); });
+    $$('[data-ub]', side).forEach((s) => s.addEventListener('change', () => { side.querySelector(`[data-ub-go="${CSS.escape(s.dataset.ub)}"]`).disabled = !s.value; }));
+    $$('[data-ub-go]', side).forEach((b) => b.addEventListener('click', () => {
+      const code = b.dataset.ubGo, v = side.querySelector(`[data-ub="${CSS.escape(code)}"]`).value; if (!v) return;
+      const [id, bay, lv] = v.split('|'); const r = byId(id);
+      snapshot(); r.slots[`${bay}-${lv}`] = code; S.sel = r.id; S.bay = +bay; commit(`bind ${code} → ${r.name}`);
+      toast({ title: `ผูก ${code} กับ ${r.name} ช่อง ${pad(+bay, 2)} ชั้น ${pad(+lv, 2)} แล้ว` });
+    }));
+  }
+
+  // Route preview (Story 2.14).
+  function renderRoutePanel(side) {
+    const list = els(); const bm = boundMap(list);
+    const starts = list.filter((e) => e.type === 'start' && e.kind === 'start');
+    const candidates = DB.locations.filter((l) => l.wh === wh.code && needsBinding(l));
+    if (!S.routePick.length) { const pool = candidates.filter((l) => bm.has(l.code)); S.routePick = pool.sort(() => 0.5 - Math.random()).slice(0, 10).map((l) => l.code); }
+    S.route = computeRoute(S.routePick, list, S.routeStart);
+    const r = S.route;
+    const saved = r.ok && r.seqTotal > r.total ? Math.round((1 - r.total / r.seqTotal) * 100) : 0;
+    side.innerHTML = `<div class="form-grid"><div class="field"><label for="r-src">ใช้ผัง</label><select class="select" id="r-src"><option value="draft" ${S.routeSrc === 'draft' ? 'selected' : ''}>แบบร่าง</option>${L.published ? `<option value="published" ${S.routeSrc === 'published' ? 'selected' : ''}>v${L.published.version} ที่ใช้งานอยู่</option>` : ''}</select></div>
+      <div class="field"><label for="r-start">เริ่มที่</label><select class="select" id="r-start">${starts.map((s) => `<option value="${s.id}" ${s.id === S.routeStart ? 'selected' : ''}>${esc(s.name)}</option>`).join('') || '<option>ไม่มีจุดเริ่ม</option>'}</select></div></div>
+      ${r.ok ? `<div style="display:flex;gap:24px;flex-wrap:wrap"><div class="metric"><b>${fmt(r.total, 1)}</b><span>ม. ตามผัง</span></div><div class="metric"><b class="muted" style="font-size:20px">${fmt(r.seqTotal, 1)}</b><span class="caption">ม. ถ้าเดินตามลำดับเดิน${saved ? ` · สั้นลง ${saved}%` : ''}</span></div></div>`
+        : `<div class="alert alert-danger">${icon('x-octagon')}<p>${esc(r.reason)} · ทุกจุดจะใช้ลำดับเดินแทน</p></div>`}
+      <div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="label" style="flex:1">ตำแหน่งตัวอย่าง (${fmt(S.routePick.length)})</span><button class="btn btn-ghost btn-sm" type="button" id="r-rand">${icon('shuffle')}สุ่มใหม่</button></div>
+        <div class="pick-loc" role="group" aria-label="ตำแหน่งตัวอย่าง">${candidates.map((l) => `<label><input type="checkbox" value="${esc(l.code)}" ${S.routePick.includes(l.code) ? 'checked' : ''}>${esc(l.code)}${bm.has(l.code) ? '' : ' ·ไม่ผูก'}</label>`).join('')}</div></div>
+      <div><p class="label" style="margin-bottom:6px">ลำดับจุดหยิบ</p><ol class="stop-list" style="margin:0;padding:0;list-style:none" aria-label="ลำดับจุดหยิบ">
+        ${r.ok ? r.stops.map((s, i) => `<li class="stop"><span class="n">${i + 1}</span><span class="mono">${esc(s.code)}</span><span class="caption tnum">${fmt(s.dist, 1)} ม.</span></li>`).join('') : ''}
+        ${(r.fallback || []).map((c) => `<li class="stop"><span class="n fb">–</span><span class="mono">${esc(c)}</span><span class="caption">ตามลำดับเดิน</span></li>`).join('')}
+      </ol></div>`;
+    $('#r-src', side).addEventListener('change', (ev) => { S.routeSrc = ev.target.value; S.routeStart = null; renderCanvas(); renderSide(); });
+    $('#r-start', side).addEventListener('change', (ev) => { S.routeStart = ev.target.value; renderSide(); renderCanvas(); });
+    $('#r-rand', side).addEventListener('click', () => { S.routePick = []; renderSide(); renderCanvas(); });
+    $$('.pick-loc input', side).forEach((c) => c.addEventListener('change', () => {
+      S.routePick = c.checked ? [...S.routePick, c.value] : S.routePick.filter((x) => x !== c.value);
+      renderSide(); renderCanvas(); side.querySelector(`.pick-loc input[value="${CSS.escape(c.value)}"]`)?.focus();
+    }));
+    renderCanvas();
+  }
+
+  // ── Mode switch ───────────────────────────────────────────
+  $$('[data-mode]').forEach((b) => b.addEventListener('click', () => {
+    S.mode = b.dataset.mode;
+    $$('[data-mode]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    S.valTargets = null;
+    if (S.mode === 'route') { S.sel = null; S.tab = 'route'; $('#hint').textContent = HINTS.route; $('#tools').style.visibility = 'hidden'; }
+    else { S.tab = 'props'; $('#tools').style.visibility = ''; setTool('select'); }
+    renderCanvas(); renderSide();
+  }));
+
+  // ── Publish (validation gate) ─────────────────────────────
+  const dlg = $('#dlg-pub');
+  $$('[data-pub-x]', dlg).forEach((b) => b.addEventListener('click', () => dlg.close()));
+  $('#btn-publish').addEventListener('click', () => {
+    const items = validateLayout();
+    const blocks = items.filter((i) => i.lvl === 'block'), warns = items.filter((i) => i.lvl === 'warn');
+    S.valTargets = blocks.map((b) => b.target).filter(Boolean); renderCanvas();
+    $('#pub-sub').textContent = blocks.length ? `แก้ ${fmt(blocks.length)} รายการก่อนจึงเผยแพร่ได้` : warns.length ? 'เผยแพร่ได้ · มีรายการที่ควรรู้' : 'ผ่านการตรวจทั้งหมด';
+    $('#val-list').innerHTML = [...blocks, ...warns].map((i, n) => `<div class="val-item ${i.lvl}">${icon(i.lvl === 'block' ? 'x-octagon' : 'alert-triangle')}<span class="grow">${esc(i.text)}</span>${i.target ? `<button class="btn btn-outline" type="button" data-go="${n}">ไปที่</button>` : ''}</div>`).join('')
+      || `<div class="val-item ok">${icon('check-circle')}<span class="grow">ชั้นวางทุกตัวเดินถึงได้ ทางเดินเชื่อมกับจุดเริ่มหยิบ และผูกตำแหน่งครบ</span></div>`;
+    const all = [...blocks, ...warns];
+    $$('[data-go]', dlg).forEach((b) => b.addEventListener('click', () => {
+      const it = all[+b.dataset.go]; dlg.close();
+      if (it.target === 'bind') { S.tab = 'bind'; S.sel = null; } else { S.sel = it.target; S.bay = null; S.tab = 'props'; }
+      renderCanvas(); renderSide();
+    }));
+    $('#btn-do-pub').disabled = blocks.length > 0 || MOCK.offline;
+    $('#pub-note').textContent = blocks.length ? '' : `จะเป็น v${(L.published?.version || 0) + 1} · ใบหยิบที่สร้างไว้แล้วยังใช้ลำดับเดิม`;
+    dlg.showModal();
+    $('[data-pub-x]', dlg).focus();
+  });
+  $('#btn-do-pub').addEventListener('click', async (e) => {
+    await busy(e.currentTarget, 900);
+    const v = (L.published?.version || 0) + 1;
+    L.published = { version: v, at: nowIso(), by: 'ต้น', elements: clone(L.draft) };
+    persist(); logAction('layout-publish', `layout:${wh.code}`, `v${v}`);
+    dlg.close(); S.valTargets = null; renderCanvas(); renderSide();
+    toast({ title: `เผยแพร่ผัง v${v} แล้ว`, body: 'ใบหยิบที่สร้างหลังจากนี้ใช้เส้นทางตามผังนี้' });
+  });
+
+  // ── Empty state (no layout yet) ───────────────────────────
+  function renderEmpty() {
+    $('#editor').hidden = true;
+    let el = $('#empty-layout');
+    if (!el) { el = document.createElement('section'); el.id = 'empty-layout'; el.className = 'panel'; $('#editor').after(el); }
+    el.hidden = false;
+    el.innerHTML = `<div class="state" style="min-height:420px">${icon('map', 'ic-48')}<h3>ยังไม่มีผังของ${esc(wh.name)}</h3><p>วาดชั้นวาง ทางเดิน และจุดเริ่มหยิบ แล้วผูกตำแหน่ง ระบบจะใช้ผังนี้หาเส้นทางหยิบที่สั้นที่สุด</p><button class="btn btn-primary write-only" type="button" id="btn-start-layout" data-write>${icon('plus')}เริ่มวาดผัง</button></div>`;
+    $('#btn-start-layout').addEventListener('click', () => {
+      L = { wh: wh.code, w: 48, h: 33, draft: [], editedAt: nowIso(), published: null }; persist();
+      el.hidden = true; $('#editor').hidden = false; boot();
+      setTool('aisle'); toast({ tone: 'info', title: 'เริ่มจากวาดทางเดิน', body: 'แล้วตามด้วยชั้นวางและจุดเริ่มหยิบ' });
+    });
+  }
+
+  // ── Read-only (narrow screen, offline) ────────────────────
+  const wideMq = matchMedia('(min-width: 1280px)');
+  wideMq.addEventListener('change', () => applyReadOnly());
+  addEventListener('load', () => applyReadOnly());
+  function applyReadOnly() {
+    const ro = Boolean(!wideMq.matches || MOCK.offline || S.forceRo);
+    if (ro === S.readOnly) return;
+    S.readOnly = ro;
+    document.body.classList.toggle('readonly', ro);
+    $('#ro-note').hidden = !ro;
+    $('#ro-note p').textContent = MOCK.offline ? 'ออฟไลน์ · ดูผังได้ แต่แก้และเผยแพร่ไม่ได้จนกว่าจะเชื่อมต่อใหม่' : 'ดูผังอย่างเดียว · แก้ผังได้บนจอกว้าง 1280px ขึ้นไป';
+    if (ro) setTool('select');
+    renderSide(); renderCanvas();
+  }
+  addEventListener('resize', () => { applyReadOnly(); if (L) { const k = S.fitW / S.view.w; fit(); S.view.w = S.fitW / k; applyView(); } });
+
+  function renderAll() { renderCanvas(); renderSide(); }
+  function boot() {
+    fit(); applyView(); setTool('select'); renderAll();
+  }
+  if (L) { requestAnimationFrame(() => { boot(); applyReadOnly(); }); } else renderEmpty();
+
+  Z.mockbar([{ group: 'ผังคลัง', items: [
+    { key: 'ly', value: 'normal', label: 'มีผัง', default: true },
+    { key: 'ly', value: 'empty', label: 'ยังไม่มีผัง' },
+    { key: 'ly', value: 'ro', label: 'ดูอย่างเดียว' },
+    { key: 'ly', value: 'route', label: 'ทดสอบเส้นทาง' },
+  ] }]);
+  document.addEventListener('mock', (e) => {
+    if (e.detail.key === 'offline') { S.readOnly = !MOCK.offline; applyReadOnly(); return; }
+    if (e.detail.key !== 'ly') return;
+    const v = e.detail.value;
+    if (v === 'empty') { renderEmpty(); return; }
+    $('#empty-layout')?.setAttribute('hidden', '');
+    if (!L) { L = DB.layouts[wh.code] = seedLayout(); persist(); }
+    $('#editor').hidden = false;
+    S.forceRo = v === 'ro'; S.readOnly = !S.forceRo; applyReadOnly();
+    if (!S.view) boot();
+    if (v === 'route') $('[data-mode="route"]').click(); else if (S.mode === 'route') $('[data-mode="edit"]').click();
+  });
+})();
+</script>
+</body>
+</html>

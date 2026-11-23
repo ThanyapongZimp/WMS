@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ส่งมอบและปิดวัน · คลังบางเขน · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* Governing spine sections:
+ DESIGN.md: Layout & Spacing (Stations 3-zone, Office shell content), Typography (station-counter 48, station-next 22),
+   Components: Step strip, Next-scan banner, Signature pad, Print status chip, Status badge, Module tabs (L2),
+   Page header, Button (primary, disabled state), Count chip.
+ EXPERIENCE.md: UJ-4 steps 3-6 (scan containers not parcels, rider signs, confirm handover, 22:00 day close),
+   Component Patterns (Signature pad, Button, Module tabs, Count chip), Permissions & Masking (state-based disabled
+   with reason), Voice and Tone ("ยืนยันส่งมอบ 14 ภาชนะ"), Printing, Accessibility Floor. */
+
+:root{
+  --background:#F6F7F9; --foreground:#161A23; --card:#FFFFFF;
+  --primary:#4A3FD6; --primary-hover:#3B31B8; --primary-foreground:#FFFFFF;
+  --secondary:#EEF0F4; --muted:#EEF0F4; --muted-foreground:#596072;
+  --accent:#EEEDFC; --accent-foreground:#2F2894;
+  --destructive:#C4281C; --destructive-foreground:#FFFFFF;
+  --border:#E1E4EA; --input:#8C93A3; --ring:#4A3FD6; --disabled-foreground:#9AA0AE;
+  --success:#13794A; --success-soft:#E5F5EC; --success-soft-foreground:#106A40;
+  --warning:#F2A516; --warning-foreground:#2B1D00; --warning-strong:#B86E00;
+  --warning-soft:#FEF3DC; --warning-soft-foreground:#8A5000;
+  --danger-soft:#FDECEA; --danger-soft-foreground:#B0261B;
+  --info:#1F66C1; --info-soft:#E7F0FB; --info-soft-foreground:#195AAB;
+  --neutral:#5F6678; --neutral-soft:#EDEFF3; --neutral-soft-foreground:#4A5163;
+  --scan-accept:#13794A; --scan-reject:#C4281C; --scan-blocked:#F2A516; --scan-blocked-foreground:#2B1D00;
+  --sidebar:#FFFFFF; --sidebar-accent:#EEEDFC; --sidebar-accent-foreground:#2F2894; --sidebar-border:#E1E4EA;
+  --pda-bar:#1B2030; --pda-bar-foreground:#FFFFFF;
+  --chart-1:#4A3FD6; --chart-2:#1F66C1; --chart-3:#0E8A86; --chart-4:#B86E00; --chart-5:#8A4FBF;
+  --r-sm:4px; --r-md:6px; --r-lg:8px; --r-xl:12px; --r-full:9999px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'IBM Plex Sans Thai',system-ui,sans-serif;font-size:14px;line-height:1.6;color:var(--foreground);background:var(--background)}
+h1,h2,h3,p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500}
+.tnum{font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic-20{width:20px;height:20px}.ic-24{width:24px;height:24px}.ic-32{width:32px;height:32px}.ic-96{width:96px;height:96px}
+/* Accessibility floor: ring 2px + 2px offset on every focusable element, never removed */
+:focus-visible,.is-focus{outline:2px solid var(--ring);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Status badge: one map, icon + Thai label + tone */
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:var(--r-full);padding:2px 10px;font-size:13px;font-weight:500;line-height:1.45;white-space:nowrap}
+.badge .ic{width:14px;height:14px}
+.t-success{background:var(--success-soft);color:var(--success-soft-foreground)}
+.t-warning{background:var(--warning-soft);color:var(--warning-soft-foreground)}
+.t-danger{background:var(--danger-soft);color:var(--danger-soft-foreground)}
+.t-neutral{background:var(--neutral-soft);color:var(--neutral-soft-foreground)}
+.t-info{background:var(--info-soft);color:var(--info-soft-foreground)}
+.chip{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 7px;border-radius:var(--r-full);background:var(--muted);color:var(--foreground);font-size:13px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+.chip.over{background:var(--danger-soft);color:var(--danger-soft-foreground)}
+/* Mock canvas annotations (not product UI) */
+.mock-note{font-size:13px;color:var(--muted-foreground);line-height:1.5}
+.mock-title{font-size:16px;font-weight:600;line-height:1.5;color:var(--foreground)}
+
+
+body{background:var(--muted)}
+.canvas{padding:32px;display:flex;flex-direction:column;gap:16px;width:max-content}
+.st{width:1920px;height:1080px;background:var(--background);display:flex;flex-direction:column;overflow:hidden;position:relative;border:1px solid var(--border)}
+.stbar{height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;flex:none}
+.stbar .code{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:18px}
+.stbar .who{color:var(--muted-foreground)}
+.dev{display:flex;gap:8px;margin-left:auto}
+.stbtn{height:48px;display:inline-flex;align-items:center;gap:8px;padding:0 16px;border-radius:var(--r-md);font-weight:600;font-size:16px;white-space:nowrap}
+.stbtn.outline{border:1px solid var(--input);background:var(--card)}
+.stbtn.primary{background:var(--primary);color:var(--primary-foreground)}
+.stbtn.ghost{color:var(--muted-foreground)}
+.stbtn kbd,.cmd kbd{font-family:'IBM Plex Mono',monospace;font-size:13px;border:1px solid var(--border);border-radius:var(--r-sm);padding:0 6px;background:var(--muted);color:var(--muted-foreground);font-weight:500}
+.zones{flex:1;display:grid;grid-template-columns:30fr 45fr 25fr;gap:24px;padding:24px;min-height:0}
+.zone{display:flex;flex-direction:column;gap:16px;min-width:0;min-height:0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg)}
+.pad{padding:16px 20px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:16px}
+.kv dt{color:var(--muted-foreground)}
+.kv dd{margin:0;font-weight:600}
+.h2{font-size:18px;font-weight:600;line-height:1.45}
+.lbl{font-size:13px;font-weight:500;color:var(--muted-foreground);line-height:1.45}
+.steps{display:flex;align-items:center;gap:8px}
+.step{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;white-space:nowrap}
+.step .n{width:28px;height:28px;border-radius:var(--r-full);display:grid;place-items:center;font-weight:600;font-size:14px;background:var(--neutral-soft);color:var(--neutral-soft-foreground);flex:none}
+.step.cur .n{background:var(--primary);color:var(--primary-foreground)}
+.step.done .n{background:var(--success);color:#FFFFFF}
+.step.wait{color:var(--muted-foreground)}
+.line{flex:1;height:2px;background:var(--border);min-width:16px}
+.line.done{background:var(--success)}
+.nextban{background:var(--primary);color:var(--primary-foreground);border-radius:var(--r-xl);padding:16px 20px;font-size:22px;font-weight:600;line-height:1.35;display:flex;align-items:center;gap:12px}
+.scanst{height:64px;border:2px solid var(--primary);border-radius:var(--r-xl);display:flex;align-items:center;gap:12px;padding:0 16px;font-size:24px;font-weight:600;line-height:1.3;color:var(--muted-foreground);background:var(--card);box-shadow:0 0 0 4px var(--accent)}
+.scanst .echo{margin-left:auto;font-size:16px;font-weight:500;color:var(--muted-foreground);display:flex;align-items:center;gap:6px}
+.tile{background:var(--muted);border-radius:var(--r-lg);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.tile .v{font-size:18px;font-weight:600;line-height:1.45}
+.tile .grow{flex:1}
+.counter{font-size:48px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.devchip{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:16px}
+th{background:var(--muted);color:var(--muted-foreground);font-weight:500;font-size:13px;text-align:left;padding:0 16px;height:40px}
+th.num,td.num{text-align:right}
+td{height:52px;padding:6px 16px;border-top:1px solid var(--border);line-height:1.45}
+td small{display:block;font-size:14px;color:var(--muted-foreground)}
+td .qty{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.cmds{display:flex;gap:8px;flex-wrap:wrap}
+.cmd{height:48px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;border-radius:var(--r-md);border:1px solid var(--input);background:var(--card);font-size:16px;font-weight:600}
+.cmd.pri{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+.cmd.pri kbd{background:var(--accent);color:var(--accent-foreground);border-color:var(--accent)}
+.camv{aspect-ratio:4/3;background:var(--pda-bar);border-radius:var(--r-lg);position:relative;display:grid;place-items:center;color:var(--neutral-soft)}
+.rec{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:8px;background:var(--card);color:var(--foreground);border-radius:var(--r-full);padding:4px 12px;font-size:14px;font-weight:500}
+.rec i{width:10px;height:10px;border-radius:var(--r-full);background:var(--destructive);display:inline-block}
+
+.ctns{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.ctn{border:1px solid var(--border);border-radius:var(--r-lg);padding:8px 10px;background:var(--card);display:flex;flex-direction:column;gap:2px}
+.ctn .c{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:14px}
+.ctn .p{font-size:14px;color:var(--muted-foreground);display:flex;align-items:center;gap:4px}
+.ctn .p .ic{color:var(--success)}
+.wave{display:flex;flex-direction:column;gap:6px;padding:12px 0;border-top:1px solid var(--border)}
+.wave:first-of-type{border-top:0}
+.wave .top{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600}
+.wave .top .badge{margin-left:auto}
+.wave .meta{font-size:14px;color:var(--muted-foreground);display:flex;justify-content:space-between}
+.track{height:8px;border-radius:var(--r-full);background:var(--muted);overflow:hidden}
+.track i{display:block;height:100%}
+.sig-wrap{display:flex;flex-direction:column;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:14px;font-weight:500}
+.inp{height:48px;border:1px solid var(--input);border-radius:var(--r-md);padding:0 12px;display:flex;align-items:center;font-size:16px;background:var(--card)}
+.sigpad{height:200px;border:1px solid var(--input);border-radius:var(--r-lg);background:var(--card);position:relative}
+.sigpad svg{position:absolute;inset:0;width:100%;height:100%}
+.sigpad .base{position:absolute;left:24px;right:24px;bottom:40px;border-top:1px dashed var(--input)}
+.sigpad .who{position:absolute;left:24px;bottom:12px;font-size:14px;color:var(--muted-foreground)}
+.row{display:flex;gap:8px;align-items:center}
+.confirm{height:56px;font-size:18px}
+.manifest{display:flex;flex-direction:column;gap:0}
+.mrow{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border);font-size:16px}
+.mrow:first-child{border-top:0}
+.mrow b{font-variant-numeric:tabular-nums}
+.mtotal{display:flex;justify-content:space-between;padding-top:10px;border-top:2px solid var(--foreground);font-weight:600;font-size:16px}
+.sigthumb{height:56px;border:1px solid var(--border);border-radius:var(--r-md);margin-top:8px;position:relative}
+.sigthumb svg{position:absolute;inset:0;width:100%;height:100%}
+/* Office day-close */
+.office{width:1440px;background:var(--background);border:1px solid var(--border)}
+.oc{padding:20px 24px 32px;display:flex;flex-direction:column;gap:20px}
+.oc h1{font-size:24px;font-weight:600;line-height:1.35}
+.oc .sub{color:var(--muted-foreground)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border)}
+.tabs a{height:40px;display:flex;align-items:center;gap:6px;padding:0 10px;color:var(--muted-foreground);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs a[aria-selected="true"]{color:var(--foreground);border-bottom-color:var(--primary)}
+.btn{height:36px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;border-radius:var(--r-md);font-weight:500;white-space:nowrap;font-size:14px}
+.btn-outline{border:1px solid var(--input);background:var(--card)}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn[disabled]{background:var(--muted);color:var(--disabled-foreground);cursor:not-allowed}
+.dc-grid{display:grid;grid-template-columns:7fr 5fr;gap:16px;align-items:start}
+.card-h{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.card-h h2{font-size:18px;font-weight:600;line-height:1.45}
+.check{list-style:none;margin:0;padding:0}
+.check li{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--border);min-height:56px}
+.check li:first-child{border-top:0}
+.check .t{flex:1;line-height:1.45}
+.check .t small{display:block;font-size:12px;color:var(--muted-foreground)}
+.check .lnk{color:var(--primary);font-weight:500;display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 8px;border-radius:var(--r-md)}
+.dc-foot{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--border)}
+.dc-foot .why{color:var(--muted-foreground);font-size:14px;margin-left:auto}
+.otable{width:100%;border-collapse:collapse;font-size:14px}
+.otable th{background:var(--muted);height:40px;font-size:13px}
+.otable td{height:44px;font-size:14px}
+
+</style>
+</head>
+<body class="">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol><symbol id="i-x-octagon" viewBox="0 0 24 24"><path d="m15 9-6 6"/><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"/><path d="m9 9 6 6"/></symbol><symbol id="i-pause-octagon" viewBox="0 0 24 24"><path d="M10 15V9"/><path d="M14 15V9"/><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol><symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol><symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-circle-slash" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 15 15 9"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol><symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol><symbol id="i-chevrons-left" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol><symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol><symbol id="i-dashboard" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol><symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/></symbol><symbol id="i-inbound" viewBox="0 0 24 24"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></symbol><symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><rect width="12" height="12" x="6" y="10"/></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol><symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M8 10v4"/><path d="M16 18v4"/></symbol><symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol><symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></symbol><symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol><symbol id="i-weight" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z"/></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol><symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol><symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol><symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol><symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></symbol><symbol id="i-tablet" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M12 18h.01"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol><symbol id="i-video" viewBox="0 0 24 24"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol><symbol id="i-calendar-check" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol><symbol id="i-maximize" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol><symbol id="i-keyboard" viewBox="0 0 24 24"><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/></symbol></svg>
+<div class="canvas">
+<div><p class="mock-title">A · สถานีส่งมอบ HO-01 · โหลดภาชนะครบ ขั้นเซ็นรับ (UJ-4 ขั้นที่ 3–5)</p>
+<p class="mock-note">สแกนภาชนะ ไม่ใช่พัสดุ · ภาชนะ 14/14 · พัสดุ 612 · คนขับเซ็นบนแท็บเล็ต (ค่าเริ่มต้น) แล้วลายเซ็นขึ้นบนตัวอย่างใบส่งมอบก่อนยืนยัน · ปุ่มยืนยันโฟกัส · 1920×1080</p></div>
+<div class="st" aria-label="สถานีส่งมอบ HO-01">
+<div class="stbar"><span class="code" translate="no">HO-01</span><span>ส่งมอบขนส่ง</span><span class="who">แอน วิไลพร · 17:38</span>
+  <div class="dev"><span class="devchip"><svg class="ic " aria-hidden="true"><use href="#i-scan"/></svg>สแกนเนอร์ <span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>พร้อม</span></span>
+  <span class="devchip"><svg class="ic " aria-hidden="true"><use href="#i-printer"/></svg>เครื่องพิมพ์ <span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>พร้อม</span></span>
+  <span class="devchip"><svg class="ic " aria-hidden="true"><use href="#i-tablet"/></svg>แท็บเล็ต TB-01 <span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>เชื่อมต่อแล้ว</span></span></div>
+  <button class="stbtn ghost" aria-label="ออกจากโหมดเต็มจอ"><svg class="ic ic-20" aria-hidden="true"><use href="#i-maximize"/></svg><kbd>F11</kbd></button></div>
+<div class="zones">
+  <div class="zone">
+    <div class="card pad" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px"><span class="lbl">ใบส่งมอบ</span><span class="badge t-info"><svg class="ic " aria-hidden="true"><use href="#i-loader"/></svg>กำลังส่งมอบ</span></div>
+      <div class="h2 mono" translate="no">HO2611-0087</div>
+      <dl class="kv"><dt>ขนส่ง</dt><dd>Flash Express · รอบ 17:30</dd><dt>ทะเบียนรถ</dt><dd>3ฒข 4821 กรุงเทพมหานคร</dd>
+        <dt>คนขับ</dt><dd>สมพงษ์ ใจดี</dd><dt>รถมาถึง</dt><dd class="tnum">17:22</dd></dl>
+    </div>
+    <div class="card pad"><p class="h2">รอบส่งมอบวันนี้</p>
+      <div class="wave"><div class="top"><svg class="ic ic-20" aria-hidden="true"><use href="#i-truck"/></svg>Flash<span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>โหลดครบ</span></div><div class="track" role="progressbar" aria-valuenow="14" aria-valuemax="14" aria-label="Flash ภาชนะ 14 จาก 14"><i style="width:100%;background:var(--success)"></i></div><div class="meta"><span class="tnum">ภาชนะ 14/14 · พัสดุ 612</span><span>กำลังเซ็นรับ</span></div></div>
+      <div class="wave"><div class="top"><svg class="ic ic-20" aria-hidden="true"><use href="#i-truck"/></svg>J&amp;T<span class="badge t-info"><svg class="ic " aria-hidden="true"><use href="#i-loader"/></svg>กำลังโหลด</span></div><div class="track" role="progressbar" aria-valuenow="9" aria-valuemax="11" aria-label="J&amp;T ภาชนะ 9 จาก 11"><i style="width:82%;background:var(--info)"></i></div><div class="meta"><span class="tnum">ภาชนะ 9/11 · พัสดุ 438</span><span>รอบ 18:00</span></div></div>
+      <div class="wave"><div class="top"><svg class="ic ic-20" aria-hidden="true"><use href="#i-truck"/></svg>SPX<span class="badge t-neutral"><svg class="ic " aria-hidden="true"><use href="#i-circle-slash"/></svg>ยังไม่เริ่ม</span></div><div class="track" role="progressbar" aria-valuenow="0" aria-valuemax="8" aria-label="SPX ภาชนะ 0 จาก 8"><i style="width:0%;background:var(--neutral)"></i></div><div class="meta"><span class="tnum">ภาชนะ 0/8 · พัสดุ 301</span><span>รอบ 19:00</span></div></div>
+    </div>
+  </div>
+  <div class="zone">
+    <div class="steps" aria-label="ขั้นตอน"><span class="step done"><span class="n"><svg class="ic " aria-hidden="true"><use href="#i-check"/></svg></span>ลงทะเบียนรถ</span><span class="line done"></span><span class="step done"><span class="n"><svg class="ic " aria-hidden="true"><use href="#i-check"/></svg></span>สแกนภาชนะ</span><span class="line done"></span><span class="step cur" aria-current="step"><span class="n">3</span>ให้คนขับเซ็นรับ</span><span class="line"></span><span class="step wait"><span class="n">4</span>ยืนยันส่งมอบ</span></div>
+    <div class="card pad" style="display:flex;align-items:center;gap:24px">
+      <div><p class="lbl">ภาชนะ</p><p class="counter" aria-live="polite">14/14</p></div>
+      <div><p class="lbl">พัสดุ</p><p class="counter">612</p></div>
+      <div style="margin-left:auto"><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ภาชนะครบ · ตรงกับรอบ</span></div>
+    </div>
+    <div class="ctns"><div class="ctn"><span class="c" translate="no">FL-C01</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>48 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C02</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>45 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C03</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>44 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C04</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>46 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C05</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>42 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C06</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>44 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C07</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>43 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C08</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>41 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C09</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>47 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C10</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>45 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C11</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>42 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C12</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>44 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C13</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>40 ชิ้น</span></div><div class="ctn"><span class="c" translate="no">FL-C14</span><span class="p"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>41 ชิ้น</span></div></div>
+    <div class="card pad sig-wrap">
+      <div class="row"><p class="h2" style="flex:1">ลายเซ็นผู้รับมอบ</p>
+        <button class="stbtn outline"><svg class="ic ic-20" aria-hidden="true"><use href="#i-tablet"/></svg>ส่งไปเซ็นบนแท็บเล็ต TB-01</button></div>
+      <div class="field"><label for="signer">ชื่อผู้รับมอบ</label><div class="inp" id="signer">สมพงษ์ ใจดี · Flash Express</div></div>
+      <div class="sigpad" aria-label="ช่องเซ็นชื่อ" role="img"><svg viewBox="0 0 600 200" aria-hidden="true" preserveAspectRatio="none"><path d="M60 140 C 90 60, 120 60, 130 120 S 170 170, 190 100 S 230 40, 250 110 C 260 150, 290 150, 310 100 C 330 60, 350 70, 360 120 C 370 150, 400 140, 430 90 C 450 60, 470 80, 480 110 L 540 100" fill="none" stroke="#161A23" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="base"></div><span class="who">เซ็นบนแท็บเล็ต TB-01 · 17:37</span></div>
+      <div class="row"><button class="stbtn ghost">ล้าง</button>
+        <button class="stbtn primary confirm is-focus" style="margin-left:auto"><svg class="ic ic-24" aria-hidden="true"><use href="#i-check-circle"/></svg>ยืนยันส่งมอบ 14 ภาชนะ</button></div>
+    </div>
+  </div>
+  <div class="zone">
+    <div class="card pad"><div class="row" style="margin-bottom:8px"><p class="h2" style="flex:1">ตัวอย่างใบส่งมอบ</p><span class="badge t-neutral"><svg class="ic " aria-hidden="true"><use href="#i-circle-slash"/></svg>ยังไม่พิมพ์</span></div>
+      <p class="lbl" style="margin-bottom:4px">แยกตามบัญชีร้าน</p>
+      <div class="manifest">
+        <div class="mrow"><span>Shopee · Fullfeel Official</span><b>318</b></div>
+        <div class="mrow"><span>Lazada · Fullfeel Mall</span><b>164</b></div>
+        <div class="mrow"><span>TikTok Shop · Fullfeel</span><b>130</b></div>
+      </div>
+      <div class="mtotal"><span>รวม 14 ภาชนะ</span><span class="tnum">612 พัสดุ</span></div>
+      <p class="lbl" style="margin-top:12px">ผู้รับมอบ · สมพงษ์ ใจดี</p>
+      <div class="sigthumb"><svg viewBox="0 0 600 200" aria-hidden="true" preserveAspectRatio="none"><path d="M60 140 C 90 60, 120 60, 130 120 S 170 170, 190 100 S 230 40, 250 110 C 260 150, 290 150, 310 100 C 330 60, 350 70, 360 120 C 370 150, 400 140, 430 90 C 450 60, 470 80, 480 110 L 540 100" fill="none" stroke="#161A23" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="card pad" style="display:flex;align-items:center;gap:12px"><svg class="ic ic-24" aria-hidden="true"><use href="#i-printer"/></svg>
+      <div style="flex:1"><p class="lbl">หลังยืนยัน</p><p style="font-size:16px">ตัดสต๊อก (ส่งแล้ว) และพิมพ์ใบส่งมอบ 2 ชุด</p></div></div>
+  </div>
+</div></div>
+<div><p class="mock-title">B · ค้างส่งมอบ &amp; ปิดวัน เวลา 22:00 (UJ-4 ขั้นที่ 6)</p>
+<p class="mock-note">พื้นที่เนื้อหาในโครงหน้าออฟฟิศ (sidebar + header ดู key-office-overview) · ปุ่มปิดวันปิดใช้งานพร้อมเหตุผล (state-based restriction) · 1440</p></div>
+<div class="office" aria-label="ค้างส่งมอบและปิดวัน">
+<div class="oc">
+  <div><h1>ส่งมอบขนส่ง</h1><p class="sub">คลังบางเขน · พฤ. 19 พ.ย. 2026 · ข้อมูล ณ 22:00</p></div>
+  <div class="tabs" role="tablist">
+    <a href="#" role="tab" aria-selected="false">ภาพรวมส่งมอบ</a>
+    <a href="#" role="tab" aria-selected="false">คัดแยกลงภาชนะ <span class="chip">3</span></a>
+    <a href="#" role="tab" aria-selected="false">ภาชนะ <span class="chip">1</span></a>
+    <a href="#" role="tab" aria-selected="false">ส่งมอบ</a>
+    <a href="#" role="tab" aria-selected="false">ใบส่งมอบ</a>
+    <a href="#" role="tab" aria-selected="true">ค้างส่งมอบ &amp; ปิดวัน <span class="chip">2</span></a>
+  </div>
+  <div class="dc-grid">
+    <section class="card" aria-labelledby="dc-h">
+      <div class="card-h"><h2 id="dc-h">ปิดวัน 19 พ.ย. 2026</h2><span class="badge t-warning"><svg class="ic " aria-hidden="true"><use href="#i-alert-triangle"/></svg>เหลือ 2 รายการ</span></div>
+      <ul class="check"><li><span class="badge t-success" style="padding:6px"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg></span><span class="t">ส่งมอบครบทุกรอบขนส่งวันนี้<small>Flash 3 รอบ · J&amp;T 2 รอบ · SPX 2 รอบ</small></span><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>เสร็จ</span></li><li><span class="badge t-success" style="padding:6px"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg></span><span class="t">ใบรับพัสดุจากขนส่งตรงกับใบส่งมอบ<small>กระทบยอดรายพัสดุแล้ว 2,191 ชิ้น</small></span><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>เสร็จ</span></li><li><span class="badge t-warning" style="padding:6px"><svg class="ic " aria-hidden="true"><use href="#i-alert-triangle"/></svg></span><span class="t">พัสดุแพ็คแล้วยังไม่ได้คัดแยกลงภาชนะ 3 ชิ้น<small>J&amp;T 2 · SPX 1</small></span><a class="lnk" href="#">ไปคัดแยก<svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></li><li><span class="badge t-warning" style="padding:6px"><svg class="ic " aria-hidden="true"><use href="#i-alert-triangle"/></svg></span><span class="t">ภาชนะ SPX-C06 ยังไม่ได้ส่งมอบ<small>38 พัสดุ · ขนส่งออกไปแล้ว 21:40</small></span><a class="lnk" href="#">เปิดภาชนะ<svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></li><li><span class="badge t-neutral" style="padding:6px"><svg class="ic " aria-hidden="true"><use href="#i-circle-slash"/></svg></span><span class="t">คำสั่งซื้อยกไปวันถัดไป 18 รายการ<small>ยังไม่ถึงรอบตัด · จะขึ้นในงานพรุ่งนี้</small></span><span class="badge t-neutral"><svg class="ic " aria-hidden="true"><use href="#i-circle-slash"/></svg>ยกไปวันถัดไป</span></li></ul>
+      <div class="dc-foot"><span class="why" id="why">แก้ให้ครบ 2 รายการก่อน จึงปิดวันได้</span>
+        <button class="btn btn-primary" disabled aria-describedby="why"><svg class="ic " aria-hidden="true"><use href="#i-calendar-check"/></svg>ปิดวัน 19 พ.ย. 2026</button></div>
+    </section>
+    <section class="card" aria-labelledby="cr-h">
+      <div class="card-h"><h2 id="cr-h">สรุปตามขนส่ง</h2></div>
+      <table class="otable"><thead><tr><th scope="col">ขนส่ง</th><th class="num" scope="col">รอบ</th><th class="num" scope="col">ภาชนะ</th><th class="num" scope="col">พัสดุ</th><th scope="col">สถานะ</th><th class="num" scope="col">ล่าสุด</th></tr></thead>
+      <tbody><tr><td>Flash</td><td class="num">3</td><td class="num">41</td><td class="num">1,284</td><td><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ส่งมอบแล้ว</span></td><td class="num">17:42</td></tr><tr><td>J&amp;T</td><td class="num">2</td><td class="num">26</td><td class="num">612</td><td><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ส่งมอบแล้ว</span></td><td class="num">18:21</td></tr><tr><td>SPX</td><td class="num">2</td><td class="num">15</td><td class="num">295</td><td><span class="badge t-warning"><svg class="ic " aria-hidden="true"><use href="#i-alert-triangle"/></svg>ค้าง 1 ภาชนะ</span></td><td class="num">21:40</td></tr></tbody></table>
+    </section>
+  </div>
+</div></div>
+</div>
+</body>
+</html>

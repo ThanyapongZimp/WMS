@@ -1,0 +1,67 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Zimple Fulfillment Screens (Copy)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap">
+<style>
+/* Layout: one centred column, two large entry cards side by side, page list under each */
+:root{
+  --bg:#f5f7fb; --card:#ffffff; --fg:#14213d; --muted:#5b6782; --line:#dfe5f0; --accent:#1f5fd6; --accent2:#0f9d8a;
+  --font:"Noto Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1524; --card:#172036; --fg:#e8edf7; --muted:#9aa6c0; --line:#26314c; --accent:#6f9cff; --accent2:#3ccfb6; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1524; --card:#172036; --fg:#e8edf7; --muted:#9aa6c0; --line:#26314c; --accent:#6f9cff; --accent2:#3ccfb6; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px}
+.wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+h1{font-size:26px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:4px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h2{font-size:18px;margin:0}
+.card p{margin:0;color:var(--muted);font-size:14px}
+.go{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;padding:9px 16px;border-radius:8px}
+.card.portal .go{background:var(--accent2)}
+.go:focus-visible,.list a:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.list{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;border-top:1px solid var(--line);padding-top:12px}
+.list a{color:var(--accent);text-decoration:none}
+.card.portal .list a{color:var(--accent2)}
+.list a:hover{text-decoration:underline}
+.note{color:var(--muted);font-size:13px;margin:0}
+</style>
+<div class="wrap">
+  <div>
+    <h1>หน้าจอออกแบบ Zimple Fulfillment</h1>
+    <p class="lead">เลือกระบบที่จะดู · ทุกหน้าเป็นข้อมูลตัวอย่าง</p>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <h2>Zimple Fulfillment · ฝั่งคลัง</h2>
+      <p>หน้าจอของพนักงานคลัง 3PL ตั้งแต่รับเข้า หยิบ แพ็ค ส่งมอบ จนถึงค่าบริการ</p>
+      <a class="go" href="overview.html">เปิดภาพรวมคลัง ›</a>
+      <nav class="list" aria-label="หน้าฝั่งคลัง">
+        <a href="inbound.html">รับสินค้าเข้า</a><a href="orders.html">คำสั่งซื้อ</a><a href="picking.html">หยิบสินค้า</a>
+        <a href="packing.html">แพ็คสินค้า</a><a href="handover.html">ส่งมอบขนส่ง</a><a href="returns.html">สินค้าตีกลับ</a>
+        <a href="inventory.html">สินค้าคงคลัง</a><a href="claims.html">จัดการเคลม</a><a href="transport.html">จัดการรถขนส่ง</a>
+        <a href="owners.html">เจ้าของสินค้า</a><a href="billing.html">ค่าบริการ</a><a href="reports.html">รายงาน</a>
+        <a href="settings.html">ตั้งค่า</a><a href="pda-login-menu.html">PDA</a>
+      </nav>
+    </section>
+    <section class="card portal">
+      <h2>Client Portal · ฝั่งเจ้าของสินค้า</h2>
+      <p>หน้าจอที่เจ้าของสินค้าใช้ดูสต็อก คำสั่งซื้อ คำขอ และบิลค่าบริการของคลัง</p>
+      <a class="go" href="owner-portal/overview.html">เปิด Client Portal ›</a>
+      <nav class="list" aria-label="หน้า Client Portal">
+        <a href="owner-portal/login.html">เข้าสู่ระบบ</a><a href="owner-portal/products.html">สินค้า</a>
+        <a href="owner-portal/inventory-stock.html">ยอดคงคลัง</a><a href="owner-portal/inbound.html">รับสินค้าเข้า</a>
+        <a href="owner-portal/orders.html">คำสั่งซื้อ</a><a href="owner-portal/returns.html">สินค้าตีกลับ</a>
+        <a href="owner-portal/claims.html">จัดการเคลม</a><a href="owner-portal/vas.html">งานเพิ่มเติม</a>
+        <a href="owner-portal/warehouse-requests.html">คำขอจากคลัง</a><a href="owner-portal/billing.html">ค่าบริการ</a>
+        <a href="owner-portal/settings-users-permissions.html">ตั้งค่า</a>
+      </nav>
+    </section>
+  </div>
+  <p class="note">กลับมาหน้านี้ได้ด้วยปุ่มย้อนกลับของเบราว์เซอร์</p>
+</div>
+
+</body></html>

@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตำแหน่ง · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/zwms.css">
+<!-- Story 2.2 Locations and Location Labels · FR-8 · list behaviour Story 1.5 (UX-DR10–13, 20–21) -->
+</head>
+<body>
+<main id="content">
+  <div id="chrome"></div>
+
+  <section class="panel" aria-labelledby="loc-h">
+    <div class="panel-head">
+      <h2 id="loc-h">ตำแหน่ง</h2>
+      <span class="meta" id="loc-meta"></span>
+      <div class="end">
+        <button class="btn btn-outline write-only" type="button" id="btn-new-one" data-write><span data-ic="plus"></span>สร้างทีละตำแหน่ง</button>
+        <button class="btn btn-primary write-only" type="button" id="btn-new-bulk" data-write><span data-ic="plus"></span>สร้างหลายตำแหน่ง</button>
+      </div>
+    </div>
+    <div class="status-tabs" role="tablist" aria-label="สถานะตำแหน่ง" id="status-tabs"></div>
+    <div class="filterbar">
+      <div class="input-group search">
+        <span data-ic="search"></span>
+        <label class="sr-only" for="q">ค้นหาตำแหน่ง</label>
+        <input class="input" id="q" type="search" placeholder="ค้นหาหรือสแกนรหัสตำแหน่ง" autocomplete="off" spellcheck="false">
+      </div>
+      <label class="sr-only" for="f-zone">โซน</label>
+      <select class="select" id="f-zone"></select>
+      <label class="sr-only" for="f-type">ประเภท</label>
+      <select class="select" id="f-type"></select>
+      <label class="sr-only" for="f-print">การพิมพ์ label</label>
+      <select class="select" id="f-print">
+        <option value="">label ทั้งหมด</option><option value="none">ยังไม่พิมพ์</option><option value="printed">พิมพ์แล้ว</option><option value="copy">สำเนา</option>
+      </select>
+      <button class="btn btn-ghost" type="button" id="btn-clear" hidden>ล้างตัวกรอง</button>
+      <div class="end">
+        <button class="btn btn-outline" type="button" id="btn-cols" aria-haspopup="menu" aria-expanded="false"><span data-ic="columns"></span>คอลัมน์</button>
+        <button class="btn btn-outline" type="button" id="btn-export"><span data-ic="download"></span>Excel</button>
+      </div>
+    </div>
+    <div id="loc-table"></div>
+  </section>
+</main>
+
+<!-- Sheet: single location -->
+<dialog class="sheet" id="sheet-one" aria-labelledby="sheet-one-t">
+  <form novalidate>
+    <div class="sheet-head"><div class="titles"><h2 id="sheet-one-t">สร้างตำแหน่ง</h2><p id="sheet-one-sub"></p></div><button class="btn btn-ghost btn-icon" type="button" data-close aria-label="ปิด"></button></div>
+    <div class="sheet-body">
+      <div class="alert alert-danger error-summary" role="alert"><span data-ic="x-octagon"></span><p></p></div>
+      <div class="alert alert-warning conflict" role="alert" hidden><span data-ic="alert-triangle"></span><p>ข้อมูลเปลี่ยนแล้ว · มีผู้ใช้อื่นแก้ตำแหน่งนี้ระหว่างที่คุณแก้ไข</p><span class="alert-actions"><button class="btn btn-sm btn-outline" type="button" data-reload>โหลดใหม่</button></span></div>
+      <div class="alert alert-info" id="one-counting" hidden><span data-ic="lock"></span><p>ตำแหน่งนี้ล็อกนับอยู่ · ระบบปลดล็อกเองเมื่อรอบนับเสร็จ ระหว่างนี้แก้สถานะไม่ได้</p></div>
+      <div class="form-section">
+        <div class="form-grid">
+          <div class="field">
+            <label for="o-code">รหัสตำแหน่ง<span class="req">*</span></label>
+            <input class="input mono" id="o-code" maxlength="20" autocomplete="off" spellcheck="false" translate="no" aria-describedby="o-code-h o-code-e">
+            <span class="hint" id="o-code-h">ไม่ซ้ำภายในคลัง เช่น A-01-01</span>
+            <span class="err" id="o-code-e"></span>
+          </div>
+          <div class="field">
+            <label for="o-zone">โซน<span class="req">*</span></label>
+            <select class="select" id="o-zone"></select>
+          </div>
+          <div class="field">
+            <label for="o-type">ประเภทตำแหน่ง<span class="req">*</span></label>
+            <select class="select" id="o-type"></select>
+          </div>
+          <div class="field">
+            <label for="o-seq">ลำดับการเดิน<span class="req">*</span></label>
+            <input class="input tnum" id="o-seq" inputmode="numeric" autocomplete="off" aria-describedby="o-seq-e">
+            <span class="err" id="o-seq-e"></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <h3>ความจุและการจัดเก็บ</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="o-m3">ความจุปริมาตร<span class="req">*</span></label>
+            <div class="input-group"><input class="input tnum" id="o-m3" inputmode="decimal" autocomplete="off" style="padding-right:44px" aria-describedby="o-m3-e"><span class="input-suffix">m³</span></div>
+            <span class="err" id="o-m3-e"></span>
+          </div>
+          <div class="field">
+            <label for="o-kg">รับน้ำหนักได้<span class="req">*</span></label>
+            <div class="input-group"><input class="input tnum" id="o-kg" inputmode="decimal" autocomplete="off" style="padding-right:44px" aria-describedby="o-kg-e"><span class="input-suffix">kg</span></div>
+            <span class="err" id="o-kg-e"></span>
+          </div>
+          <div class="field span-2">
+            <label for="o-mix">การผสมสินค้า<span class="req">*</span></label>
+            <select class="select" id="o-mix"></select>
+          </div>
+          <label class="switch span-2"><input type="checkbox" id="o-sell"><span class="track"></span><span><span class="strong">ขายได้</span><span class="caption" style="display:block">สต็อกในตำแหน่งนี้นับเป็นยอดพร้อมขาย</span></span></label>
+          <label class="switch span-2" id="o-active-wrap"><input type="checkbox" id="o-active"><span class="track"></span><span><span class="strong">เปิดใช้</span><span class="caption" style="display:block">ปิดใช้แล้วจัดเก็บและย้ายของเข้าตำแหน่งนี้ไม่ได้</span></span></label>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-foot"><button class="btn btn-outline" type="button" data-close>ยกเลิก</button><button class="btn btn-primary" type="submit" id="one-save" data-write>สร้างตำแหน่ง</button></div>
+  </form>
+</dialog>
+
+<!-- Sheet: bulk create by range pattern -->
+<dialog class="sheet wide" id="sheet-bulk" aria-labelledby="sheet-bulk-t">
+  <form novalidate>
+    <div class="sheet-head"><div class="titles"><h2 id="sheet-bulk-t">สร้างหลายตำแหน่ง</h2><p>กำหนดรูปแบบรหัสเป็นช่วง ระบบสร้างทุกรหัสในครั้งเดียว</p></div><button class="btn btn-ghost btn-icon" type="button" data-close aria-label="ปิด"></button></div>
+    <div class="sheet-body">
+      <div class="alert alert-danger error-summary" role="alert"><span data-ic="x-octagon"></span><p></p></div>
+      <div class="form-section">
+        <div class="form-grid">
+          <div class="field">
+            <label for="b-zone">โซน<span class="req">*</span></label>
+            <select class="select" id="b-zone"></select>
+          </div>
+          <div class="field">
+            <label for="b-type">ประเภทตำแหน่ง<span class="req">*</span></label>
+            <select class="select" id="b-type"></select>
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <h3>รูปแบบรหัส</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="b-prefix">ตัวหน้า<span class="req">*</span></label>
+            <input class="input mono" id="b-prefix" maxlength="6" autocomplete="off" spellcheck="false" translate="no" aria-describedby="b-prefix-h b-prefix-e">
+            <span class="hint" id="b-prefix-h">เช่น ทางเดิน A</span>
+            <span class="err" id="b-prefix-e"></span>
+          </div>
+          <div class="field">
+            <label for="b-sep">ตัวคั่น</label>
+            <select class="select" id="b-sep"><option value="-">ขีด ( - )</option><option value=".">จุด ( . )</option><option value="">ไม่มี</option></select>
+          </div>
+        </div>
+        <div class="seg-rows" id="b-segs"></div>
+        <button class="btn btn-ghost" type="button" id="b-add-seg" style="align-self:flex-start"><span data-ic="plus"></span>เพิ่มช่วง</button>
+        <div class="preview" aria-live="polite" id="b-preview"></div>
+      </div>
+      <div class="form-section">
+        <h3>ค่าเริ่มต้นของทุกตำแหน่งที่สร้าง</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="b-seq">ลำดับการเดินเริ่มที่<span class="req">*</span></label>
+            <input class="input tnum" id="b-seq" inputmode="numeric" autocomplete="off" aria-describedby="b-seq-h b-seq-e">
+            <span class="hint" id="b-seq-h">เรียงต่อกันตามรูปแบบการเดินของโซน</span>
+            <span class="err" id="b-seq-e"></span>
+          </div>
+          <div class="field">
+            <label for="b-mix">การผสมสินค้า<span class="req">*</span></label>
+            <select class="select" id="b-mix"></select>
+          </div>
+          <div class="field">
+            <label for="b-m3">ความจุปริมาตร<span class="req">*</span></label>
+            <div class="input-group"><input class="input tnum" id="b-m3" inputmode="decimal" autocomplete="off" style="padding-right:44px" aria-describedby="b-m3-e"><span class="input-suffix">m³</span></div>
+            <span class="err" id="b-m3-e"></span>
+          </div>
+          <div class="field">
+            <label for="b-kg">รับน้ำหนักได้<span class="req">*</span></label>
+            <div class="input-group"><input class="input tnum" id="b-kg" inputmode="decimal" autocomplete="off" style="padding-right:44px" aria-describedby="b-kg-e"><span class="input-suffix">kg</span></div>
+            <span class="err" id="b-kg-e"></span>
+          </div>
+          <label class="switch span-2"><input type="checkbox" id="b-sell"><span class="track"></span><span><span class="strong">ขายได้</span><span class="caption" style="display:block">สต็อกในตำแหน่งเหล่านี้นับเป็นยอดพร้อมขาย</span></span></label>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-foot"><span class="foot-note" id="b-foot"></span><button class="btn btn-outline" type="button" data-close>ยกเลิก</button><button class="btn btn-primary" type="submit" id="bulk-save" data-write>สร้างตำแหน่ง</button></div>
+  </form>
+</dialog>
+
+
+<script src="assets/zwms.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, esc, fmt, pad, DB, save, logAction, toast, confirmDialog, sheet, validate, busy, menu, badge, printChip, url, MOCK } = Z;
+  $$('[data-ic]').forEach((s) => { s.outerHTML = icon(s.dataset.ic); });
+  $$('button[data-close][aria-label]').forEach((b) => { b.innerHTML = icon('x'); });
+
+  Z.shell({ active: 'settings', title: 'ตำแหน่ง' });
+  $('#chrome').outerHTML = Z.settingsChrome('locations');
+
+  const wh = Z.currentWh();
+  const zones = () => DB.zones.filter((z) => z.wh === wh.code);
+  const locs = () => DB.locations.filter((l) => l.wh === wh.code);
+  const byCode = (c) => DB.locations.find((l) => l.wh === wh.code && l.code === c);
+  const mixTh = (id) => Z.MIXING.find((m) => m.id === id)?.th || id;
+  const typeOpts = (sel) => Z.LOCATION_TYPES.map((t) => `<option value="${t.id}" ${t.id === sel ? 'selected' : ''}>${t.th}</option>`).join('');
+  const zoneOpts = (sel, all) => (all ? '<option value="">ทุกโซน</option>' : '') + zones().map((z) => `<option value="${esc(z.code)}" ${z.code === sel ? 'selected' : ''}>${esc(z.code)} · ${esc(z.name)}</option>`).join('');
+  const mixOpts = (sel) => Z.MIXING.map((m) => `<option value="${m.id}" ${m.id === sel ? 'selected' : ''}>${m.th}</option>`).join('');
+
+  // ── Filters (kept in the URL) ──
+  const F = { q: url.get('q'), status: url.get('status'), zone: url.get('zone'), type: url.get('type'), print: url.get('print') };
+  $('#q').value = F.q;
+  $('#f-zone').innerHTML = zoneOpts(F.zone, true);
+  $('#f-type').innerHTML = `<option value="">ทุกประเภท</option>${typeOpts(F.type)}`;
+  $('#f-print').value = F.print;
+  const isFiltered = () => !!(F.q || F.status || F.zone || F.type || F.print);
+  const STATUS = [['', 'ทั้งหมด'], ['active', 'ใช้งาน'], ['disabled', 'ปิดใช้'], ['counting', 'ล็อกนับ']];
+  const matchExceptStatus = (l) => (!F.q || l.code.includes(F.q.toUpperCase())) && (!F.zone || l.zone === F.zone) && (!F.type || l.type === F.type) && (!F.print || l.print === F.print);
+  const renderStatusTabs = () => {
+    const base = locs().filter(matchExceptStatus);
+    $('#status-tabs').innerHTML = STATUS.map(([v, t]) => {
+      const n = v ? base.filter((l) => l.status === v).length : base.length;
+      return `<button type="button" role="tab" data-status="${v}" aria-selected="${F.status === v}">${t}<span class="chip">${fmt(n)}</span></button>`;
+    }).join('');
+  };
+  const applyFilters = () => {
+    url.set({ q: F.q, status: F.status, zone: F.zone, type: F.type, print: F.print });
+    $('#btn-clear').hidden = !isFiltered();
+    renderStatusTabs();
+    table.resetPage(); table.render();
+  };
+  Z.searchInput($('#q'), (v) => { F.q = v; applyFilters(); });
+  $('#f-zone').addEventListener('change', (e) => { F.zone = e.target.value; applyFilters(); });
+  $('#f-type').addEventListener('change', (e) => { F.type = e.target.value; applyFilters(); });
+  $('#f-print').addEventListener('change', (e) => { F.print = e.target.value; applyFilters(); });
+  $('#status-tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-status]'); if (b) { F.status = b.dataset.status; applyFilters(); } });
+  const clearFilters = () => { Object.keys(F).forEach((k) => { F[k] = ''; }); $('#q').value = ''; $('#f-zone').value = ''; $('#f-type').value = ''; $('#f-print').value = ''; applyFilters(); };
+  $('#btn-clear').addEventListener('click', clearFilters);
+
+  const statusBadge = (l) => l.status === 'disabled' ? badge('neutral', 'circle-slash', 'ปิดใช้')
+    : l.status === 'counting' ? badge('info', 'lock', 'ล็อกนับ', 'ตั้งโดยระบบระหว่างรอบนับ') : badge('success', 'check-circle', 'ใช้งาน');
+
+  const table = Z.dataTable({
+    id: 'loc', mount: $('#loc-table'), key: 'code', selectable: true, defaultSort: 'seq',
+    rows: locs,
+    filter: (rows) => rows.filter((l) => matchExceptStatus(l) && (!F.status || l.status === F.status)),
+    isFiltered, clearFilters,
+    columns: [
+      { key: 'code', label: 'รหัสตำแหน่ง', cls: 'col-sticky', render: (l) => `<span class="doc" translate="no">${esc(l.code)}</span>` },
+      { key: 'zone', label: 'โซน', render: (l) => `<span class="mono" translate="no">${esc(l.zone)}</span>` },
+      { key: 'type', label: 'ประเภท', render: (l) => esc(Z.typeLabel(l.type)) },
+      { key: 'sellable', label: 'ขายได้', cls: 'p2', sortVal: (l) => (l.sellable ? 1 : 0), render: (l) => l.sellable ? `<span style="display:inline-flex;align-items:center;gap:4px">${icon('check', 'ic-14')}ขายได้</span>` : '<span class="muted">ไม่นับ</span>' },
+      { key: 'seq', label: 'ลำดับเดิน', num: true, cls: 'p2', render: (l) => fmt(l.seq) },
+      { key: 'm3', label: 'ความจุ', num: true, cls: 'p3', render: (l) => `<span class="cell-2"><span>${fmt(l.m3, 1)} m³</span><span class="sub">${fmt(l.kg)} kg</span></span>` },
+      { key: 'mix', label: 'การผสม', cls: 'p3', render: (l) => esc(mixTh(l.mix)) },
+      { key: 'print', label: 'Label', cls: 'p2', render: (l) => printChip(l.print, l.copies) },
+      { key: 'status', label: 'สถานะ', render: statusBadge },
+      { key: 'act', label: '', sort: false, cls: 'col-act', render: (l) => `<button class="row-menu-btn" type="button" data-loc-menu="${esc(l.code)}" aria-label="การทำงานของตำแหน่ง ${esc(l.code)}" aria-haspopup="menu" aria-expanded="false">${icon('more-horizontal')}</button>` },
+    ],
+    rowClass: (l) => l.status === 'disabled' ? 'is-closed' : '',
+    onRowClick: (code) => oneSheet.open(byCode(code)),
+    empty: { icon: 'map-pin', title: 'ยังไม่มีตำแหน่งในคลังนี้', body: 'สร้างทีละหลายตำแหน่งจากรูปแบบช่วง เช่น ทางเดิน A แถว 01–10 ชั้น 01–04', action: 'สร้างหลายตำแหน่ง', run: () => bulkSheet.open() },
+    bulk: (keys) => {
+      const sel = keys.map(byCode);
+      const canDisable = sel.filter((l) => l.status === 'active').length;
+      const canEnable = sel.filter((l) => l.status === 'disabled').length;
+      return `<button class="btn" type="button" data-bulk="print" data-write>${icon('printer')}พิมพ์ label</button>
+        <button class="btn" type="button" data-bulk="disable" data-write ${canDisable ? '' : 'disabled'}>${icon('power')}ปิดใช้</button>
+        <button class="btn" type="button" data-bulk="enable" data-write ${canEnable ? '' : 'disabled'}>${icon('check-circle')}เปิดใช้</button>`;
+    },
+    onBulk: async (act, keys) => {
+      const sel = keys.map(byCode);
+      if (act === 'print') { openPrint(sel); return; }
+      const target = act === 'disable' ? 'active' : 'disabled';
+      const ok = sel.filter((l) => l.status === target);
+      const skip = sel.filter((l) => l.status !== target);
+      const skipReason = (l) => l.status === 'counting' ? 'ล็อกนับอยู่' : act === 'disable' ? 'ปิดใช้อยู่แล้ว' : 'เปิดใช้อยู่แล้ว';
+      if (act === 'disable') {
+        const yes = await confirmDialog({
+          tone: 'warning', confirmTone: 'destructive',
+          title: `ปิดใช้ ${fmt(ok.length)} ตำแหน่ง?`,
+          body: `ตำแหน่งที่ปิดใช้จะรับของเข้าไม่ได้ ทั้งการจัดเก็บและการย้ายเข้า${skip.length ? ` · ข้าม ${fmt(skip.length)} ตำแหน่งที่ทำไม่ได้` : ''}`,
+          confirmLabel: `ปิดใช้ ${fmt(ok.length)} ตำแหน่ง`,
+        });
+        if (!yes) return;
+      }
+      ok.forEach((l) => { l.status = act === 'disable' ? 'disabled' : 'active'; logAction(act, `location:${wh.code}/${l.code}`, 'bulk'); });
+      save(); table.clearSel(); renderStatusTabs(); table.render(); table.flash(ok.map((l) => l.code));
+      const reasons = [...new Set(skip.map(skipReason))].join(', ');
+      toast({ title: `${act === 'disable' ? 'ปิดใช้' : 'เปิดใช้'}แล้ว`, body: `ทำได้ ${fmt(ok.length)}${skip.length ? ` · ข้าม ${fmt(skip.length)} (${reasons})` : ''}` });
+    },
+  });
+
+  const refreshMeta = () => {
+    const all = locs();
+    $('#loc-meta').textContent = `${fmt(all.length)} ตำแหน่งใน ${fmt(zones().length)} โซน · label ยังไม่พิมพ์ ${fmt(all.filter((l) => l.print === 'none').length)}`;
+  };
+  renderStatusTabs(); refreshMeta();
+  $('#btn-clear').hidden = !isFiltered();
+
+  // Column menu at narrow widths (UX-DR11 column priority).
+  $('#btn-cols').addEventListener('click', (e) => {
+    const t = $('#loc-table table');
+    menu(e.currentTarget, [
+      { label: 'แสดงคอลัมน์เพิ่ม' },
+      { text: `${t.classList.contains('show-p2') ? '✓ ' : ''}ขายได้ · ลำดับเดิน · Label`, run: () => t.classList.toggle('show-p2') },
+      { text: `${t.classList.contains('show-p3') ? '✓ ' : ''}ความจุ · การผสม`, run: () => t.classList.toggle('show-p3') },
+    ]);
+  });
+
+  // Excel export respects active filters.
+  $('#btn-export').addEventListener('click', async (e) => {
+    const rows = locs().filter((l) => matchExceptStatus(l) && (!F.status || l.status === F.status));
+    await busy(e.currentTarget, 500);
+    Z.exportCsv(`locations-${wh.code}`, ['รหัสตำแหน่ง', 'โซน', 'ประเภท', 'ขายได้', 'ลำดับเดิน', 'm3', 'kg', 'การผสม', 'label', 'สถานะ'],
+      rows.map((l) => [l.code, l.zone, Z.typeLabel(l.type), l.sellable ? 'ใช่' : 'ไม่', l.seq, l.m3, l.kg, mixTh(l.mix), l.print, l.status]));
+    logAction('export', `locations:${wh.code}`, `${rows.length} rows`);
+    toast({ title: `ส่งออก ${fmt(rows.length)} ตำแหน่งแล้ว`, body: isFiltered() ? 'ตามตัวกรองที่ใช้อยู่' : '' });
+  });
+
+  // ── Single location sheet ──
+  let editing = null;
+  const nextSeq = () => Math.max(0, ...locs().map((l) => l.seq)) + 1;
+  const oneSheet = Z.sheet($('#sheet-one'), {
+    onOpen(l) {
+      editing = l || null;
+      $('#sheet-one-t').textContent = l ? `ตำแหน่ง ${l.code}` : 'สร้างตำแหน่ง';
+      $('#sheet-one-sub').textContent = `${wh.name} (${wh.code})`;
+      $('#one-save').textContent = l ? 'บันทึกตำแหน่ง' : 'สร้างตำแหน่ง';
+      $('#o-zone').innerHTML = zoneOpts(l ? l.zone : F.zone || zones()[0]?.code);
+      $('#o-type').innerHTML = typeOpts(l ? l.type : 'storage');
+      $('#o-mix').innerHTML = mixOpts(l ? l.mix : 'single-lot');
+      $('#o-code').value = l ? l.code : ''; $('#o-code').disabled = !!l;
+      $('#o-seq').value = l ? l.seq : nextSeq();
+      $('#o-m3').value = l ? l.m3 : ''; $('#o-kg').value = l ? l.kg : '';
+      $('#o-sell').checked = l ? l.sellable : true;
+      $('#o-active').checked = l ? l.status !== 'disabled' : true;
+      const counting = l?.status === 'counting';
+      $('#o-active').disabled = counting;
+      $('#one-counting').hidden = !counting;
+    },
+  });
+  $('#o-type').addEventListener('change', (e) => { $('#o-sell').checked = ['pick', 'storage'].includes(e.target.value); });
+  $('#o-code').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9.-]/g, ''); });
+  $('#sheet-one form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const ok = validate($('#sheet-one'), [
+      ...(editing ? [] : [[$('#o-code'), (v) => (!v ? 'กรอกรหัสตำแหน่ง' : byCode(v) ? `${v} มีอยู่แล้วในคลังนี้` : true)]]),
+      [$('#o-seq'), (v) => (!/^\d+$/.test(v) ? 'ลำดับการเดินต้องเป็นตัวเลข' : true)],
+      [$('#o-m3'), (v) => (!(+v > 0) ? 'กรอกความจุเป็นตัวเลขมากกว่า 0' : true)],
+      [$('#o-kg'), (v) => (!(+v > 0) ? 'กรอกน้ำหนักเป็นตัวเลขมากกว่า 0' : true)],
+    ]);
+    if (!ok) return;
+    if (MOCK.conflict) { $('#sheet-one .conflict').hidden = false; return; }
+    await busy($('#one-save'));
+    const data = { zone: $('#o-zone').value, type: $('#o-type').value, seq: +$('#o-seq').value, m3: +$('#o-m3').value, kg: +$('#o-kg').value, mix: $('#o-mix').value, sellable: $('#o-sell').checked };
+    let code;
+    if (editing) {
+      Object.assign(editing, data);
+      if (editing.status !== 'counting') editing.status = $('#o-active').checked ? 'active' : 'disabled';
+      code = editing.code;
+      logAction('edit', `location:${wh.code}/${code}`, JSON.stringify(data));
+      toast({ title: `บันทึก ${code} แล้ว` });
+    } else {
+      code = $('#o-code').value;
+      DB.locations.push({ wh: wh.code, code, ...data, status: $('#o-active').checked ? 'active' : 'disabled', print: 'none', copies: 0 });
+      logAction('create', `location:${wh.code}/${code}`, '');
+      toast({ title: `สร้าง ${code} แล้ว`, body: 'label ยังไม่พิมพ์ · เลือกแล้วกดพิมพ์ label ได้จากรายการ' });
+    }
+    save(); oneSheet.close(); renderStatusTabs(); refreshMeta(); table.render(); table.flash([code]);
+  });
+  $('#sheet-one [data-reload]').addEventListener('click', () => { $('#sheet-one .conflict').hidden = true; MOCK.conflict = false; if (editing) oneSheet.open(editing); });
+
+  // ── Bulk range sheet ──
+  const DEFAULT_SEGS = [{ name: 'แถว', from: '01', to: '10' }, { name: 'ชั้น', from: '01', to: '04' }];
+  let segs = [];
+  const renderSegs = () => {
+    $('#b-segs').innerHTML = segs.map((s, i) => `<div class="seg-row" data-i="${i}">
+      <span class="seg-name">ช่วงที่ ${i + 1}</span>
+      <div class="field"><label for="seg-f-${i}">ตั้งแต่</label><input class="input mono" id="seg-f-${i}" data-f="from" value="${esc(s.from)}" inputmode="numeric" autocomplete="off"></div>
+      <div class="field"><label for="seg-t-${i}">ถึง</label><input class="input mono" id="seg-t-${i}" data-f="to" value="${esc(s.to)}" inputmode="numeric" autocomplete="off"></div>
+      <button class="btn btn-ghost btn-icon" type="button" data-del="${i}" aria-label="ลบช่วงที่ ${i + 1}" ${segs.length === 1 ? 'disabled' : ''}>${icon('trash')}</button></div>`).join('');
+  };
+  const LIMIT = 2000;
+  const buildCodes = () => {
+    const prefix = $('#b-prefix').value.trim().toUpperCase();
+    const sep = $('#b-sep').value;
+    let codes = [prefix];
+    for (const s of segs) {
+      const a = parseInt(s.from, 10), b = parseInt(s.to, 10);
+      if (!Number.isFinite(a) || !Number.isFinite(b) || b < a) return { error: 'ช่วงต้องเป็นตัวเลข และ "ถึง" ต้องไม่น้อยกว่า "ตั้งแต่"' };
+      const w = Math.max(s.from.length, s.to.length);
+      const next = [];
+      for (const c of codes) for (let n = a; n <= b; n++) {
+        next.push(c ? `${c}${sep}${pad(n, w)}` : pad(n, w));
+        if (next.length > LIMIT) return { error: `สร้างได้ครั้งละไม่เกิน ${fmt(LIMIT)} ตำแหน่ง · แบ่งเป็นหลายรอบ` };
+      }
+      codes = next;
+    }
+    return { codes };
+  };
+  const renderPreview = () => {
+    const r = buildCodes();
+    const p = $('#b-preview');
+    if (!$('#b-prefix').value.trim()) { p.innerHTML = '<span class="muted">กรอกตัวหน้าและช่วง แล้วดูตัวอย่างรหัสที่นี่</span>'; $('#b-foot').textContent = ''; $('#bulk-save').textContent = 'สร้างตำแหน่ง'; return r; }
+    if (r.error) { p.innerHTML = `<div class="alert alert-danger" style="background:none;padding:0">${icon('x-octagon')}<p>${esc(r.error)}</p></div>`; $('#b-foot').textContent = ''; return r; }
+    const dup = new Set(r.codes.filter((c) => byCode(c)));
+    const fresh = r.codes.length - dup.size;
+    const show = r.codes.length <= 10 ? r.codes : [...r.codes.slice(0, 6), '…', ...r.codes.slice(-2)];
+    p.innerHTML = `<div class="preview-count"><b>${fmt(fresh)}</b><span>ตำแหน่งใหม่</span>${dup.size ? `<span class="badge t-warning">${icon('alert-triangle')}ข้าม ${fmt(dup.size)} รหัสที่มีอยู่แล้ว</span>` : ''}</div>
+      <div class="codes">${show.map((c) => c === '…' ? '<span class="ellipsis">…</span>' : `<span class="mono ${dup.has(c) ? 'dup' : ''}" translate="no">${esc(c)}</span>`).join('')}</div>`;
+    $('#b-foot').textContent = fresh ? `ลำดับเดิน ${fmt(+$('#b-seq').value || 0)}–${fmt((+$('#b-seq').value || 0) + fresh - 1)}` : '';
+    $('#bulk-save').textContent = fresh ? `สร้าง ${fmt(fresh)} ตำแหน่ง` : 'สร้างตำแหน่ง';
+    return { ...r, dup, fresh };
+  };
+  const bulkSheet = Z.sheet($('#sheet-bulk'), {
+    onOpen() {
+      const z = F.zone || zones()[0]?.code;
+      $('#b-zone').innerHTML = zoneOpts(z);
+      $('#b-type').innerHTML = typeOpts('storage');
+      $('#b-mix').innerHTML = mixOpts('single-lot');
+      $('#b-prefix').value = z || '';
+      $('#b-sep').value = '-';
+      $('#b-seq').value = nextSeq();
+      $('#b-m3').value = '1.5'; $('#b-kg').value = '800';
+      $('#b-sell').checked = true;
+      segs = DEFAULT_SEGS.map((s) => ({ ...s }));
+      renderSegs(); renderPreview();
+    },
+  });
+  $('#b-zone').addEventListener('change', (e) => { $('#b-prefix').value = e.target.value; renderPreview(); });
+  $('#b-type').addEventListener('change', (e) => { $('#b-sell').checked = ['pick', 'storage'].includes(e.target.value); });
+  $('#b-prefix').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); renderPreview(); });
+  ['#b-sep', '#b-seq'].forEach((s) => $(s).addEventListener('input', renderPreview));
+  $('#b-segs').addEventListener('input', (e) => {
+    const row = e.target.closest('[data-i]'); if (!row) return;
+    e.target.value = e.target.value.replace(/\D/g, '');
+    segs[+row.dataset.i][e.target.dataset.f] = e.target.value; renderPreview();
+  });
+  $('#b-segs').addEventListener('click', (e) => { const b = e.target.closest('[data-del]'); if (b && segs.length > 1) { segs.splice(+b.dataset.del, 1); renderSegs(); renderPreview(); } });
+  $('#b-add-seg').addEventListener('click', () => { if (segs.length >= 4) { toast({ tone: 'info', title: 'เพิ่มได้สูงสุด 4 ช่วง' }); return; } segs.push({ name: 'ช่อง', from: '1', to: '3' }); renderSegs(); renderPreview(); $(`#seg-f-${segs.length - 1}`).focus(); });
+  $('#sheet-bulk form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const r = renderPreview();
+    const ok = validate($('#sheet-bulk'), [
+      [$('#b-prefix'), (v) => (!v ? 'กรอกตัวหน้าของรหัส' : r.error ? r.error : r.fresh === 0 ? 'ทุกรหัสในช่วงนี้มีอยู่แล้ว · เปลี่ยนช่วงหรือตัวหน้า' : true)],
+      [$('#b-seq'), (v) => (!/^\d+$/.test(v) ? 'ลำดับเริ่มต้องเป็นตัวเลข' : true)],
+      [$('#b-m3'), (v) => (!(+v > 0) ? 'กรอกความจุเป็นตัวเลขมากกว่า 0' : true)],
+      [$('#b-kg'), (v) => (!(+v > 0) ? 'กรอกน้ำหนักเป็นตัวเลขมากกว่า 0' : true)],
+    ]);
+    if (!ok) return;
+    await busy($('#bulk-save'), 900);
+    let seq = +$('#b-seq').value;
+    const created = r.codes.filter((c) => !r.dup.has(c));
+    created.forEach((code) => DB.locations.push({
+      wh: wh.code, code, zone: $('#b-zone').value, type: $('#b-type').value, seq: seq++, sellable: $('#b-sell').checked,
+      m3: +$('#b-m3').value, kg: +$('#b-kg').value, mix: $('#b-mix').value, status: 'active', print: 'none', copies: 0,
+    }));
+    logAction('bulk-create', `locations:${wh.code}`, `${created[0]}…${created[created.length - 1]} (${created.length})`);
+    save(); bulkSheet.close();
+    F.q = ''; F.status = ''; F.print = ''; F.type = ''; F.zone = $('#b-zone').value; $('#q').value = ''; $('#f-zone').value = F.zone; $('#f-type').value = ''; $('#f-print').value = '';
+    table.render(); applyFilters(); refreshMeta();
+    table.flash(created);
+    const t = toast({ title: `สร้าง ${fmt(created.length)} ตำแหน่งแล้ว`, body: `${created[0]} – ${created[created.length - 1]}${r.dup.size ? ` · ข้าม ${fmt(r.dup.size)} (มีอยู่แล้ว)` : ''}` });
+    const b = document.createElement('button'); b.className = 'btn btn-sm btn-outline'; b.style.marginTop = '8px'; b.innerHTML = `${icon('printer')}พิมพ์ label ${fmt(created.length)} ใบ`;
+    b.addEventListener('click', () => openPrint(created.map(byCode)));
+    $('.body', t).append(b);
+  });
+
+  $('#btn-new-one').addEventListener('click', () => oneSheet.open());
+  $('#btn-new-bulk').addEventListener('click', () => bulkSheet.open());
+
+  // ── Disable / enable single (FR-8: disabled blocks putaway and moves) ──
+  async function setDisabled(l, disable) {
+    if (disable) {
+      const ok = await confirmDialog({
+        tone: 'warning', title: `ปิดใช้ตำแหน่ง ${esc(l.code)}?`,
+        body: 'ตำแหน่งนี้จะรับของเข้าไม่ได้ ทั้งการจัดเก็บและการย้ายเข้า · เปิดใช้กลับได้ภายหลัง',
+        confirmLabel: `ปิดใช้ ${esc(l.code)}`,
+      });
+      if (!ok) return;
+    }
+    l.status = disable ? 'disabled' : 'active';
+    logAction(disable ? 'disable' : 'enable', `location:${wh.code}/${l.code}`, '');
+    save(); renderStatusTabs(); table.render(); table.flash([l.code]);
+    toast({ title: `${disable ? 'ปิดใช้' : 'เปิดใช้'} ${l.code} แล้ว` });
+  }
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-loc-menu]'); if (!b) return;
+    const l = byCode(b.dataset.locMenu);
+    const counting = l.status === 'counting';
+    menu(b, [
+      { text: 'แก้ไขตำแหน่ง', icon: 'pencil', disabled: MOCK.offline, run: () => oneSheet.open(l) },
+      { text: l.print === 'none' ? 'พิมพ์ label' : 'พิมพ์ label ซ้ำ', icon: 'printer', disabled: MOCK.offline, run: () => openPrint([l]) },
+      '-',
+      l.status === 'disabled'
+        ? { text: 'เปิดใช้', icon: 'check-circle', disabled: MOCK.offline, run: () => setDisabled(l, false) }
+        : { text: counting ? 'ปิดใช้ไม่ได้ · ล็อกนับอยู่' : 'ปิดใช้', icon: counting ? 'lock' : 'power', danger: !counting, disabled: counting || MOCK.offline, run: () => setDisabled(l, true) },
+    ]);
+  });
+
+  // ── Print labels (shared dialog) ──
+  const zoneName = (c) => DB.zones.find((z) => z.wh === wh.code && z.code === c)?.name || '';
+  function openPrint(set) {
+    Z.printLabels({
+      title: 'พิมพ์ label ตำแหน่ง',
+      items: set.map((l) => ({ code: l.code, printed: l.print !== 'none', meta: `${esc(wh.code)} · โซน ${esc(l.zone)} ${esc(zoneName(l.zone))}<br>${esc(Z.typeLabel(l.type))}` })),
+      qr: (i) => `LOC:${wh.code}:${i.code}`,
+      onDone(list, reason) {
+        list.forEach((i) => { const l = byCode(i.code); if (l.print === 'none') l.print = 'printed'; else { l.copies = Math.max(2, (l.copies || 1) + 1); l.print = 'copy'; } });
+        logAction(reason ? 'reprint' : 'print', `labels:${wh.code}`, `${list.length} labels${reason ? ` · ${reason}` : ''}`);
+        save(); table.clearSel(); refreshMeta(); renderStatusTabs(); table.render(); table.flash(list.map((i) => i.code));
+        toast({ title: `ส่งพิมพ์ ${fmt(list.length)} label แล้ว`, body: 'สถานะ label ในรายการเปลี่ยนเป็นพิมพ์แล้ว' });
+      },
+    });
+  }
+
+  // Deep links: ?new=bulk from the zone menu.
+  if (url.get('new') === 'bulk') { url.set({ new: '' }); setTimeout(() => bulkSheet.open(), 50); }
+
+  Z.mockbar([{ group: 'รายการตำแหน่ง', items: [
+    { key: 'list', value: 'normal', label: 'มีข้อมูล', default: true },
+    { key: 'list', value: 'loading', label: 'กำลังโหลด' },
+    { key: 'list', value: 'empty', label: 'ว่าง (ครั้งแรก)' },
+    { key: 'list', value: 'error', label: 'โหลดไม่สำเร็จ' },
+  ] }]);
+  document.addEventListener('mock', (e) => {
+    if (e.detail.key !== 'list') return;
+    table.setMode(e.detail.value);
+    if (e.detail.value === 'error') toast({ tone: 'error', title: 'โหลดรายการตำแหน่งไม่สำเร็จ', body: 'ลองโหลดใหม่ ถ้ายังไม่ได้ให้แจ้งผู้ดูแลระบบ', ref: 'ERR-2C91B4' });
+  });
+})();
+</script>
+</body>
+</html>

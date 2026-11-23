@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เข้าหน้านี้ไม่ได้ · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/zwms.css">
+<!-- Story 1.4 Visibility rules: deep link to a hidden page (UX-DR7) -->
+</head>
+<body>
+<main id="content">
+  <section class="panel" style="margin-top:24px">
+    <div class="state" id="state" style="min-height:420px" role="status"></div>
+  </section>
+</main>
+<script src="assets/zwms.js"></script>
+<script>
+(() => {
+  const { $, icon, esc } = Z;
+  const MODULES = {
+    overview: 'ภาพรวมคลัง', orders: 'คำสั่งซื้อ', products: 'สินค้า', inbound: 'รับสินค้าเข้า', inventory: 'สินค้าคงคลัง',
+    picking: 'หยิบสินค้า', packing: 'แพ็คสินค้า', handover: 'ส่งมอบขนส่ง', returns: 'สินค้าตีกลับ', reports: 'รายงาน',
+    'settings-overview': 'ภาพรวมตั้งค่า', 'settings-company': 'ตั้งค่าบริษัท', 'settings-addons': 'โมดูลเสริม',
+    'settings-devices': 'อุปกรณ์และสถานี', 'settings-connections': 'การเชื่อมต่อ', 'settings-carriers': 'ขนส่ง',
+    'settings-time': 'เวลาและรอบรับ', 'settings-rules': 'กฎงานคลัง',
+  };
+  const m = Z.url.get('m');
+  const name = MODULES[m] || 'หน้านี้';
+  const active = m && !m.startsWith('settings') ? m : 'settings';
+  Z.shell({ active, title: name });
+
+  const STATES = {
+    pilot: { ic: 'clock', t: `${name} ยังไม่เปิดใช้ในรอบนี้`, b: 'รอบ pilot เปิดเฉพาะการตั้งค่าคลัง โซน ตำแหน่ง และภาชนะ · โมดูลนี้จะเปิดในรอบถัดไป' },
+    noperm: { ic: 'lock', t: 'ไม่มีสิทธิ์เข้าหน้านี้ · ติดต่อผู้ดูแลระบบ', b: `บทบาทของคุณยังไม่ได้รับสิทธิ์ดู${name}` },
+    edition: { ic: 'puzzle', t: 'ฟีเจอร์นี้ไม่ได้เปิดใช้ในบริษัทของคุณ', b: `${name}ไม่ได้อยู่ในแพ็กเกจหรือโมดูลเสริมที่บริษัทเปิดใช้` },
+  };
+  const render = (k) => {
+    const s = STATES[k];
+    $('#state').innerHTML = `${icon(s.ic, 'ic-48')}<h1 style="font-size:18px">${esc(s.t)}</h1><p>${esc(s.b)}</p><a class="btn btn-outline" href="warehouses.html">${icon('home')}กลับหน้าแรก</a>`;
+  };
+  render('pilot');
+
+  Z.mockbar([{ group: 'เหตุที่เข้าไม่ได้', items: [
+    { key: 'why', value: 'pilot', label: 'ยังไม่เปิดในรอบ pilot', default: true },
+    { key: 'why', value: 'noperm', label: 'ไม่มีสิทธิ์' },
+    { key: 'why', value: 'edition', label: 'ไม่ได้เปิดฟีเจอร์' },
+  ] }]);
+  document.addEventListener('mock', (e) => { if (e.detail.key === 'why') render(e.detail.value); });
+})();
+</script>
+</body>
+</html>

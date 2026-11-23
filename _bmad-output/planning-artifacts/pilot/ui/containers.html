@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ภาชนะ · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/zwms.css">
+<!-- Story 2.3 Container Types and Container Labels · FR-10 -->
+</head>
+<body>
+<main id="content">
+  <div id="chrome"></div>
+
+  <section class="panel" aria-labelledby="type-h">
+    <div class="panel-head">
+      <h2 id="type-h">ประเภทภาชนะ</h2>
+      <span class="meta" id="type-meta"></span>
+      <div class="end"><button class="btn btn-primary write-only" type="button" id="btn-gen" data-write><span data-ic="plus"></span>ลงทะเบียนภาชนะ</button></div>
+    </div>
+    <div id="type-table"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="con-h">
+    <div class="panel-head">
+      <h2 id="con-h">ภาชนะทั้งหมด</h2>
+      <span class="live" id="live">อัปเดตอัตโนมัติ</span>
+      <div class="end"><button class="btn btn-outline" type="button" id="btn-export"><span data-ic="download"></span>Excel</button></div>
+    </div>
+    <div class="status-tabs" role="tablist" aria-label="สถานะภาชนะ" id="state-tabs"></div>
+    <div class="filterbar">
+      <div class="input-group search">
+        <span data-ic="search"></span>
+        <label class="sr-only" for="q">ค้นหาภาชนะ</label>
+        <input class="input" id="q" type="search" placeholder="ค้นหาหรือสแกนรหัสภาชนะ ตำแหน่ง หรือใบหยิบ" autocomplete="off" spellcheck="false">
+      </div>
+      <label class="sr-only" for="f-type">ประเภท</label>
+      <select class="select" id="f-type"></select>
+      <label class="sr-only" for="f-print">การพิมพ์ label</label>
+      <select class="select" id="f-print"><option value="">label ทั้งหมด</option><option value="none">ยังไม่พิมพ์</option><option value="printed">พิมพ์แล้ว</option></select>
+      <button class="btn btn-ghost" type="button" id="btn-clear" hidden>ล้างตัวกรอง</button>
+    </div>
+    <div id="con-table"></div>
+  </section>
+</main>
+
+<!-- Sheet: register container type and generate containers -->
+<dialog class="sheet" id="sheet-gen" aria-labelledby="sheet-gen-t">
+  <form novalidate>
+    <div class="sheet-head"><div class="titles"><h2 id="sheet-gen-t">ลงทะเบียนภาชนะ</h2><p>ระบบสร้างภาชนะตามจำนวน ทุกใบมี QR ถาวรของตัวเอง</p></div><button class="btn btn-ghost btn-icon" type="button" data-close aria-label="ปิด"></button></div>
+    <div class="sheet-body">
+      <div class="alert alert-danger error-summary" role="alert"><span data-ic="x-octagon"></span><p></p></div>
+      <div class="form-section">
+        <div class="form-grid">
+          <div class="field span-2">
+            <label for="g-type">ประเภทภาชนะ<span class="req">*</span></label>
+            <select class="select" id="g-type"></select>
+            <span class="hint" id="g-type-h"></span>
+          </div>
+          <div class="field">
+            <label for="g-first">รหัสแรก<span class="req">*</span></label>
+            <input class="input mono" id="g-first" autocomplete="off" spellcheck="false" translate="no" aria-describedby="g-first-e">
+            <span class="err" id="g-first-e"></span>
+          </div>
+          <div class="field">
+            <label for="g-count">จำนวน<span class="req">*</span></label>
+            <div class="input-group"><input class="input tnum" id="g-count" inputmode="numeric" autocomplete="off" style="padding-right:40px" aria-describedby="g-count-e"><span class="input-suffix">ใบ</span></div>
+            <span class="err" id="g-count-e"></span>
+          </div>
+        </div>
+        <div class="preview" aria-live="polite" id="g-preview"></div>
+      </div>
+      <fieldset class="form-section" style="border:0;margin:0;padding-left:0;padding-right:0;padding-bottom:0">
+        <legend class="label" style="padding:0;margin-bottom:8px">ขั้นตอนที่ใช้<span class="req" style="color:var(--destructive)">*</span></legend>
+        <div style="display:flex;flex-wrap:wrap;gap:8px 16px" id="g-stages"></div>
+        <span class="caption" id="g-stages-e" style="color:var(--destructive)" hidden></span>
+      </fieldset>
+      <div class="form-section">
+        <h3>ความจุและที่วาง</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="g-kg">รับน้ำหนักได้</label>
+            <div class="input-group"><input class="input tnum" id="g-kg" inputmode="decimal" autocomplete="off" style="padding-right:40px"><span class="input-suffix">kg</span></div>
+          </div>
+          <div class="field">
+            <label for="g-qty">จุได้</label>
+            <div class="input-group"><input class="input tnum" id="g-qty" inputmode="numeric" autocomplete="off" style="padding-right:40px"><span class="input-suffix">ชิ้น</span></div>
+          </div>
+          <div class="field span-2">
+            <label for="g-loc">ตำแหน่งที่วางตอนสร้าง<span class="req">*</span></label>
+            <input class="input mono" id="g-loc" list="loc-list" autocomplete="off" spellcheck="false" translate="no" aria-describedby="g-loc-h g-loc-e">
+            <datalist id="loc-list"></datalist>
+            <span class="hint" id="g-loc-h">ภาชนะทุกใบต้องอยู่ในตำแหน่งเสมอ · สแกน QR ตำแหน่งใส่ช่องนี้ได้</span>
+            <span class="err" id="g-loc-e"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-foot"><button class="btn btn-outline" type="button" data-close>ยกเลิก</button><button class="btn btn-primary" type="submit" id="gen-save" data-write>สร้างภาชนะ</button></div>
+  </form>
+</dialog>
+
+<script src="assets/zwms.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, esc, fmt, pad, DB, save, logAction, toast, confirmDialog, validate, busy, menu, badge, printChip, url, MOCK } = Z;
+  $$('[data-ic]').forEach((s) => { s.outerHTML = icon(s.dataset.ic); });
+  $$('button[data-close][aria-label]').forEach((b) => { b.innerHTML = icon('x'); });
+
+  Z.shell({ active: 'settings', title: 'ภาชนะ' });
+  $('#chrome').outerHTML = Z.settingsChrome('containers');
+
+  const wh = Z.currentWh();
+  const types = () => DB.containerTypes;
+  const cons = () => DB.containers.filter((c) => c.wh === wh.code);
+  const byCode = (c) => DB.containers.find((x) => x.wh === wh.code && x.code === c);
+  const typeName = (p) => Z.CONTAINER_TYPES.find((t) => t.prefix === p)?.th || p;
+  const stamp = () => { $('#live').textContent = `อัปเดตอัตโนมัติ · ข้อมูล ณ ${Z.nowHM()}`; };
+  stamp();
+
+  // ── Container types ──
+  const usageCounts = (p) => {
+    const list = cons().filter((c) => c.prefix === p);
+    return { total: list.length, empty: list.filter((c) => c.state === 'empty').length, inUse: list.filter((c) => c.state === 'in-use').length, clear: list.filter((c) => c.state === 'needs-clearing').length };
+  };
+  const typeTable = Z.dataTable({
+    id: 'type', mount: $('#type-table'), key: 'prefix', autoHeight: true,
+    rows: types,
+    columns: [
+      { key: 'prefix', label: 'ตัวหน้า', cls: 'col-sticky', render: (t) => `<span class="doc" translate="no">${esc(t.prefix)}</span>` },
+      { key: 'name', label: 'ประเภท', sortVal: (t) => typeName(t.prefix), render: (t) => esc(typeName(t.prefix)) },
+      { key: 'count', label: 'จำนวน', num: true, sortVal: (t) => usageCounts(t.prefix).total, render: (t) => fmt(usageCounts(t.prefix).total) },
+      { key: 'stages', label: 'ขั้นตอนที่ใช้', sort: false, cls: 'p2', render: (t) => `<span style="display:inline-flex;gap:4px;flex-wrap:wrap">${t.stages.map((s) => `<span class="tag">${esc(s)}</span>`).join('')}</span>` },
+      { key: 'cap', label: 'ความจุ', sort: false, cls: 'p3', render: (t) => [t.capKg ? `${fmt(t.capKg)} kg` : '', t.capQty ? `${fmt(t.capQty)} ชิ้น` : ''].filter(Boolean).join(' · ') || '<span class="muted">—</span>' },
+      { key: 'use', label: 'การใช้งานตอนนี้', sort: false, render: (t) => { const u = usageCounts(t.prefix); return `<span class="cell-2"><span>ใช้อยู่ ${fmt(u.inUse)} · ว่าง ${fmt(u.empty)}</span>${u.clear ? `<span class="sub" style="color:var(--warning-soft-foreground)">ต้องเคลียร์ ${fmt(u.clear)}</span>` : ''}</span>`; } },
+      { key: 'act', label: '', sort: false, cls: 'col-act', render: (t) => `<button class="row-menu-btn" type="button" data-type-menu="${esc(t.prefix)}" aria-label="การทำงานของประเภท ${esc(t.prefix)}" aria-haspopup="menu" aria-expanded="false">${icon('more-horizontal')}</button>` },
+    ],
+    onRowClick: (p) => { F.type = p; $('#f-type').value = p; applyFilters(); $('#con-h').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+    empty: { icon: 'container', title: 'ยังไม่มีภาชนะ', body: 'ลงทะเบียนพาเลท ตะกร้า รถเข็น หรือถุงส่งมอบ แล้วพิมพ์ QR ติดภาชนะ', action: 'ลงทะเบียนภาชนะ', run: () => openGen() },
+  });
+
+  // ── Containers ──
+  const F = { q: url.get('q'), state: url.get('state'), type: url.get('type'), print: url.get('print') };
+  $('#q').value = F.q;
+  $('#f-type').innerHTML = `<option value="">ทุกประเภท</option>${types().map((t) => `<option value="${esc(t.prefix)}" ${t.prefix === F.type ? 'selected' : ''}>${esc(t.prefix)} · ${esc(typeName(t.prefix))}</option>`).join('')}`;
+  $('#f-print').value = F.print;
+  const isFiltered = () => !!(F.q || F.state || F.type || F.print);
+  const STATES = [['', 'ทั้งหมด'], ['empty', 'ว่าง'], ['in-use', 'กำลังใช้'], ['needs-clearing', 'ต้องเคลียร์']];
+  const matchExceptState = (c) => {
+    const q = F.q.toUpperCase();
+    return (!q || c.code.includes(q) || c.loc.includes(q) || (c.usage?.ref || '').toUpperCase().includes(q)) && (!F.type || c.prefix === F.type) && (!F.print || c.print === F.print);
+  };
+  const renderTabs = () => {
+    const base = cons().filter(matchExceptState);
+    $('#state-tabs').innerHTML = STATES.map(([v, t]) => {
+      const n = v ? base.filter((c) => c.state === v).length : base.length;
+      const over = v === 'needs-clearing' && n > 0;
+      return `<button type="button" role="tab" data-state="${v}" aria-selected="${F.state === v}">${t}<span class="chip ${over ? 'over' : ''}">${fmt(n)}</span></button>`;
+    }).join('');
+  };
+  const applyFilters = () => {
+    url.set({ q: F.q, state: F.state, type: F.type, print: F.print });
+    $('#btn-clear').hidden = !isFiltered();
+    renderTabs(); table.resetPage(); table.render();
+  };
+  Z.searchInput($('#q'), (v) => { F.q = v; applyFilters(); });
+  $('#f-type').addEventListener('change', (e) => { F.type = e.target.value; applyFilters(); });
+  $('#f-print').addEventListener('change', (e) => { F.print = e.target.value; applyFilters(); });
+  $('#state-tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-state]'); if (b) { F.state = b.dataset.state; applyFilters(); } });
+  const clearFilters = () => { Object.keys(F).forEach((k) => { F[k] = ''; }); $('#q').value = ''; $('#f-type').value = ''; $('#f-print').value = ''; applyFilters(); };
+  $('#btn-clear').addEventListener('click', clearFilters);
+
+  const usageCell = (c) => {
+    if (!c.usage) return '<span class="muted">ว่าง</span>';
+    if (c.usage.kind === 'pick') return `<span class="cell-2"><span>ถือใบหยิบ</span><span class="sub mono" translate="no">${esc(c.usage.ref)}</span></span>`;
+    if (c.usage.kind === 'wave') return `<span class="cell-2"><span>รอบขนส่ง</span><span class="sub">${esc(c.usage.ref)}</span></span>`;
+    return `<span class="cell-2"><span>ของค้างจากใบหยิบที่ยกเลิก</span><span class="sub mono" translate="no">${esc(c.usage.ref)}</span></span>`;
+  };
+  const stateBadge = (c) => c.state === 'needs-clearing' ? badge('warning', 'alert-triangle', 'ต้องเคลียร์', 'ใช้ซ้ำไม่ได้จนกว่าจะเคลียร์')
+    : c.state === 'in-use' ? badge('info', 'loader', 'กำลังใช้') : badge('success', 'check-circle', 'ว่าง · พร้อมใช้');
+
+  const table = Z.dataTable({
+    id: 'con', mount: $('#con-table'), key: 'code', selectable: true, defaultSort: 'code',
+    rows: cons,
+    filter: (rows) => rows.filter((c) => matchExceptState(c) && (!F.state || c.state === F.state)),
+    isFiltered, clearFilters,
+    columns: [
+      { key: 'code', label: 'รหัสภาชนะ', cls: 'col-sticky', render: (c) => `<span class="doc" translate="no">${esc(c.code)}</span>` },
+      { key: 'prefix', label: 'ประเภท', sortVal: (c) => typeName(c.prefix), render: (c) => esc(typeName(c.prefix)) },
+      { key: 'loc', label: 'ตำแหน่ง', render: (c) => `<span class="mono" translate="no">${esc(c.loc)}</span>` },
+      { key: 'usage', label: 'การใช้งาน', sortVal: (c) => c.usage?.ref || '', render: usageCell },
+      { key: 'print', label: 'Label', cls: 'p2', render: (c) => printChip(c.print, c.copies) },
+      { key: 'state', label: 'สถานะ', render: stateBadge },
+      { key: 'act', label: '', sort: false, cls: 'col-act', render: (c) => c.state === 'needs-clearing'
+        ? `<button class="btn btn-sm btn-outline write-only" type="button" data-cell-act data-clear="${esc(c.code)}" data-write>${icon('eraser')}เคลียร์</button>`
+        : `<button class="row-menu-btn" type="button" data-con-menu="${esc(c.code)}" aria-label="การทำงานของภาชนะ ${esc(c.code)}" aria-haspopup="menu" aria-expanded="false">${icon('more-horizontal')}</button>` },
+    ],
+    onRowClick: (code) => { const c = byCode(code); if (c.state === 'needs-clearing') clearContainer(c); else openPrint([c]); },
+    empty: { icon: 'container', title: 'ยังไม่มีภาชนะในคลังนี้', body: 'ลงทะเบียนประเภทภาชนะแล้วระบบจะสร้างภาชนะพร้อม QR ให้ทุกใบ', action: 'ลงทะเบียนภาชนะ', run: () => openGen() },
+    bulk: (keys) => {
+      const n = keys.map(byCode).filter((c) => c.state === 'needs-clearing').length;
+      return `<button class="btn" type="button" data-bulk="print" data-write>${icon('printer')}พิมพ์ label</button>
+        <button class="btn" type="button" data-bulk="clear" data-write ${n ? '' : 'disabled'}>${icon('eraser')}เคลียร์${n ? ` ${fmt(n)}` : ''}</button>`;
+    },
+    onBulk: async (act, keys) => {
+      const sel = keys.map(byCode);
+      if (act === 'print') { openPrint(sel); return; }
+      const ok = sel.filter((c) => c.state === 'needs-clearing');
+      const skip = sel.length - ok.length;
+      const yes = await confirmDialog({
+        tone: 'warning', confirmTone: 'primary',
+        title: `เคลียร์ ${fmt(ok.length)} ภาชนะ?`,
+        body: `นำของที่ค้างออกจากภาชนะเหล่านี้ให้หมดก่อน · เคลียร์แล้วภาชนะกลับมาว่างและใช้ซ้ำได้${skip ? ` · ข้าม ${fmt(skip)} ใบที่ไม่ต้องเคลียร์` : ''}`,
+        confirmLabel: `เคลียร์ ${fmt(ok.length)} ภาชนะ`,
+      });
+      if (!yes) return;
+      ok.forEach((c) => doClear(c));
+      save(); table.clearSel(); renderAll(); table.flash(ok.map((c) => c.code));
+      toast({ title: 'เคลียร์แล้ว', body: `ทำได้ ${fmt(ok.length)}${skip ? ` · ข้าม ${fmt(skip)} (ไม่ต้องเคลียร์)` : ''}` });
+    },
+  });
+
+  const refreshMeta = () => {
+    const all = cons();
+    $('#type-meta').textContent = `${fmt(types().length)} ประเภท · ${fmt(all.length)} ใบ`;
+  };
+  const renderAll = () => { renderTabs(); typeTable.render(); table.render(); refreshMeta(); stamp(); };
+  renderTabs(); refreshMeta();
+  $('#btn-clear').hidden = !isFiltered();
+
+  // ── Clear (needs-clearing blocks reuse until a user clears it) ──
+  const doClear = (c) => {
+    logAction('clear', `container:${wh.code}/${c.code}`, `residue ${c.usage?.ref || ''}`);
+    c.state = 'empty'; c.usage = null;
+  };
+  async function clearContainer(c) {
+    const yes = await confirmDialog({
+      tone: 'warning', confirmTone: 'primary',
+      title: `เคลียร์ภาชนะ ${esc(c.code)}?`,
+      body: `มีของค้างจากใบหยิบที่ยกเลิก <span class="mono">${esc(c.usage.ref)}</span> · นำของออกจากภาชนะให้หมดก่อน แล้วเคลียร์เพื่อให้ใช้ซ้ำได้`,
+      confirmLabel: `เคลียร์ ${esc(c.code)}`,
+    });
+    if (!yes) return;
+    doClear(c); save(); renderAll(); table.flash([c.code]);
+    toast({ title: `เคลียร์ ${c.code} แล้ว`, body: 'ภาชนะว่างและพร้อมใช้' });
+  }
+  document.addEventListener('click', (e) => {
+    const cb = e.target.closest('[data-clear]');
+    if (cb) { clearContainer(byCode(cb.dataset.clear)); return; }
+    const mb = e.target.closest('[data-con-menu]');
+    if (mb) {
+      const c = byCode(mb.dataset.conMenu);
+      menu(mb, [
+        { text: c.print === 'none' ? 'พิมพ์ label' : 'พิมพ์ label ซ้ำ', icon: 'printer', disabled: MOCK.offline, run: () => openPrint([c]) },
+        { text: `ดูตำแหน่ง ${c.loc}`, icon: 'map-pin', run: () => { location.href = `locations.html?q=${encodeURIComponent(c.loc)}`; } },
+      ]);
+      return;
+    }
+    const tb = e.target.closest('[data-type-menu]');
+    if (tb) {
+      const t = types().find((x) => x.prefix === tb.dataset.typeMenu);
+      menu(tb, [
+        { text: 'สร้างเพิ่ม', icon: 'plus', disabled: MOCK.offline, run: () => openGen(t.prefix) },
+        { text: 'พิมพ์ label ที่ยังไม่พิมพ์', icon: 'printer', disabled: MOCK.offline || !cons().some((c) => c.prefix === t.prefix && c.print === 'none'), run: () => openPrint(cons().filter((c) => c.prefix === t.prefix && c.print === 'none')) },
+        { text: 'ดูภาชนะประเภทนี้', icon: 'search', run: () => { F.type = t.prefix; $('#f-type').value = t.prefix; applyFilters(); } },
+      ]);
+    }
+  });
+
+  // ── Print ──
+  function openPrint(set) {
+    Z.printLabels({
+      title: 'พิมพ์ label ภาชนะ',
+      items: set.map((c) => ({ code: c.code, printed: c.print !== 'none', meta: `${esc(wh.code)} · ${esc(typeName(c.prefix))}<br>QR ถาวร · ใช้ซ้ำได้` })),
+      qr: (i) => `CON:${wh.code}:${i.code}`,
+      onDone(list, reason) {
+        list.forEach((i) => { const c = byCode(i.code); if (c.print === 'none') c.print = 'printed'; else { c.copies = Math.max(2, (c.copies || 1) + 1); c.print = 'copy'; } });
+        logAction(reason ? 'reprint' : 'print', `container-labels:${wh.code}`, `${list.length}${reason ? ` · ${reason}` : ''}`);
+        save(); table.clearSel(); renderAll(); table.flash(list.map((i) => i.code));
+        toast({ title: `ส่งพิมพ์ ${fmt(list.length)} label แล้ว` });
+      },
+    });
+  }
+
+  // ── Generate sheet ──
+  const genSheet = Z.sheet($('#sheet-gen'));
+  const width = (count) => (count >= 100 ? 4 : 3);
+  const nextNo = (p) => Math.max(0, ...cons().filter((c) => c.prefix === p).map((c) => parseInt(c.code.slice(p.length + 1), 10) || 0)) + 1;
+  const parseFirst = () => {
+    const p = $('#g-type').value;
+    const m = $('#g-first').value.trim().toUpperCase().match(new RegExp(`^${p.replace('-', '\\-')}-(\\d+)$`));
+    return m ? { n: parseInt(m[1], 10), w: m[1].length } : null;
+  };
+  const genCodes = () => {
+    const p = $('#g-type').value, f = parseFirst(), n = parseInt($('#g-count').value, 10);
+    if (!f || !(n > 0)) return [];
+    return Array.from({ length: Math.min(n, 1000) }, (_, i) => `${p}-${pad(f.n + i, f.w)}`);
+  };
+  const renderGen = () => {
+    const codes = genCodes();
+    const dup = codes.filter((c) => byCode(c));
+    $('#g-preview').innerHTML = codes.length
+      ? `<div class="preview-count"><b>${fmt(codes.length)}</b><span>ใบ</span>${dup.length ? `<span class="badge t-danger">${icon('x-octagon')}ชนกับรหัสที่มี ${fmt(dup.length)} ใบ</span>` : ''}</div>
+         <div class="codes"><span class="mono" translate="no">${esc(codes[0])}</span>${codes.length > 1 ? `<span class="ellipsis">ถึง</span><span class="mono" translate="no">${esc(codes[codes.length - 1])}</span>` : ''}</div>`
+      : '<span class="muted">กรอกรหัสแรกและจำนวน แล้วดูช่วงรหัสที่จะสร้างที่นี่</span>';
+    $('#gen-save').textContent = codes.length ? `สร้าง ${fmt(codes.length)} ภาชนะ` : 'สร้างภาชนะ';
+    return { codes, dup };
+  };
+  const fillFromType = () => {
+    const p = $('#g-type').value;
+    const t = types().find((x) => x.prefix === p);
+    const n = nextNo(p);
+    $('#g-type-h').textContent = t ? `มีอยู่แล้ว ${fmt(usageCounts(p).total)} ใบ · ใบใหม่ต่อจากรหัสล่าสุด` : 'ประเภทใหม่ในคลังนี้';
+    $('#g-first').value = `${p}-${pad(n, t ? width(t.count) : 3)}`;
+    $('#g-count').value = t ? '' : '10';
+    $$('#g-stages input').forEach((i) => { i.checked = t ? t.stages.includes(i.value) : false; });
+    $('#g-kg').value = t?.capKg ?? ''; $('#g-qty').value = t?.capQty ?? '';
+    $('#g-loc').value = t?.home ?? '';
+    renderGen();
+  };
+  function openGen(prefix) {
+    $('#g-type').innerHTML = Z.CONTAINER_TYPES.map((t) => `<option value="${t.prefix}">${t.prefix} · ${t.th}</option>`).join('');
+    $('#g-stages').innerHTML = Z.STAGES.map((s) => `<label class="check"><input type="checkbox" value="${s}">${s}</label>`).join('');
+    $('#loc-list').innerHTML = DB.locations.filter((l) => l.wh === wh.code && l.status !== 'disabled').map((l) => `<option value="${esc(l.code)}">`).join('');
+    genSheet.open();
+    $('#g-type').value = prefix || 'TT';
+    $('#g-stages-e').hidden = true;
+    fillFromType();
+    if (prefix) $('#g-count').focus();
+  }
+  $('#g-type').addEventListener('change', fillFromType);
+  ['#g-first', '#g-count'].forEach((s) => $(s).addEventListener('input', renderGen));
+  $('#g-first').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase(); });
+  $('#g-loc').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase(); });
+  $('#sheet-gen form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const { codes, dup } = renderGen();
+    const p = $('#g-type').value;
+    const ok = validate($('#sheet-gen'), [
+      [$('#g-first'), () => (!parseFirst() ? `รหัสแรกต้องขึ้นต้นด้วย ${p}- แล้วตามด้วยตัวเลข เช่น ${p}-001` : dup.length ? `รหัส ${dup[0]} มีอยู่แล้ว · เริ่มที่รหัสถัดไป` : true)],
+      [$('#g-count'), (v) => (!(parseInt(v, 10) > 0) ? 'กรอกจำนวนเป็นตัวเลขมากกว่า 0' : parseInt(v, 10) > 1000 ? 'สร้างได้ครั้งละไม่เกิน 1,000 ใบ' : true)],
+      [$('#g-loc'), (v) => (!v ? 'เลือกตำแหน่งที่วางภาชนะ' : !DB.locations.some((l) => l.wh === wh.code && l.code === v && l.status !== 'disabled') ? `ไม่พบตำแหน่ง ${v} ที่เปิดใช้ในคลังนี้` : true)],
+    ]);
+    const stages = $$('#g-stages input:checked').map((i) => i.value);
+    $('#g-stages-e').hidden = stages.length > 0;
+    $('#g-stages-e').textContent = 'เลือกอย่างน้อย 1 ขั้นตอน';
+    if (!ok || !stages.length) return;
+    await busy($('#gen-save'), 900);
+    const loc = $('#g-loc').value;
+    codes.forEach((code) => DB.containers.push({ wh: wh.code, code, prefix: p, loc, usage: null, state: 'empty', print: 'none' }));
+    const t = types().find((x) => x.prefix === p);
+    const cap = { stages, capKg: +$('#g-kg').value || null, capQty: +$('#g-qty').value || null, home: loc };
+    if (t) { Object.assign(t, cap); t.count += codes.length; } else DB.containerTypes.push({ prefix: p, count: codes.length, ...cap });
+    logAction('generate', `containers:${wh.code}/${p}`, `${codes[0]}…${codes[codes.length - 1]} (${codes.length}) @${loc}`);
+    save(); genSheet.close();
+    if (!t) $('#f-type').insertAdjacentHTML('beforeend', `<option value="${esc(p)}">${esc(p)} · ${esc(typeName(p))}</option>`);
+    F.q = ''; F.state = ''; F.print = 'none'; F.type = p; $('#q').value = ''; $('#f-type').value = p; $('#f-print').value = 'none';
+    renderAll(); applyFilters(); table.flash(codes);
+    const tt = toast({ title: `สร้าง ${fmt(codes.length)} ภาชนะแล้ว`, body: `${codes[0]} – ${codes[codes.length - 1]} · วางที่ ${loc}` });
+    const b = document.createElement('button'); b.className = 'btn btn-sm btn-outline'; b.style.marginTop = '8px'; b.innerHTML = `${icon('printer')}พิมพ์ QR ${fmt(codes.length)} ใบ`;
+    b.addEventListener('click', () => openPrint(codes.map(byCode)));
+    $('.body', tt).append(b);
+  });
+  $('#btn-gen').addEventListener('click', () => openGen());
+
+  // Excel export respects active filters.
+  $('#btn-export').addEventListener('click', async (e) => {
+    const rows = cons().filter((c) => matchExceptState(c) && (!F.state || c.state === F.state));
+    await busy(e.currentTarget, 500);
+    Z.exportCsv(`containers-${wh.code}`, ['รหัสภาชนะ', 'ประเภท', 'ตำแหน่ง', 'การใช้งาน', 'label', 'สถานะ'], rows.map((c) => [c.code, typeName(c.prefix), c.loc, c.usage?.ref || '', c.print, c.state]));
+    logAction('export', `containers:${wh.code}`, `${rows.length} rows`);
+    toast({ title: `ส่งออก ${fmt(rows.length)} ภาชนะแล้ว` });
+  });
+
+  // Live usage: another user takes a tote while this page is open.
+  setTimeout(() => {
+    if (table.mode !== 'normal') return;
+    const c = cons().find((x) => x.prefix === 'TT' && x.state === 'empty' && x.code === 'TT-0020');
+    if (!c) return;
+    c.state = 'in-use'; c.usage = { kind: 'pick', ref: 'PK-261123-0047' }; c.loc = 'B-03-01';
+    save(); renderAll(); table.flash([c.code]);
+  }, 12000);
+  setInterval(stamp, 30000);
+
+  Z.mockbar([{ group: 'รายการภาชนะ', items: [
+    { key: 'list', value: 'normal', label: 'มีข้อมูล', default: true },
+    { key: 'list', value: 'loading', label: 'กำลังโหลด' },
+    { key: 'list', value: 'empty', label: 'ว่าง (ครั้งแรก)' },
+    { key: 'list', value: 'error', label: 'โหลดไม่สำเร็จ' },
+  ] }]);
+  document.addEventListener('mock', (e) => {
+    if (e.detail.key !== 'list') return;
+    typeTable.setMode(e.detail.value); table.setMode(e.detail.value);
+    if (e.detail.value === 'error') toast({ tone: 'error', title: 'โหลดรายการภาชนะไม่สำเร็จ', body: 'ลองโหลดใหม่ ถ้ายังไม่ได้ให้แจ้งผู้ดูแลระบบ', ref: 'ERR-91D0E7' });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เข้าสู่ระบบ · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/zwms.css">
+<!-- Story 1.3 Office Web Sign-in and Session Management · FR-17, FR-20, FR-107, NFR-7 -->
+<style>
+  body.no-shell { min-height: 100vh; display: grid; grid-template-rows: 1fr auto; }
+  .auth { display: grid; place-items: center; padding: 48px 16px 24px; }
+  .auth-card { width: min(420px, 100%); background: var(--card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 32px; display: flex; flex-direction: column; gap: 20px; }
+  .auth-brand { display: flex; align-items: center; gap: 12px; }
+  .auth-brand .tenant-logo { width: 40px; height: 40px; font-size: 18px; }
+  .auth-brand b { display: block; font-size: 16px; font-weight: 600; line-height: 1.35; }
+  .auth-brand div span { font-size: 13px; color: var(--muted-foreground); }
+  .auth-head { display: flex; flex-direction: column; gap: 4px; }
+  .auth-head p { color: var(--muted-foreground); }
+  .auth form { display: flex; flex-direction: column; gap: 16px; }
+  .auth .input { height: 40px; }
+  .auth .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .auth-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; color: var(--muted-foreground); font-size: 13px; flex-wrap: wrap; }
+  .auth-foot .lang { display: inline-flex; gap: 4px; }
+  .auth-foot .lang button { height: 28px; padding: 0 8px; border-radius: var(--r-md); color: var(--muted-foreground); font-weight: 500; }
+  .auth-foot .lang button[aria-pressed="true"] { background: var(--muted); color: var(--foreground); }
+  .otp { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .otp input { height: 52px; text-align: center; font-family: var(--font-mono); font-size: 22px; font-weight: 700; padding: 0; }
+  .state-icon { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; }
+  .state-icon.danger { background: var(--danger-soft); color: var(--destructive); }
+  .state-icon.warning { background: var(--warning-soft); color: var(--warning-strong); }
+  .state-icon.success { background: var(--success-soft); color: var(--success); }
+  .state-icon.info { background: var(--info-soft); color: var(--info); }
+  .countdown { font-family: var(--font-mono); font-weight: 700; font-size: 28px; font-variant-numeric: tabular-nums; }
+  .wh-list { display: flex; flex-direction: column; gap: 8px; }
+  .wh-list .opt-card { flex-direction: row; align-items: center; gap: 12px; padding: 12px 14px; }
+  .pda-hint { display: flex; gap: 10px; align-items: flex-start; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted-foreground); font-size: 13px; }
+  .pda-hint .ic { margin-top: 2px; flex: none; }
+  .view { display: flex; flex-direction: column; gap: 20px; }
+  .view[hidden] { display: none; }
+</style>
+</head>
+<body class="no-shell">
+<main class="auth" id="content">
+  <div class="auth-card">
+    <div class="auth-brand"><span class="tenant-logo" aria-hidden="true">F</span><div><b>Zimple WMS</b><span>Fullfeel</span></div></div>
+
+    <!-- Sign in -->
+    <section class="view" data-view="signin" aria-labelledby="t-signin">
+      <div class="auth-head"><h1 id="t-signin">เข้าสู่ระบบ</h1><p>ใช้บัญชีที่ผู้ดูแลระบบของบริษัทสร้างให้</p></div>
+      <div class="alert alert-danger" id="signin-err" role="alert" hidden><span data-ic="x-octagon"></span><p></p></div>
+      <div class="alert alert-info" id="signin-note" role="status" hidden><span data-ic="info"></span><p></p></div>
+      <form id="f-signin" novalidate>
+        <div class="field">
+          <label for="email">อีเมล</label>
+          <input class="input" id="email" type="email" autocomplete="username" inputmode="email" spellcheck="false" aria-describedby="email-e">
+          <span class="err" id="email-e"></span>
+        </div>
+        <div class="field">
+          <div class="row"><label for="pw">รหัสผ่าน</label><button class="btn-link btn" type="button" data-go="forgot">ลืมรหัสผ่าน?</button></div>
+          <div class="input-group">
+            <input class="input" id="pw" type="password" autocomplete="current-password" aria-describedby="pw-e" style="padding-right:40px">
+            <button class="input-btn" type="button" id="pw-toggle" aria-label="แสดงรหัสผ่าน" aria-pressed="false"><span data-ic="eye"></span></button>
+          </div>
+          <span class="err" id="pw-e"></span>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" id="btn-signin">เข้าสู่ระบบ</button>
+      </form>
+      <div class="pda-hint"><span data-ic="scan-line"></span><span>พนักงานหน้างานไม่ต้องใช้หน้านี้ · สแกนบัตรพนักงานที่ PDA เพื่อเข้าสู่ระบบ</span></div>
+    </section>
+
+    <!-- Locked after 3 wrong passwords -->
+    <section class="view" data-view="locked" aria-labelledby="t-locked" hidden>
+      <span class="state-icon danger"><span data-ic="lock"></span></span>
+      <div class="auth-head"><h1 id="t-locked">บัญชีถูกล็อกชั่วคราว</h1><p>ใส่รหัสผ่านผิด 3 ครั้งติดกัน · ลองใหม่ได้เมื่อครบเวลา หรือขอตั้งรหัสผ่านใหม่</p></div>
+      <div><div class="caption">ลองใหม่ได้ในอีก</div><div class="countdown" id="lock-count" aria-live="off">15:00</div></div>
+      <button class="btn btn-outline btn-block" type="button" data-go="forgot">ตั้งรหัสผ่านใหม่</button>
+      <button class="btn btn-ghost btn-block" type="button" data-go="signin" id="btn-lock-back" disabled>กลับไปเข้าสู่ระบบ</button>
+    </section>
+
+    <!-- OTP -->
+    <section class="view" data-view="otp" aria-labelledby="t-otp" hidden>
+      <span class="state-icon info"><span data-ic="shield-check"></span></span>
+      <div class="auth-head"><h1 id="t-otp">ยืนยันตัวตน</h1><p>กรอกรหัส 6 หลักที่ส่งไปที่ <span class="strong" id="otp-to">ton@fullfeel.co</span></p></div>
+      <div class="alert alert-danger" id="otp-err" role="alert" hidden><span data-ic="x-octagon"></span><p>รหัสไม่ถูกต้อง · ตรวจรหัสในอีเมลล่าสุดแล้วกรอกใหม่</p></div>
+      <form id="f-otp" novalidate>
+        <fieldset style="border:0;margin:0;padding:0">
+          <legend class="sr-only">รหัสยืนยัน 6 หลัก</legend>
+          <div class="otp" id="otp"></div>
+        </fieldset>
+        <button class="btn btn-primary btn-block" type="submit" id="btn-otp">ยืนยัน</button>
+      </form>
+      <div class="row"><span class="caption" id="otp-resend-t" aria-live="polite">ส่งรหัสใหม่ได้ในอีก 45 วินาที</span><button class="btn btn-link" type="button" id="btn-resend" disabled>ส่งรหัสใหม่</button></div>
+      <button class="btn btn-ghost" type="button" data-go="signin" style="align-self:flex-start"><span data-ic="arrow-left"></span>ใช้บัญชีอื่น</button>
+    </section>
+
+    <!-- Warehouse picker -->
+    <section class="view" data-view="warehouse" aria-labelledby="t-wh" hidden>
+      <div class="auth-head"><h1 id="t-wh">เลือกคลังที่จะทำงาน</h1><p>สลับคลังภายหลังได้จากแถบด้านบน</p></div>
+      <div class="wh-list" role="radiogroup" aria-labelledby="t-wh" id="wh-list"></div>
+      <button class="btn btn-primary btn-block" type="button" id="btn-wh">เข้าใช้งาน</button>
+    </section>
+
+    <!-- Forgot password -->
+    <section class="view" data-view="forgot" aria-labelledby="t-forgot" hidden>
+      <div class="auth-head"><h1 id="t-forgot">ตั้งรหัสผ่านใหม่</h1><p>กรอกอีเมลของบัญชี ระบบจะส่งลิงก์ตั้งรหัสผ่านใหม่ให้</p></div>
+      <form id="f-forgot" novalidate>
+        <div class="field">
+          <label for="f-email">อีเมล</label>
+          <input class="input" id="f-email" type="email" autocomplete="username" spellcheck="false" aria-describedby="f-email-e">
+          <span class="err" id="f-email-e"></span>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" id="btn-forgot">ส่งลิงก์ตั้งรหัสผ่าน</button>
+      </form>
+      <button class="btn btn-ghost" type="button" data-go="signin" style="align-self:flex-start"><span data-ic="arrow-left"></span>กลับไปเข้าสู่ระบบ</button>
+    </section>
+
+    <!-- Reset sent: identical response whether or not the email exists -->
+    <section class="view" data-view="sent" aria-labelledby="t-sent" hidden>
+      <span class="state-icon success"><span data-ic="mail-check"></span></span>
+      <div class="auth-head"><h1 id="t-sent">ตรวจอีเมลของคุณ</h1><p>ถ้า <span class="strong" id="sent-to"></span> เป็นอีเมลของบัญชีในระบบ จะได้รับลิงก์ตั้งรหัสผ่านใหม่ภายในไม่กี่นาที · ลิงก์ใช้ได้ 30 นาที</p></div>
+      <button class="btn btn-outline btn-block" type="button" data-go="signin">กลับไปเข้าสู่ระบบ</button>
+    </section>
+
+    <!-- Session ended -->
+    <section class="view" data-view="timeout" aria-labelledby="t-timeout" hidden>
+      <span class="state-icon warning"><span data-ic="timer"></span></span>
+      <div class="auth-head"><h1 id="t-timeout">หมดเวลาใช้งาน</h1><p>ไม่มีการใช้งานนานเกินเวลาที่บริษัทกำหนด · เข้าสู่ระบบอีกครั้งเพื่อทำงานต่อ</p></div>
+      <button class="btn btn-primary btn-block" type="button" data-go="signin">เข้าสู่ระบบอีกครั้ง</button>
+    </section>
+
+    <!-- Suspended -->
+    <section class="view" data-view="suspended" aria-labelledby="t-susp" hidden>
+      <span class="state-icon danger"><span data-ic="user-x"></span></span>
+      <div class="auth-head"><h1 id="t-susp">บัญชีนี้ถูกพักใช้</h1><p>เข้าสู่ระบบไม่ได้ระหว่างพักใช้ · ติดต่อผู้ดูแลระบบของบริษัทเพื่อเปิดใช้บัญชี</p></div>
+      <button class="btn btn-outline btn-block" type="button" data-go="signin">ใช้บัญชีอื่น</button>
+    </section>
+
+    <!-- No web permission -->
+    <section class="view" data-view="noperm" aria-labelledby="t-noperm" hidden>
+      <span class="state-icon warning"><span data-ic="lock"></span></span>
+      <div class="auth-head"><h1 id="t-noperm">บัญชีนี้ยังไม่มีสิทธิ์ใช้งานบนเว็บ</h1><p>บทบาทของคุณยังไม่ได้เปิดหน้าใดบนเว็บ · ติดต่อผู้ดูแลระบบเพื่อขอสิทธิ์ แล้วเข้าสู่ระบบใหม่</p></div>
+      <button class="btn btn-outline btn-block" type="button" data-go="signin">ใช้บัญชีอื่น</button>
+    </section>
+  </div>
+</main>
+<footer class="auth-foot">
+  <span>Zimple WMS · by Zimple Solution</span>
+  <span class="lang" role="group" aria-label="ภาษา"><button type="button" aria-pressed="true" lang="th">ไทย</button><button type="button" aria-pressed="false" lang="en" id="btn-en">English</button></span>
+</footer>
+
+<script src="assets/zwms.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, esc, DB, toast, busy, logAction } = Z;
+  $$('[data-ic]').forEach((s) => { s.outerHTML = icon(s.dataset.ic, s.closest('.state-icon') ? 'ic-24' : ''); });
+
+  // Prototype credentials: any email; password "zimple123" signs in, others count as wrong.
+  const PASSWORD = 'zimple123';
+  let attempts = 0, lockTimer = null, resendTimer = null;
+
+  const views = $$('.view');
+  function go(name, opts = {}) {
+    views.forEach((v) => { v.hidden = v.dataset.view !== name; });
+    const v = $(`[data-view="${name}"]`);
+    const h = $('h1', v);
+    h.tabIndex = -1;
+    if (!opts.noFocus) {
+      const first = $('input', v);
+      (name === 'signin' || name === 'forgot' || name === 'otp') && first ? first.focus() : h.focus();
+    }
+    document.title = `${h.textContent} · Zimple WMS`;
+    if (name === 'locked') startLock(opts.seconds ?? 15 * 60);
+    if (name === 'otp') startOtp();
+    if (name === 'warehouse') renderWh();
+    $$('.mock-opts [data-k="view"]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === name)));
+  }
+  document.addEventListener('click', (e) => { const b = e.target.closest('[data-go]'); if (b && !b.disabled) { if (b.dataset.go === 'signin') resetSignin(); go(b.dataset.go); } });
+
+  const setErr = (input, msg) => {
+    const f = input.closest('.field');
+    f.classList.toggle('has-error', !!msg);
+    input.toggleAttribute('aria-invalid', !!msg);
+    if (msg) $('.err', f).innerHTML = `${icon('x-octagon', 'ic-14')}${esc(msg)}`;
+  };
+  const resetSignin = () => { $('#signin-err').hidden = true; $('#signin-note').hidden = true; setErr($('#email'), ''); setErr($('#pw'), ''); $('#pw').value = ''; };
+
+  // Password reveal
+  $('#pw-toggle').addEventListener('click', (e) => {
+    const on = $('#pw').type === 'password';
+    $('#pw').type = on ? 'text' : 'password';
+    e.currentTarget.setAttribute('aria-pressed', String(on));
+    e.currentTarget.setAttribute('aria-label', on ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน');
+    e.currentTarget.innerHTML = icon(on ? 'eye-off' : 'eye');
+  });
+
+  // Sign in: 3 wrong in a row → ~15 min lock; each failure logged.
+  $('#f-signin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $('#email'), pw = $('#pw');
+    setErr(email, /^\S+@\S+\.\S+$/.test(email.value.trim()) ? '' : 'กรอกอีเมลให้ถูกรูปแบบ เช่น name@company.co');
+    setErr(pw, pw.value ? '' : 'กรอกรหัสผ่าน');
+    if (!/^\S+@\S+\.\S+$/.test(email.value.trim())) { email.focus(); return; }
+    if (!pw.value) { pw.focus(); return; }
+    await busy($('#btn-signin'), 700);
+    if (pw.value !== PASSWORD) {
+      attempts += 1;
+      logAction('sign-in-failed', `user:${email.value.trim()}`, `attempt ${attempts}`);
+      if (attempts >= 3) { attempts = 0; go('locked'); return; }
+      const left = 3 - attempts;
+      $('#signin-err p').textContent = `อีเมลหรือรหัสผ่านไม่ถูกต้อง · ลองได้อีก ${left} ครั้งก่อนบัญชีถูกล็อกชั่วคราว`;
+      $('#signin-err').hidden = false;
+      pw.value = ''; pw.focus();
+      return;
+    }
+    attempts = 0;
+    $('#otp-to').textContent = email.value.trim();
+    go('otp');
+  });
+
+  function startLock(seconds) {
+    clearInterval(lockTimer);
+    let s = seconds;
+    const back = $('#btn-lock-back');
+    back.disabled = true;
+    const tick = () => {
+      $('#lock-count').textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+      if (s <= 0) { clearInterval(lockTimer); back.disabled = false; back.textContent = 'เข้าสู่ระบบอีกครั้ง'; return; }
+      s -= 1;
+    };
+    tick(); lockTimer = setInterval(tick, 1000);
+  }
+
+  // OTP: 6 boxes, paste-friendly, resend after 45 s.
+  const otp = $('#otp');
+  otp.innerHTML = Array.from({ length: 6 }, (_, i) => `<input class="input" inputmode="numeric" autocomplete="${i === 0 ? 'one-time-code' : 'off'}" maxlength="1" aria-label="หลักที่ ${i + 1}">`).join('');
+  const boxes = $$('input', otp);
+  boxes.forEach((b, i) => {
+    b.addEventListener('input', () => {
+      b.value = b.value.replace(/\D/g, '').slice(-1);
+      $('#otp-err').hidden = true;
+      if (b.value && i < 5) boxes[i + 1].focus();
+      if (boxes.every((x) => x.value)) $('#f-otp').requestSubmit();
+    });
+    b.addEventListener('keydown', (e) => { if (e.key === 'Backspace' && !b.value && i > 0) boxes[i - 1].focus(); });
+    b.addEventListener('paste', (e) => {
+      const d = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!d) return;
+      e.preventDefault();
+      d.split('').forEach((c, j) => { if (boxes[j]) boxes[j].value = c; });
+      (boxes[d.length] || boxes[5]).focus();
+      if (d.length === 6) $('#f-otp').requestSubmit();
+    });
+  });
+  function startOtp() {
+    boxes.forEach((b) => { b.value = ''; });
+    $('#otp-err').hidden = true;
+    clearInterval(resendTimer);
+    let s = 45;
+    const btn = $('#btn-resend');
+    btn.disabled = true;
+    const tick = () => {
+      $('#otp-resend-t').textContent = s > 0 ? `ส่งรหัสใหม่ได้ในอีก ${s} วินาที` : 'ไม่ได้รับรหัส?';
+      if (s <= 0) { clearInterval(resendTimer); btn.disabled = false; return; }
+      s -= 1;
+    };
+    tick(); resendTimer = setInterval(tick, 1000);
+  }
+  $('#btn-resend').addEventListener('click', () => { toast({ title: 'ส่งรหัสใหม่แล้ว', body: 'รหัสเดิมใช้ไม่ได้แล้ว' }); startOtp(); boxes[0].focus(); });
+  $('#f-otp').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = boxes.map((b) => b.value).join('');
+    if (code.length < 6) { boxes.find((b) => !b.value).focus(); return; }
+    await busy($('#btn-otp'), 600);
+    if (code === '000000') { $('#otp-err').hidden = false; boxes.forEach((b) => { b.value = ''; }); boxes[0].focus(); return; }
+    logAction('sign-in', `user:${$('#otp-to').textContent}`, 'web + OTP');
+    const active = DB.warehouses.filter((w) => w.status !== 'disabled');
+    if (active.length > 1) go('warehouse'); else enter(active[0].code);
+  });
+
+  // Warehouse picker (more than one warehouse in scope).
+  let pick = DB.current;
+  function renderWh() {
+    const list = DB.warehouses.filter((w) => w.status !== 'disabled');
+    $('#wh-list').innerHTML = list.map((w) => `<label class="opt-card"><input type="radio" name="wh" value="${w.code}" ${w.code === pick ? 'checked' : ''}>${icon('warehouse', 'ic-20')}<span style="flex:1;display:flex;flex-direction:column;line-height:1.35"><span class="strong">${esc(w.name)}</span><span class="caption">${esc(w.code)}</span></span></label>`).join('');
+    $$('#wh-list input').forEach((r) => r.addEventListener('change', () => { pick = r.value; }));
+    ($('#wh-list input:checked') || $('#wh-list input')).focus();
+  }
+  $('#btn-wh').addEventListener('click', () => enter(pick));
+  function enter(code) { DB.current = code; Z.save(); location.href = 'warehouses.html'; }
+
+  // Forgot → sent (same response whether or not the email exists).
+  $('#f-forgot').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const em = $('#f-email');
+    const ok = /^\S+@\S+\.\S+$/.test(em.value.trim());
+    setErr(em, ok ? '' : 'กรอกอีเมลให้ถูกรูปแบบ เช่น name@company.co');
+    if (!ok) { em.focus(); return; }
+    await busy($('#btn-forgot'), 700);
+    $('#sent-to').textContent = em.value.trim();
+    go('sent');
+  });
+
+  $('#btn-en').addEventListener('click', () => toast({ tone: 'info', title: 'Prototype นี้มีเฉพาะภาษาไทย', body: 'ระบบจริงสลับเป็นภาษาอังกฤษได้จากปุ่มนี้' }));
+
+  // Entry states from the shell: ?s=signedout | change | timeout
+  const s = Z.url.get('s');
+  if (s === 'signedout') { $('#signin-note p').textContent = 'ออกจากระบบแล้ว'; $('#signin-note').hidden = false; }
+  if (s === 'change') { $('#signin-note p').textContent = 'เปลี่ยนรหัสผ่านแล้ว · ออกจากระบบทุกอุปกรณ์อื่นแล้ว เข้าสู่ระบบด้วยรหัสผ่านใหม่'; $('#signin-note').hidden = false; }
+  go(s === 'timeout' ? 'timeout' : 'signin', { noFocus: false });
+
+  Z.mockbar([{ group: 'รหัสผ่านตัวอย่าง zimple123 · OTP 6 หลักใดก็ได้ (000000 = ผิด)', items: [
+    { key: 'view', value: 'signin', label: 'เข้าสู่ระบบ', default: true },
+    { key: 'view', value: 'wrong', label: 'รหัสผิด' },
+    { key: 'view', value: 'locked', label: 'ถูกล็อก' },
+    { key: 'view', value: 'otp', label: 'OTP' },
+    { key: 'view', value: 'warehouse', label: 'เลือกคลัง' },
+    { key: 'view', value: 'forgot', label: 'ลืมรหัสผ่าน' },
+    { key: 'view', value: 'sent', label: 'ส่งลิงก์แล้ว' },
+    { key: 'view', value: 'timeout', label: 'หมดเวลา' },
+    { key: 'view', value: 'suspended', label: 'ถูกพักใช้' },
+    { key: 'view', value: 'noperm', label: 'ไม่มีสิทธิ์' },
+  ] }]);
+  document.addEventListener('mock', (e) => {
+    if (e.detail.key !== 'view') return;
+    const v = e.detail.value;
+    if (v === 'wrong') {
+      resetSignin(); go('signin');
+      $('#email').value = 'ton@fullfeel.co';
+      $('#signin-err p').textContent = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง · ลองได้อีก 2 ครั้งก่อนบัญชีถูกล็อกชั่วคราว';
+      $('#signin-err').hidden = false; $('#pw').focus(); return;
+    }
+    if (v === 'sent') $('#sent-to').textContent = 'ton@fullfeel.co';
+    if (v === 'signin') resetSignin();
+    go(v);
+  });
+  // The shell-wide offline/update toggles do not apply before sign-in.
+  $$('.mock-opts').at(-1)?.parentElement.remove();
+})();
+</script>
+</body>
+</html>

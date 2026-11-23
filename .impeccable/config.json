@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "_bmad-output/planning-artifacts/pilot/ui/index.html"
+        ],
+        "createdAt": "2026-11-23T01:33:06.835Z",
+        "reason": "Claude triage: the flagged .panel wraps a data table whose cells carry 12px padding; the header row meeting the panel border is the standard table-in-card pattern, so text is not actually flush"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "_bmad-output/planning-artifacts/pilot/ui/layout.html"
+        ],
+        "createdAt": "2026-11-23T02:38:20.584Z",
+        "reason": "Claude triage: flagged element is the segmented control (แก้ผัง/ทดสอบเส้นทาง); its 34px buttons fill the bordered track by design and text keeps ~10px vertical and 14px horizontal inset"
+      }
+    ]
+  }
+}

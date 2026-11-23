@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ภาพรวมคลัง · คลังบางเขน · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* Governing spine sections:
+ DESIGN.md: Colors (core + status tones), Typography (office register), Layout & Spacing (Office shell, Hubs),
+   Components: Sidebar nav, Count chip, Page header, KPI card, Pipeline bar, Data table, Status badge.
+ EXPERIENCE.md: Information Architecture (nav tree, header items), Component Patterns (Sidebar nav, KPI/Queue/Pipeline,
+   Data table, Count chip, Status badge), State Patterns, Accessibility Floor (skip link, visible focus), Localization (one era). */
+
+:root{
+  --background:#F6F7F9; --foreground:#161A23; --card:#FFFFFF;
+  --primary:#4A3FD6; --primary-hover:#3B31B8; --primary-foreground:#FFFFFF;
+  --secondary:#EEF0F4; --muted:#EEF0F4; --muted-foreground:#596072;
+  --accent:#EEEDFC; --accent-foreground:#2F2894;
+  --destructive:#C4281C; --destructive-foreground:#FFFFFF;
+  --border:#E1E4EA; --input:#8C93A3; --ring:#4A3FD6; --disabled-foreground:#9AA0AE;
+  --success:#13794A; --success-soft:#E5F5EC; --success-soft-foreground:#106A40;
+  --warning:#F2A516; --warning-foreground:#2B1D00; --warning-strong:#B86E00;
+  --warning-soft:#FEF3DC; --warning-soft-foreground:#8A5000;
+  --danger-soft:#FDECEA; --danger-soft-foreground:#B0261B;
+  --info:#1F66C1; --info-soft:#E7F0FB; --info-soft-foreground:#195AAB;
+  --neutral:#5F6678; --neutral-soft:#EDEFF3; --neutral-soft-foreground:#4A5163;
+  --scan-accept:#13794A; --scan-reject:#C4281C; --scan-blocked:#F2A516; --scan-blocked-foreground:#2B1D00;
+  --sidebar:#FFFFFF; --sidebar-accent:#EEEDFC; --sidebar-accent-foreground:#2F2894; --sidebar-border:#E1E4EA;
+  --pda-bar:#1B2030; --pda-bar-foreground:#FFFFFF;
+  --chart-1:#4A3FD6; --chart-2:#1F66C1; --chart-3:#0E8A86; --chart-4:#B86E00; --chart-5:#8A4FBF;
+  --r-sm:4px; --r-md:6px; --r-lg:8px; --r-xl:12px; --r-full:9999px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'IBM Plex Sans Thai',system-ui,sans-serif;font-size:14px;line-height:1.6;color:var(--foreground);background:var(--background)}
+h1,h2,h3,p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500}
+.tnum{font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic-20{width:20px;height:20px}.ic-24{width:24px;height:24px}.ic-32{width:32px;height:32px}.ic-96{width:96px;height:96px}
+/* Accessibility floor: ring 2px + 2px offset on every focusable element, never removed */
+:focus-visible,.is-focus{outline:2px solid var(--ring);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Status badge: one map, icon + Thai label + tone */
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:var(--r-full);padding:2px 10px;font-size:13px;font-weight:500;line-height:1.45;white-space:nowrap}
+.badge .ic{width:14px;height:14px}
+.t-success{background:var(--success-soft);color:var(--success-soft-foreground)}
+.t-warning{background:var(--warning-soft);color:var(--warning-soft-foreground)}
+.t-danger{background:var(--danger-soft);color:var(--danger-soft-foreground)}
+.t-neutral{background:var(--neutral-soft);color:var(--neutral-soft-foreground)}
+.t-info{background:var(--info-soft);color:var(--info-soft-foreground)}
+.chip{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 7px;border-radius:var(--r-full);background:var(--muted);color:var(--foreground);font-size:13px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+.chip.over{background:var(--danger-soft);color:var(--danger-soft-foreground)}
+/* Mock canvas annotations (not product UI) */
+.mock-note{font-size:13px;color:var(--muted-foreground);line-height:1.5}
+.mock-title{font-size:16px;font-weight:600;line-height:1.5;color:var(--foreground)}
+
+
+.frame{width:1440px;min-height:1000px;display:grid;grid-template-columns:240px 1fr;background:var(--background)}
+.skip{position:absolute;left:8px;top:-60px;background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:var(--r-md);z-index:5}
+.skip:focus-visible{top:8px}
+/* Sidebar */
+.side{background:var(--sidebar);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;min-height:100%}
+.tenant{height:56px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--sidebar-border)}
+.tenant-logo{height:32px;width:32px;border-radius:var(--r-lg);background:var(--primary);color:var(--primary-foreground);display:grid;place-items:center;font-weight:700;font-size:16px}
+.tenant-name{font-size:16px;font-weight:600;line-height:1.45}
+.nav{padding:12px 8px;display:flex;flex-direction:column;gap:2px;flex:1}
+.nav-group{font-size:13px;font-weight:500;color:var(--muted-foreground);padding:16px 12px 4px;line-height:1.45}
+.nav a{height:40px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:var(--r-md);font-weight:500;color:var(--muted-foreground)}
+.nav a:hover{background:var(--muted);color:var(--foreground)}
+.nav a .chip{margin-left:auto}
+.nav a[aria-current="page"]{background:var(--sidebar-accent);color:var(--sidebar-accent-foreground);box-shadow:inset 3px 0 0 var(--primary)}
+.side-foot{border-top:1px solid var(--sidebar-border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.mark{font-weight:600;font-size:14px;line-height:1.4}
+.mark small{display:block;font-size:12px;font-weight:400;color:var(--muted-foreground);line-height:1.5}
+.icon-btn{width:36px;height:36px;display:grid;place-items:center;border-radius:var(--r-md);color:var(--muted-foreground)}
+.icon-btn:hover{background:var(--muted)}
+/* Header */
+.main{display:flex;flex-direction:column;min-width:0}
+.top{height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px}
+.wh{height:36px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--input);border-radius:var(--r-md);background:var(--card);font-weight:500}
+.wh .lbl{color:var(--muted-foreground);font-weight:400}
+.search{flex:1;max-width:520px;height:36px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--input);border-radius:var(--r-md);color:var(--muted-foreground);background:var(--card)}
+.search span{flex:1;text-align:left}
+kbd{font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--border);border-radius:var(--r-sm);padding:0 6px;color:var(--muted-foreground);background:var(--muted)}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.hbtn{height:36px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:var(--r-md);font-weight:500}
+.hbtn:hover{background:var(--muted)}
+.hbtn.appr{border:1px solid var(--input)}
+.user{display:flex;align-items:center;gap:10px;padding:0 8px;height:40px;border-radius:var(--r-md)}
+.avatar{width:32px;height:32px;border-radius:var(--r-full);background:var(--accent);color:var(--accent-foreground);display:grid;place-items:center;font-weight:600}
+.user .who{line-height:1.35;text-align:left}
+.user .who small{display:block;font-size:12px;color:var(--muted-foreground)}
+/* Content */
+.content{padding:20px 24px 32px;display:flex;flex-direction:column;gap:24px}
+.ph{display:flex;align-items:flex-end;gap:16px}
+.ph h1{font-size:24px;font-weight:600;line-height:1.35}
+.ph .sub{color:var(--muted-foreground)}
+.ph .actions{margin-left:auto;display:flex;gap:8px}
+.btn{height:36px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;border-radius:var(--r-md);font-weight:500;white-space:nowrap}
+.btn-secondary{background:var(--secondary);color:var(--foreground)}
+.btn-outline{border:1px solid var(--input);background:var(--card)}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-primary:hover{background:var(--primary-hover)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:6px}
+.kpi:hover{border-color:var(--input)}
+.kpi .k{font-size:13px;font-weight:500;color:var(--muted-foreground);line-height:1.45;display:flex;align-items:center;gap:6px}
+.kpi .v{font-size:28px;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:14px;font-weight:400;color:var(--muted-foreground);margin-left:4px}
+.kpi .row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted-foreground)}
+.grid12{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg)}
+.card-h{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.card-h h2{font-size:18px;font-weight:600;line-height:1.45}
+.card-h .meta{color:var(--muted-foreground);font-size:12px}
+.card-h .lnk{margin-left:auto;color:var(--primary);font-weight:500;display:flex;align-items:center;gap:4px}
+.pipe{padding:20px 16px 16px}
+.pipe-total{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
+.pipe-total b{font-size:28px;font-weight:700;line-height:1.2}
+.pipe-total span{color:var(--muted-foreground)}
+.bar{display:flex;height:32px;border-radius:var(--r-md);overflow:hidden;gap:2px}
+.bar a{display:block}
+.bar a:focus-visible{outline-offset:-2px;outline-color:var(--foreground);outline-width:3px}
+.seglabels{display:flex;gap:2px;margin-top:10px}
+.seglabels a{display:flex;flex-direction:column;padding:4px 6px;border-radius:var(--r-sm);min-width:0}
+.seglabels a:hover{background:var(--muted)}
+.seglabels .sw{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--muted-foreground);line-height:1.45}
+.seglabels .sw i{width:10px;height:10px;border-radius:2px;display:inline-block;flex:none}
+.seglabels b{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.45}
+.todo{list-style:none;margin:0;padding:4px 0}
+.todo a{display:flex;align-items:center;gap:12px;padding:10px 16px;min-height:48px}
+.todo a:hover{background:var(--muted)}
+.todo .txt{flex:1;line-height:1.45}
+.todo .txt small{display:block;font-size:12px;color:var(--muted-foreground)}
+.todo .n{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+.todo .tone{width:28px;height:28px;border-radius:var(--r-full);display:grid;place-items:center;flex:none}
+/* Table */
+.tabs{display:flex;gap:4px;padding:0 16px;border-bottom:1px solid var(--border)}
+.tabs a{height:40px;display:flex;align-items:center;gap:6px;padding:0 10px;color:var(--muted-foreground);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs a[aria-selected="true"]{color:var(--foreground);border-bottom-color:var(--primary)}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--muted);color:var(--muted-foreground);font-weight:500;font-size:13px;text-align:left;padding:0 12px;height:40px;line-height:1.45;border-bottom:1px solid var(--border);position:sticky;top:0}
+thead th.num{text-align:right}
+tbody td{height:44px;padding:6px 12px;border-bottom:1px solid var(--border);vertical-align:middle;line-height:1.45}
+tbody tr:hover td{background:#F6F7F9}
+td.first,th.first{position:sticky;left:0;background:var(--card);border-right:1px solid var(--border)}
+th.first{background:var(--muted)}
+td .doc{color:var(--primary);font-family:'IBM Plex Mono',monospace;font-weight:500}
+td small{display:block;font-size:12px;color:var(--muted-foreground)}
+.urgent-mark{display:inline-flex;align-items:center;gap:2px;color:var(--danger-soft-foreground);font-weight:600;font-size:13px;margin-left:6px}
+.tfoot{display:flex;align-items:center;gap:12px;padding:10px 16px;color:var(--muted-foreground)}
+.pager{margin-left:auto;display:flex;gap:4px}
+.pager button{width:36px;height:36px;border-radius:var(--r-md);border:1px solid var(--input);display:grid;place-items:center;background:var(--card)}
+.pager button[aria-current="page"]{background:var(--accent);color:var(--accent-foreground);border-color:var(--primary);font-weight:600}
+.mock-strip{width:1440px;padding:12px 24px;background:var(--muted);border-bottom:1px solid var(--border)}
+
+</style>
+</head>
+<body class="">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol><symbol id="i-x-octagon" viewBox="0 0 24 24"><path d="m15 9-6 6"/><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"/><path d="m9 9 6 6"/></symbol><symbol id="i-pause-octagon" viewBox="0 0 24 24"><path d="M10 15V9"/><path d="M14 15V9"/><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol><symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol><symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-circle-slash" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 15 15 9"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol><symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol><symbol id="i-chevrons-left" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol><symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol><symbol id="i-dashboard" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol><symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/></symbol><symbol id="i-inbound" viewBox="0 0 24 24"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></symbol><symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><rect width="12" height="12" x="6" y="10"/></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol><symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M8 10v4"/><path d="M16 18v4"/></symbol><symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol><symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></symbol><symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol><symbol id="i-weight" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z"/></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol><symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol><symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol><symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol><symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></symbol><symbol id="i-tablet" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M12 18h.01"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol><symbol id="i-video" viewBox="0 0 24 24"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol><symbol id="i-calendar-check" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol><symbol id="i-maximize" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol><symbol id="i-keyboard" viewBox="0 0 24 24"><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/></symbol></svg>
+
+<a class="skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
+<div class="frame">
+  <aside class="side" aria-label="เมนูหลัก">
+    <div class="tenant"><span class="tenant-logo" aria-hidden="true">F</span><span class="tenant-name">Fullfeel</span><span class="sr-only">โลโก้บริษัท</span></div>
+    <nav class="nav"><a href="#" aria-current="page"><svg class="ic ic-20" aria-hidden="true"><use href="#i-dashboard"/></svg><span>ภาพรวมคลัง</span></a>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-cart"/></svg><span>คำสั่งซื้อ</span><span class="chip" aria-label="12 รายการรอดำเนินการ">12</span></a>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-tag"/></svg><span>สินค้า</span></a>
+<div class="nav-group" role="presentation">งานคลัง</div>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-inbound"/></svg><span>รับสินค้าเข้า</span><span class="chip" aria-label="2 รายการรอดำเนินการ">2</span></a>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-warehouse"/></svg><span>สินค้าคงคลัง</span><span class="chip" aria-label="3 รายการรอดำเนินการ">3</span></a>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-list-checks"/></svg><span>หยิบสินค้า</span><span class="chip" aria-label="14 รายการรอดำเนินการ">14</span></a>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-package"/></svg><span>แพ็คสินค้า</span><span class="chip" aria-label="6 รายการรอดำเนินการ">6</span></a>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-truck"/></svg><span>ส่งมอบขนส่ง</span><span class="chip" aria-label="3 รายการรอดำเนินการ">3</span></a>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-undo"/></svg><span>สินค้าตีกลับ</span><span class="chip" aria-label="4 รายการรอดำเนินการ">4</span></a>
+<div class="nav-group" role="presentation">รายงาน & ตั้งค่า</div>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-chart"/></svg><span>รายงาน</span></a>
+<a href="#"><svg class="ic ic-20" aria-hidden="true"><use href="#i-sliders"/></svg><span>ตั้งค่า & ข้อมูลหลัก</span></a></nav>
+    <div class="side-foot"><div class="mark">Zimple WMS<small>by Zimple Solution</small></div>
+      <button class="icon-btn" aria-label="ย่อเมนู"><svg class="ic ic-20" aria-hidden="true"><use href="#i-chevrons-left"/></svg></button></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <button class="wh" aria-haspopup="dialog"><svg class="ic " aria-hidden="true"><use href="#i-warehouse"/></svg><span class="lbl">คลัง</span>คลังบางเขน<svg class="ic " aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+      <button class="search is-focus" aria-label="ค้นหา"><svg class="ic " aria-hidden="true"><use href="#i-search"/></svg><span>ค้นหาหรือสแกน เลขคำสั่งซื้อ · ใบหยิบ · รหัสสินค้า</span><kbd>Ctrl K</kbd></button>
+      <div class="top-right">
+        <button class="hbtn appr" aria-label="อนุมัติ 3 รายการรอ"><svg class="ic ic-20" aria-hidden="true"><use href="#i-clipboard-check"/></svg>อนุมัติ<span class="chip">3</span></button>
+        <button class="hbtn" aria-label="แจ้งเตือน 5 รายการ"><svg class="ic ic-20" aria-hidden="true"><use href="#i-bell"/></svg><span class="chip">5</span></button>
+        <button class="user" aria-haspopup="menu"><span class="avatar" aria-hidden="true">สด</span><span class="who">สุดา รัตนกุล<small>หัวหน้าคลัง</small></span><svg class="ic " aria-hidden="true"><use href="#i-chevron-down"/></svg></button>
+      </div>
+    </header>
+    <main class="content" id="main">
+      <div class="ph">
+        <div><h1>ภาพรวมคลัง</h1><p class="sub">คลังบางเขน · พฤ. 19 พ.ย. 2026 · ข้อมูล ณ 10:41 · อัปเดตทุก 1 นาที</p></div>
+        <div class="actions"><a class="btn btn-outline" href="#"><svg class="ic " aria-hidden="true"><use href="#i-chart"/></svg>เปิดรายงาน</a></div>
+      </div>
+      <section class="kpis" aria-label="ตัวชี้วัดวันนี้"><a class="kpi" href="#"><span class="k">ส่งมอบแล้ววันนี้</span><span class="v">1,284<small>พัสดุ</small></span><span class="row"><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-arrow-up"/></svg>12% จากเมื่อวาน</span></span></a><a class="kpi" href="#"><span class="k">รอส่งมอบ</span><span class="v">612<small>พัสดุ</small></span><span class="row"><span class="badge t-danger"><svg class="ic " aria-hidden="true"><use href="#i-arrow-up"/></svg>8% จากเมื่อวาน</span></span></a><a class="kpi" href="#"><span class="k">ความแม่นยำการแพ็ค</span><span class="v">99.82%</span><span class="row"><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-arrow-up"/></svg>0.1 จุด</span></span></a><a class="kpi" href="#"><span class="k">ส่งตรงเวลา</span><span class="v">97.6%</span><span class="row"><span class="badge t-danger"><svg class="ic " aria-hidden="true"><use href="#i-arrow-down"/></svg>0.4 จุด · เป้า 95%</span></span></a><a class="kpi" href="#"><span class="k">ความแม่นยำสินค้าคงคลัง</span><span class="v">99.4%</span><span class="row"><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-arrow-up"/></svg>0.2 จุด</span></span></a></section>
+      <div class="grid12">
+<section class="card" style="grid-column:span 8" aria-labelledby="pipe-h">
+  <div class="card-h"><h2 id="pipe-h">คำสั่งซื้อวันนี้ตามขั้นตอน</h2><span class="meta">ข้อมูล ณ 10:41</span>
+    <a class="lnk" href="#">เปิดภาพรวมคำสั่งซื้อ<svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></div>
+  <div class="pipe">
+    <div class="pipe-total"><b class="tnum">1,854</b><span>คำสั่งซื้อที่ยังไม่ส่งมอบ</span></div>
+    <div class="bar"><a href="#" style="flex:214;background:var(--chart-1)" aria-label="รอสร้างใบหยิบ 214 คำสั่งซื้อ"></a><a href="#" style="flex:386;background:var(--chart-2)" aria-label="รอหยิบ 386 คำสั่งซื้อ"></a><a href="#" style="flex:298;background:var(--chart-3)" aria-label="กำลังหยิบ 298 คำสั่งซื้อ"></a><a href="#" style="flex:344;background:var(--chart-4)" aria-label="รอแพ็ค 344 คำสั่งซื้อ"></a><a href="#" style="flex:612;background:var(--chart-5)" aria-label="แพ็คแล้วรอส่งมอบ 612 คำสั่งซื้อ"></a></div>
+    <div class="seglabels"><a href="#" style="flex:214" tabindex="-1"><span class="sw"><i style="background:var(--chart-1)"></i>รอสร้างใบหยิบ</span><b>214</b></a><a href="#" style="flex:386" tabindex="-1"><span class="sw"><i style="background:var(--chart-2)"></i>รอหยิบ</span><b>386</b></a><a href="#" style="flex:298" tabindex="-1"><span class="sw"><i style="background:var(--chart-3)"></i>กำลังหยิบ</span><b>298</b></a><a href="#" style="flex:344" tabindex="-1"><span class="sw"><i style="background:var(--chart-4)"></i>รอแพ็ค</span><b>344</b></a><a href="#" style="flex:612" tabindex="-1"><span class="sw"><i style="background:var(--chart-5)"></i>แพ็คแล้วรอส่งมอบ</span><b>612</b></a></div>
+  </div>
+</section>
+<section class="card" style="grid-column:span 4" aria-labelledby="todo-h">
+  <div class="card-h"><h2 id="todo-h">ต้องจัดการ</h2><span class="chip">19</span></div>
+  <ul class="todo"><li><a href="#"><span class="tone t-danger"><svg class="ic " aria-hidden="true"><use href="#i-x-octagon"/></svg></span><span class="txt">เกินรอบตัด Flash 10:30<small>ยังไม่แพ็ค · กดเพื่อดูรายการ</small></span><span class="n">7</span><svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></li><li><a href="#"><span class="tone t-danger"><svg class="ic " aria-hidden="true"><use href="#i-x-octagon"/></svg></span><span class="txt">ยกเลิกระหว่างแพ็ค · รอวางคืน<small>อยู่ที่ CXL-01</small></span><span class="n">2</span><svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></li><li><a href="#"><span class="tone t-danger"><svg class="ic " aria-hidden="true"><use href="#i-x-octagon"/></svg></span><span class="txt">ส่งข้อมูลไม่สำเร็จ<small>Zimple OMS · ลองส่งใหม่ได้</small></span><span class="n">2</span><svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></li><li><a href="#"><span class="tone t-warning"><svg class="ic " aria-hidden="true"><use href="#i-clock"/></svg></span><span class="txt">รออนุมัติผลต่างนับสต๊อก<small>จากตรวจนับด่วน โซน C</small></span><span class="n">3</span><svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></li><li><a href="#"><span class="tone t-warning"><svg class="ic " aria-hidden="true"><use href="#i-clock"/></svg></span><span class="txt">รอเติมของ<small>ของขาดตอนหยิบ</small></span><span class="n">5</span><svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></li></ul>
+</section></div>
+      
+<section class="card" aria-labelledby="ord-h">
+  <div class="card-h"><h2 id="ord-h">คำสั่งซื้อที่ต้องเร่ง</h2><span class="meta">เรียงตามความเร่งด่วน · ข้อมูล ณ 10:41</span>
+    <a class="lnk" href="#">ดูทั้งหมดในคำสั่งซื้อ<svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></a></div>
+  <div class="tabs" role="tablist" aria-label="กรองตามสถานะ">
+    <a href="#" role="tab" aria-selected="true">ทั้งหมด <span class="chip">24</span></a>
+    <a href="#" role="tab" aria-selected="false">เกินกำหนด <span class="chip over">7</span></a>
+    <a href="#" role="tab" aria-selected="false">ด่วน <span class="chip">4</span></a>
+    <a href="#" role="tab" aria-selected="false">รออนุมัติ <span class="chip">3</span></a>
+    <a href="#" role="tab" aria-selected="false">รอเติมของ <span class="chip">5</span></a>
+  </div>
+  <table>
+    <caption class="sr-only">คำสั่งซื้อที่ต้องเร่ง 10 จาก 24 รายการ</caption>
+    <thead><tr><th class="first" scope="col">เลขคำสั่งซื้อ</th><th scope="col">ขนส่ง</th><th scope="col">ขั้นตอน</th>
+      <th scope="col">สถานะ</th><th class="num" scope="col">รายการ / ชิ้น</th><th class="num" scope="col">อัปเดตล่าสุด</th><th scope="col">ผู้ทำ</th></tr></thead>
+    <tbody><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-048213</a><small>Shopee · Fullfeel Official</small></td><td>Flash<small>รอบ 10:30</small></td><td>กำลังหยิบ</td><td><span class="badge t-danger"><svg class="ic " aria-hidden="true"><use href="#i-x-octagon"/></svg>เกินกำหนด</span></td><td class="num">2 / 4</td><td class="num">10:38</td><td>นก ส.</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-048190</a><small>TikTok Shop · Fullfeel</small></td><td>Flash<small>รอบ 10:30</small></td><td>รอแพ็ค</td><td><span class="badge t-danger"><svg class="ic " aria-hidden="true"><use href="#i-x-octagon"/></svg>เกินกำหนด</span></td><td class="num">1 / 1</td><td class="num">10:35</td><td>—</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-048051</a><small>Lazada · Fullfeel Mall</small></td><td>J&amp;T<small>รอบ 11:00</small></td><td>ผิดปกติตอนแพ็ค</td><td><span class="badge t-danger"><svg class="ic " aria-hidden="true"><use href="#i-x-octagon"/></svg>ยกเลิกระหว่างแพ็ค</span></td><td class="num">3 / 4</td><td class="num">10:31</td><td>พลอย ก.</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-048377</a><small>Lazada · Fullfeel Mall</small></td><td>J&amp;T<small>รอบ 11:00</small></td><td>รอหยิบ</td><td><span class="badge t-danger"><svg class="ic " aria-hidden="true"><use href="#i-x-octagon"/></svg>ด่วน</span></td><td class="num">2 / 2</td><td class="num">10:40</td><td>—</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-048402</a><small>Shopee · Fullfeel Official</small></td><td>SPX<small>รอบ 12:00</small></td><td>กำลังหยิบ</td><td><span class="badge t-warning"><svg class="ic " aria-hidden="true"><use href="#i-clock"/></svg>รอเติมของ</span></td><td class="num">3 / 6</td><td class="num">10:29</td><td>นก ส.</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-048118</a><small>Shopee · Fullfeel Official</small></td><td>J&amp;T<small>รอบ 11:00</small></td><td>รอหยิบ</td><td><span class="badge t-warning"><svg class="ic " aria-hidden="true"><use href="#i-alert-triangle"/></svg>สต๊อกไม่พอ</span></td><td class="num">1 / 3</td><td class="num">10:12</td><td>—</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-047985</a><small>LINE SHOPPING · Fullfeel</small></td><td>Flash<small>รอบ 13:00</small></td><td>ตรวจนับ</td><td><span class="badge t-warning"><svg class="ic " aria-hidden="true"><use href="#i-clock"/></svg>รออนุมัติ</span></td><td class="num">1 / 2</td><td class="num">09:58</td><td>วิชัย ป.</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-047730</a><small>TikTok Shop · Fullfeel</small></td><td>SPX<small>รอบ 12:00</small></td><td>กำลังแพ็ค</td><td><span class="badge t-info"><svg class="ic " aria-hidden="true"><use href="#i-loader"/></svg>กำลังทำ</span></td><td class="num">2 / 3</td><td class="num">10:41</td><td>พลอย ก.</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-048440</a><small>Shopee · Fullfeel Official</small></td><td>Flash<small>รอบ 13:00</small></td><td>แพ็คแล้ว</td><td><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>พร้อมส่งมอบ</span></td><td class="num">4 / 7</td><td class="num">10:37</td><td>มด ร.</td></tr><tr><td class="first"><a class="doc" href="#" translate="no">OR2611-047612</a><small>Shopee · Fullfeel Official</small></td><td>Kerry<small>รอบ 18:00</small></td><td>รอหยิบ</td><td><span class="badge t-neutral"><svg class="ic " aria-hidden="true"><use href="#i-circle-slash"/></svg>ยกไปวันถัดไป</span></td><td class="num">1 / 1</td><td class="num">09:02</td><td>—</td></tr></tbody>
+  </table>
+  <div class="tfoot" aria-live="polite"><span>แสดง 10 จาก 24 รายการ</span>
+    <div class="pager"><button aria-label="หน้าก่อน"><svg class="ic " aria-hidden="true"><use href="#i-chevron-left"/></svg></button><button aria-current="page">1</button><button>2</button><button>3</button><button aria-label="หน้าถัดไป"><svg class="ic " aria-hidden="true"><use href="#i-chevron-right"/></svg></button></div></div>
+</section>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

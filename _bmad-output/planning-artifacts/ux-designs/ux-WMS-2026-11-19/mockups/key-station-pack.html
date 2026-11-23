@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แพ็คสินค้า PS-04 · คลังบางเขน · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* Governing spine sections:
+ DESIGN.md: Colors (scan-reject, status tones), Typography (station register, feedback-headline 32, station-counter 48,
+   scan-input 24, station-next 22), Layout & Spacing (Stations 3-zone 30/45/25), Elevation (feedback has none),
+   Components: Full-screen feedback, Scan input (station), Next-scan banner, Step strip, Requirement tile,
+   Scanned-vs-expected row, Camera/recording indicator, Print status chip, Masked value.
+ EXPERIENCE.md: UJ-3 (steps 1-5, climax = cancelled before label print), State Patterns (Locked: cancelled during work),
+   Printing (Locked print), Interaction Primitives (scan-as-command, F-keys), Voice and Tone, Accessibility Floor. */
+
+:root{
+  --background:#F6F7F9; --foreground:#161A23; --card:#FFFFFF;
+  --primary:#4A3FD6; --primary-hover:#3B31B8; --primary-foreground:#FFFFFF;
+  --secondary:#EEF0F4; --muted:#EEF0F4; --muted-foreground:#596072;
+  --accent:#EEEDFC; --accent-foreground:#2F2894;
+  --destructive:#C4281C; --destructive-foreground:#FFFFFF;
+  --border:#E1E4EA; --input:#8C93A3; --ring:#4A3FD6; --disabled-foreground:#9AA0AE;
+  --success:#13794A; --success-soft:#E5F5EC; --success-soft-foreground:#106A40;
+  --warning:#F2A516; --warning-foreground:#2B1D00; --warning-strong:#B86E00;
+  --warning-soft:#FEF3DC; --warning-soft-foreground:#8A5000;
+  --danger-soft:#FDECEA; --danger-soft-foreground:#B0261B;
+  --info:#1F66C1; --info-soft:#E7F0FB; --info-soft-foreground:#195AAB;
+  --neutral:#5F6678; --neutral-soft:#EDEFF3; --neutral-soft-foreground:#4A5163;
+  --scan-accept:#13794A; --scan-reject:#C4281C; --scan-blocked:#F2A516; --scan-blocked-foreground:#2B1D00;
+  --sidebar:#FFFFFF; --sidebar-accent:#EEEDFC; --sidebar-accent-foreground:#2F2894; --sidebar-border:#E1E4EA;
+  --pda-bar:#1B2030; --pda-bar-foreground:#FFFFFF;
+  --chart-1:#4A3FD6; --chart-2:#1F66C1; --chart-3:#0E8A86; --chart-4:#B86E00; --chart-5:#8A4FBF;
+  --r-sm:4px; --r-md:6px; --r-lg:8px; --r-xl:12px; --r-full:9999px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'IBM Plex Sans Thai',system-ui,sans-serif;font-size:14px;line-height:1.6;color:var(--foreground);background:var(--background)}
+h1,h2,h3,p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500}
+.tnum{font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic-20{width:20px;height:20px}.ic-24{width:24px;height:24px}.ic-32{width:32px;height:32px}.ic-96{width:96px;height:96px}
+/* Accessibility floor: ring 2px + 2px offset on every focusable element, never removed */
+:focus-visible,.is-focus{outline:2px solid var(--ring);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Status badge: one map, icon + Thai label + tone */
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:var(--r-full);padding:2px 10px;font-size:13px;font-weight:500;line-height:1.45;white-space:nowrap}
+.badge .ic{width:14px;height:14px}
+.t-success{background:var(--success-soft);color:var(--success-soft-foreground)}
+.t-warning{background:var(--warning-soft);color:var(--warning-soft-foreground)}
+.t-danger{background:var(--danger-soft);color:var(--danger-soft-foreground)}
+.t-neutral{background:var(--neutral-soft);color:var(--neutral-soft-foreground)}
+.t-info{background:var(--info-soft);color:var(--info-soft-foreground)}
+.chip{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 7px;border-radius:var(--r-full);background:var(--muted);color:var(--foreground);font-size:13px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+.chip.over{background:var(--danger-soft);color:var(--danger-soft-foreground)}
+/* Mock canvas annotations (not product UI) */
+.mock-note{font-size:13px;color:var(--muted-foreground);line-height:1.5}
+.mock-title{font-size:16px;font-weight:600;line-height:1.5;color:var(--foreground)}
+
+
+body{background:var(--muted)}
+.canvas{padding:32px;display:flex;flex-direction:column;gap:16px;width:max-content}
+.st{width:1920px;height:1080px;background:var(--background);display:flex;flex-direction:column;overflow:hidden;position:relative;border:1px solid var(--border)}
+.stbar{height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;flex:none}
+.stbar .code{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:18px}
+.stbar .who{color:var(--muted-foreground)}
+.dev{display:flex;gap:8px;margin-left:auto}
+.stbtn{height:48px;display:inline-flex;align-items:center;gap:8px;padding:0 16px;border-radius:var(--r-md);font-weight:600;font-size:16px;white-space:nowrap}
+.stbtn.outline{border:1px solid var(--input);background:var(--card)}
+.stbtn.primary{background:var(--primary);color:var(--primary-foreground)}
+.stbtn.ghost{color:var(--muted-foreground)}
+.stbtn kbd,.cmd kbd{font-family:'IBM Plex Mono',monospace;font-size:13px;border:1px solid var(--border);border-radius:var(--r-sm);padding:0 6px;background:var(--muted);color:var(--muted-foreground);font-weight:500}
+.zones{flex:1;display:grid;grid-template-columns:30fr 45fr 25fr;gap:24px;padding:24px;min-height:0}
+.zone{display:flex;flex-direction:column;gap:16px;min-width:0;min-height:0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg)}
+.pad{padding:16px 20px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:16px}
+.kv dt{color:var(--muted-foreground)}
+.kv dd{margin:0;font-weight:600}
+.h2{font-size:18px;font-weight:600;line-height:1.45}
+.lbl{font-size:13px;font-weight:500;color:var(--muted-foreground);line-height:1.45}
+.steps{display:flex;align-items:center;gap:8px}
+.step{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;white-space:nowrap}
+.step .n{width:28px;height:28px;border-radius:var(--r-full);display:grid;place-items:center;font-weight:600;font-size:14px;background:var(--neutral-soft);color:var(--neutral-soft-foreground);flex:none}
+.step.cur .n{background:var(--primary);color:var(--primary-foreground)}
+.step.done .n{background:var(--success);color:#FFFFFF}
+.step.wait{color:var(--muted-foreground)}
+.line{flex:1;height:2px;background:var(--border);min-width:16px}
+.line.done{background:var(--success)}
+.nextban{background:var(--primary);color:var(--primary-foreground);border-radius:var(--r-xl);padding:16px 20px;font-size:22px;font-weight:600;line-height:1.35;display:flex;align-items:center;gap:12px}
+.scanst{height:64px;border:2px solid var(--primary);border-radius:var(--r-xl);display:flex;align-items:center;gap:12px;padding:0 16px;font-size:24px;font-weight:600;line-height:1.3;color:var(--muted-foreground);background:var(--card);box-shadow:0 0 0 4px var(--accent)}
+.scanst .echo{margin-left:auto;font-size:16px;font-weight:500;color:var(--muted-foreground);display:flex;align-items:center;gap:6px}
+.tile{background:var(--muted);border-radius:var(--r-lg);padding:12px 16px;display:flex;align-items:center;gap:12px}
+.tile .v{font-size:18px;font-weight:600;line-height:1.45}
+.tile .grow{flex:1}
+.counter{font-size:48px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.devchip{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:16px}
+th{background:var(--muted);color:var(--muted-foreground);font-weight:500;font-size:13px;text-align:left;padding:0 16px;height:40px}
+th.num,td.num{text-align:right}
+td{height:52px;padding:6px 16px;border-top:1px solid var(--border);line-height:1.45}
+td small{display:block;font-size:14px;color:var(--muted-foreground)}
+td .qty{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.cmds{display:flex;gap:8px;flex-wrap:wrap}
+.cmd{height:48px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;border-radius:var(--r-md);border:1px solid var(--input);background:var(--card);font-size:16px;font-weight:600}
+.cmd.pri{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+.cmd.pri kbd{background:var(--accent);color:var(--accent-foreground);border-color:var(--accent)}
+.camv{aspect-ratio:4/3;background:var(--pda-bar);border-radius:var(--r-lg);position:relative;display:grid;place-items:center;color:var(--neutral-soft)}
+.rec{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:8px;background:var(--card);color:var(--foreground);border-radius:var(--r-full);padding:4px 12px;font-size:14px;font-weight:500}
+.rec i{width:10px;height:10px;border-radius:var(--r-full);background:var(--destructive);display:inline-block}
+
+.locked{position:absolute;inset:0;background:var(--scan-reject);color:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
+.locked h1{font-size:32px;font-weight:700;line-height:1.3}
+.locked .next2{font-size:22px;font-weight:600;line-height:1.35}
+.locked .facts{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:#FFFFFF;color:var(--danger-soft-foreground);border-radius:var(--r-full);padding:6px 16px;font-size:16px;font-weight:600}
+.pill.n{color:var(--foreground);font-weight:500}
+.cxl{margin-top:24px;width:720px;height:64px;border-radius:var(--r-xl);background:#FFFFFF;color:var(--muted-foreground);display:flex;align-items:center;gap:12px;padding:0 16px;font-size:24px;font-weight:600;line-height:1.3;text-align:left}
+.cxl b{color:var(--foreground)}
+.locked .is-focus{outline:2px solid #FFFFFF;outline-offset:2px;box-shadow:0 0 0 6px var(--ring)}
+.locked .corner{position:absolute;top:20px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:center;font-size:16px}
+.locked .corner .code{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:18px}
+.locked .hint{font-size:16px;line-height:1.55;max-width:720px}
+
+</style>
+</head>
+<body class="">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol><symbol id="i-x-octagon" viewBox="0 0 24 24"><path d="m15 9-6 6"/><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"/><path d="m9 9 6 6"/></symbol><symbol id="i-pause-octagon" viewBox="0 0 24 24"><path d="M10 15V9"/><path d="M14 15V9"/><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol><symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol><symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-circle-slash" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 15 15 9"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol><symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol><symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol><symbol id="i-chevrons-left" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol><symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol><symbol id="i-dashboard" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></symbol><symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/></symbol><symbol id="i-inbound" viewBox="0 0 24 24"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></symbol><symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><rect width="12" height="12" x="6" y="10"/></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol><symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M8 10v4"/><path d="M16 18v4"/></symbol><symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol><symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></symbol><symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></symbol><symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol><symbol id="i-weight" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.905 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z"/></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol><symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol><symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol><symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol><symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></symbol><symbol id="i-tablet" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M12 18h.01"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol><symbol id="i-video" viewBox="0 0 24 24"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol><symbol id="i-calendar-check" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol><symbol id="i-maximize" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol><symbol id="i-keyboard" viewBox="0 0 24 24"><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/></symbol></svg>
+<div class="canvas">
+<div><p class="mock-title">สถานะหลัก · คำสั่งซื้อถูกยกเลิกก่อนพิมพ์ฉลาก (UJ-3 ขั้นที่ 4)</p>
+<p class="mock-note">เต็มจอ scan-reject + x-octagon 96px + เสียงต่ำยาว 2 ครั้ง · ล็อกการพิมพ์ · ปิดได้ด้วยการสแกน CXL-01 เท่านั้น (ไม่มีปุ่มรับทราบ) · 1920×1080</p></div>
+<div class="st" aria-label="สถานีแพ็ค PS-04 คำสั่งซื้อถูกยกเลิก">
+<div class="locked" role="alert">
+  <div class="corner"><span><span class="code" translate="no">PS-04</span> · พลอย กาญจนา</span><span class="pill n"><i style="width:10px;height:10px;border-radius:9999px;background:var(--destructive);display:inline-block"></i>กำลังบันทึก <span class="tnum">03:51</span></span></div>
+  <svg class="ic ic-96" aria-hidden="true"><use href="#i-x-octagon"/></svg>
+  <h1>คำสั่งซื้อถูกยกเลิก</h1>
+  <p class="next2">ห้ามพิมพ์ฉลาก · วางที่ CXL-01</p>
+  <div class="facts">
+    <span class="pill n"><span class="mono" translate="no">OR2611-048051</span> · Lazada · J&amp;T</span>
+    <span class="pill n">ผู้ซื้อยกเลิกเมื่อ 10:29</span>
+    <span class="pill"><svg class="ic " aria-hidden="true"><use href="#i-lock"/></svg>พิมพ์ฉลากถูกล็อก</span>
+  </div>
+  <div class="cxl is-focus" role="textbox" tabindex="0" aria-label="สแกนตำแหน่ง CXL-01"><svg class="ic ic-24" aria-hidden="true"><use href="#i-scan"/></svg><span>สแกนตำแหน่ง <b class="mono" translate="no">CXL-01</b> เพื่อปิดงานนี้</span></div>
+  <p class="hint">ระบบจะบันทึก “ยกเลิกระหว่างแพ็ค” ให้อัตโนมัติ แล้วกลับไปขั้นที่ ① สำหรับงานถัดไป</p>
+</div></div>
+<div><p class="mock-title">บริบท · ก่อนสแกน “ปิดกล่อง” (UJ-3 ขั้นที่ 3)</p>
+<p class="mock-note">3 โซน 30/45/25 · ทุกแถวครบ · ช่องสแกนโฟกัส · ตาชั่งอยู่ในเกณฑ์ · ฉลากยังไม่พิมพ์</p></div>
+<div class="st" aria-label="สถานีแพ็ค PS-04 ระหว่างทำงาน"><div class="stbar"><span class="code" translate="no">PS-04</span><span>แพ็คสินค้า</span><span class="who">พลอย กาญจนา · 10:30</span>
+  <div class="dev">
+    <span class="devchip"><svg class="ic " aria-hidden="true"><use href="#i-scan"/></svg>สแกนเนอร์ <span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>พร้อม</span></span>
+    <span class="devchip"><svg class="ic " aria-hidden="true"><use href="#i-weight"/></svg>ตาชั่ง <span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>พร้อม</span></span>
+    <span class="devchip"><svg class="ic " aria-hidden="true"><use href="#i-printer"/></svg>เครื่องพิมพ์ <span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>พร้อม</span></span>
+    <span class="devchip"><svg class="ic " aria-hidden="true"><use href="#i-video"/></svg>กล้อง <span class="badge t-info"><svg class="ic " aria-hidden="true"><use href="#i-loader"/></svg>กำลังบันทึก</span></span>
+  </div>
+  <button class="stbtn ghost" aria-label="ออกจากโหมดเต็มจอ"><svg class="ic ic-20" aria-hidden="true"><use href="#i-maximize"/></svg><kbd>F11</kbd></button></div>
+<div class="zones">
+  <div class="zone">
+    <div class="card pad" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px"><span class="lbl">ใบงานแพ็ค</span><span class="badge t-info"><svg class="ic " aria-hidden="true"><use href="#i-loader"/></svg>กำลังแพ็ค</span><span style="margin-left:auto" class="tnum"><svg class="ic " aria-hidden="true"><use href="#i-clock"/></svg> 03:42</span></div>
+      <div class="h2 mono" translate="no">PK2611-00931</div>
+      <dl class="kv"><dt>คำสั่งซื้อ</dt><dd class="mono" translate="no">OR2611-048051</dd><dt>ช่องทาง</dt><dd>Lazada · Fullfeel Mall</dd>
+        <dt>ขนส่ง</dt><dd>J&amp;T · รอบ 11:00</dd><dt>ผู้รับ</dt><dd style="color:var(--muted-foreground);font-weight:500"><svg class="ic " aria-hidden="true"><use href="#i-lock"/></svg> ส*** ค*** · 08x-xxx-4417</dd></dl>
+    </div>
+    <p class="lbl">ข้อกำหนดกล่องนี้</p>
+    <div class="tile"><svg class="ic ic-24" aria-hidden="true"><use href="#i-package"/></svg><div class="grow"><p class="lbl">กล่องแนะนำ</p><p class="v">กล่อง C · 25×18×12 ซม.</p></div><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ครบ</span></div>
+    <div class="tile"><svg class="ic ic-24" aria-hidden="true"><use href="#i-weight"/></svg><div class="grow"><p class="lbl">น้ำหนักที่ยอมรับ</p><p class="v tnum">0.82 – 0.94 kg</p></div><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ผ่าน</span></div>
+    <div class="tile"><svg class="ic ic-24" aria-hidden="true"><use href="#i-tag"/></svg><div class="grow"><p class="lbl">ของแถม</p><p class="v">ถุงผ้า Fullfeel 1 ชิ้น</p></div><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ครบ</span></div>
+    <div class="tile"><svg class="ic ic-24" aria-hidden="true"><use href="#i-clipboard-check"/></svg><div class="grow"><p class="lbl">เอกสารในกล่อง</p><p class="v">ใบกำกับภาษี 1 ใบ</p></div><span class="badge t-neutral"><svg class="ic " aria-hidden="true"><use href="#i-circle-slash"/></svg>ยังไม่พิมพ์</span></div>
+  </div>
+  <div class="zone">
+    <div class="steps" aria-label="ขั้นตอน"><span class="step done"><span class="n"><svg class="ic " aria-hidden="true"><use href="#i-check"/></svg></span>สแกนเปิดงาน</span><span class="line done"></span><span class="step done"><span class="n"><svg class="ic " aria-hidden="true"><use href="#i-check"/></svg></span>สแกนสินค้า · กล่อง · ของแถม ลำดับไหนก็ได้</span><span class="line done"></span><span class="step cur" aria-current="step"><span class="n">3</span>ครบแล้วปิดกล่อง</span></div>
+    <div class="nextban"><svg class="ic ic-32" aria-hidden="true"><use href="#i-scan"/></svg>สแกนต่อไป: คำสั่ง “ปิดกล่อง”</div>
+    <div class="scanst is-focus" role="textbox" tabindex="0" aria-label="ช่องสแกน"><svg class="ic ic-24" aria-hidden="true"><use href="#i-scan"/></svg>สแกนรหัส…<span class="echo">ล่าสุด <span class="mono" translate="no">GW-TOTE</span><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg></span></div>
+    <div class="card" style="overflow:hidden"><table><thead><tr><th scope="col">รายการ</th><th class="num" scope="col">สแกน / ต้องการ</th><th scope="col">สถานะ</th></tr></thead><tbody><tr><td>ครีมกันแดด SPF50 40 มล.<small class="mono" translate="no">FF-SPF50</small></td><td class="num"><span class="qty">2 / 2</span></td><td><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ครบ</span></td></tr><tr><td>เซรั่มวิตามินซี 30 มล.<small class="mono" translate="no">FF-VC30</small></td><td class="num"><span class="qty">1 / 1</span></td><td><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ครบ</span></td></tr><tr><td>กล่อง C · 25×18×12 ซม.<small class="mono" translate="no">BOX-C</small></td><td class="num"><span class="qty">1 / 1</span></td><td><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ครบ</span></td></tr><tr><td>ถุงผ้า Fullfeel (ของแถม)<small class="mono" translate="no">GW-TOTE</small></td><td class="num"><span class="qty">1 / 1</span></td><td><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>ครบ</span></td></tr></tbody></table></div>
+    <p class="lbl">สแกนแทนการกด</p>
+    <div class="cmds"><button class="cmd pri">ปิดกล่อง</button><button class="cmd">ของขาด <kbd>F2</kbd></button><button class="cmd">พักงาน <kbd>F4</kbd></button><button class="cmd">พิมพ์ซ้ำ <kbd>F8</kbd></button></div>
+  </div>
+  <div class="zone">
+    <div class="camv" aria-label="ภาพจากกล้อง"><svg class="ic ic-96" aria-hidden="true"><use href="#i-camera"/></svg><span class="rec"><i></i>กำลังบันทึก <span class="tnum">03:42</span></span></div>
+    <div class="card pad"><p class="lbl"><svg class="ic " aria-hidden="true"><use href="#i-weight"/></svg> น้ำหนักจากตาชั่ง</p><p class="counter">0.88 <span style="font-size:24px">kg</span></p><span class="badge t-success"><svg class="ic " aria-hidden="true"><use href="#i-check-circle"/></svg>อยู่ในเกณฑ์ 0.82 – 0.94</span></div>
+    <div class="card pad" style="display:flex;align-items:center;gap:12px"><svg class="ic ic-24" aria-hidden="true"><use href="#i-printer"/></svg><div style="flex:1"><p class="lbl">ฉลากขนส่ง J&amp;T</p><p class="h2">พิมพ์หลังปิดกล่อง</p></div><span class="badge t-neutral"><svg class="ic " aria-hidden="true"><use href="#i-circle-slash"/></svg>ยังไม่พิมพ์</span></div>
+  </div>
+</div></div>
+</div>
+</body>
+</html>

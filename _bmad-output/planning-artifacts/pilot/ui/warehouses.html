@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>คลังและโซน · Zimple WMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/zwms.css">
+<!-- Story 2.1 Warehouses and Zones · FR-8, FR-105, FR-107, NFR-11 -->
+</head>
+<body>
+<main id="content">
+  <div id="chrome"></div>
+
+  <section class="panel" aria-labelledby="wh-h">
+    <div class="panel-head">
+      <h2 id="wh-h">คลัง</h2>
+      <span class="meta" id="wh-meta"></span>
+      <div class="end"><button class="btn btn-outline write-only" type="button" id="btn-add-wh" data-write><span data-ic="plus"></span>เพิ่มคลัง</button></div>
+    </div>
+    <div id="wh-table"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="zone-h">
+    <div class="panel-head">
+      <h2 id="zone-h">โซน</h2>
+      <label class="sr-only" for="zone-wh">แสดงโซนของคลัง</label>
+      <select class="select" id="zone-wh" style="width:auto;min-width:200px"></select>
+      <span class="meta" id="zone-meta"></span>
+      <div class="end"><button class="btn btn-primary write-only" type="button" id="btn-add-zone" data-write><span data-ic="plus"></span>เพิ่มโซน</button></div>
+    </div>
+    <div id="zone-table"></div>
+  </section>
+</main>
+
+<!-- Sheet: create / edit warehouse -->
+<dialog class="sheet" id="sheet-wh" aria-labelledby="sheet-wh-t">
+  <form novalidate>
+    <div class="sheet-head"><div class="titles"><h2 id="sheet-wh-t">เพิ่มคลัง</h2><p id="sheet-wh-sub">คลังใหม่จะเลือกได้ในตัวเลือกคลังของผู้ใช้ที่มีสิทธิ์</p></div><button class="btn btn-ghost btn-icon" type="button" data-close aria-label="ปิด"></button></div>
+    <div class="sheet-body">
+      <div class="alert alert-danger error-summary" role="alert"><span data-ic="x-octagon"></span><p></p></div>
+      <div class="alert alert-warning conflict" role="alert" hidden><span data-ic="alert-triangle"></span><p>ข้อมูลเปลี่ยนแล้ว · มีผู้ใช้อื่นแก้คลังนี้ระหว่างที่คุณแก้ไข</p><span class="alert-actions"><button class="btn btn-sm btn-outline" type="button" data-reload>โหลดใหม่</button></span></div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="wh-code">รหัสคลัง<span class="req">*</span></label>
+          <input class="input mono" id="wh-code" maxlength="3" autocomplete="off" spellcheck="false" aria-describedby="wh-code-h wh-code-e" translate="no">
+          <span class="hint" id="wh-code-h">ภาษาอังกฤษ 3 ตัว ไม่ซ้ำกับคลังอื่น เช่น BKN</span>
+          <span class="err" id="wh-code-e"></span>
+        </div>
+        <div class="field">
+          <label for="wh-name">ชื่อคลัง<span class="req">*</span></label>
+          <input class="input" id="wh-name" maxlength="60" autocomplete="off" aria-describedby="wh-name-e">
+          <span class="err" id="wh-name-e"></span>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-foot"><button class="btn btn-outline" type="button" data-close>ยกเลิก</button><button class="btn btn-primary" type="submit" id="wh-save" data-write>เพิ่มคลัง</button></div>
+  </form>
+</dialog>
+
+<!-- Sheet: create / edit zone -->
+<dialog class="sheet" id="sheet-zone" aria-labelledby="sheet-zone-t">
+  <form novalidate>
+    <div class="sheet-head"><div class="titles"><h2 id="sheet-zone-t">เพิ่มโซน</h2><p id="sheet-zone-sub"></p></div><button class="btn btn-ghost btn-icon" type="button" data-close aria-label="ปิด"></button></div>
+    <div class="sheet-body">
+      <div class="alert alert-danger error-summary" role="alert"><span data-ic="x-octagon"></span><p></p></div>
+      <div class="alert alert-warning conflict" role="alert" hidden><span data-ic="alert-triangle"></span><p>ข้อมูลเปลี่ยนแล้ว · มีผู้ใช้อื่นแก้โซนนี้ระหว่างที่คุณแก้ไข</p><span class="alert-actions"><button class="btn btn-sm btn-outline" type="button" data-reload>โหลดใหม่</button></span></div>
+      <div class="form-section">
+        <div class="form-grid">
+          <div class="field">
+            <label for="z-code">รหัสโซน<span class="req">*</span></label>
+            <input class="input mono" id="z-code" maxlength="3" autocomplete="off" spellcheck="false" aria-describedby="z-code-h z-code-e" translate="no">
+            <span class="hint" id="z-code-h">1–3 ตัว ใช้เป็นตัวหน้าของรหัสตำแหน่ง เช่น A → A-01-01</span>
+            <span class="err" id="z-code-e"></span>
+          </div>
+          <div class="field">
+            <label for="z-name">ชื่อโซน<span class="req">*</span></label>
+            <input class="input" id="z-name" maxlength="60" autocomplete="off" aria-describedby="z-name-e">
+            <span class="err" id="z-name-e"></span>
+          </div>
+          <div class="field">
+            <label for="z-room">ประเภทห้อง<span class="req">*</span></label>
+            <select class="select" id="z-room"></select>
+          </div>
+          <div class="field">
+            <label for="z-cap">ความจุ<span class="req">*</span></label>
+            <div class="input-group"><input class="input tnum" id="z-cap" inputmode="decimal" autocomplete="off" aria-describedby="z-cap-e" style="padding-right:44px"><span class="input-suffix">m³</span></div>
+            <span class="err" id="z-cap-e"></span>
+          </div>
+        </div>
+      </div>
+      <fieldset class="form-section" style="border:0;margin:0;padding-left:0;padding-right:0;padding-bottom:0">
+        <legend class="label" style="padding:0;margin-bottom:8px">รูปแบบลำดับการเดิน<span class="req" style="color:var(--destructive)">*</span></legend>
+        <p class="caption" style="margin-top:-8px">ระบบใช้ลำดับนี้เรียงตำแหน่งตอนหยิบและจัดเก็บในโซนนี้</p>
+        <div class="opt-cards" id="z-walk"></div>
+      </fieldset>
+    </div>
+    <div class="sheet-foot"><button class="btn btn-outline" type="button" data-close>ยกเลิก</button><button class="btn btn-primary" type="submit" id="zone-save" data-write>เพิ่มโซน</button></div>
+  </form>
+</dialog>
+
+<script src="assets/zwms.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, esc, fmt, DB, save, logAction, toast, confirmDialog, sheet, validate, busy, menu, badge, MOCK } = Z;
+  $$('[data-ic]').forEach((s) => { s.outerHTML = icon(s.dataset.ic); });
+  $$('button[data-close][aria-label]').forEach((b) => { b.innerHTML = icon('x'); });
+
+  Z.shell({ active: 'settings', title: 'คลังและโซน' });
+  $('#chrome').outerHTML = Z.settingsChrome('warehouses');
+
+  const WALK_SVG = {
+    snake: '<svg class="walk" viewBox="0 0 120 44" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 38V8h30v30h30V8h30v30" /><path d="m100 32 4 6 4-6"/></g></svg>',
+    oneway: '<svg class="walk" viewBox="0 0 120 44" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 38V8M48 38V8M78 38V8M108 38V8"/><path d="m14 12 4-5 4 5M44 12l4-5 4 5M74 12l4-5 4 5M104 12l4-5 4 5"/></g></svg>',
+    code: '<svg class="walk" viewBox="0 0 120 44" aria-hidden="true"><g fill="currentColor" font-family="IBM Plex Mono" font-size="11" font-weight="700"><text x="6" y="18">01</text><text x="34" y="18">02</text><text x="62" y="18">03</text><text x="90" y="18">04</text><text x="6" y="38">05</text><text x="34" y="38">06</text><text x="62" y="38">07</text><text x="90" y="38">08</text></g></svg>',
+  };
+  const walkTh = (id) => Z.WALK_PATTERNS.find((w) => w.id === id)?.th || id;
+  $('#z-room').innerHTML = Z.ROOM_TYPES.map((r) => `<option>${r}</option>`).join('');
+  $('#z-walk').innerHTML = Z.WALK_PATTERNS.map((w, i) => `<label class="opt-card"><input type="radio" name="z-walk" value="${w.id}" ${i === 0 ? 'checked' : ''}><span class="opt-title">${w.th}</span>${WALK_SVG[w.id]}</label>`).join('');
+
+  const zoneWh = () => $('#zone-wh').value || DB.current;
+  const whStatus = (w) => w.status === 'pending-disable'
+    ? badge('warning', 'clock', 'รออนุมัติปิดใช้', 'ส่งคำขอโดย ต้น')
+    : w.status === 'disabled' ? badge('neutral', 'circle-slash', 'ปิดใช้') : badge('success', 'check-circle', 'ใช้งาน');
+
+  // ── Warehouses table ──
+  const whTable = Z.dataTable({
+    id: 'wh', mount: $('#wh-table'), key: 'code', autoHeight: true, pageSize: 50,
+    rows: () => DB.warehouses,
+    columns: [
+      { key: 'code', label: 'รหัส', cls: 'col-sticky', render: (w) => `<span class="doc" translate="no">${esc(w.code)}</span>` },
+      { key: 'name', label: 'ชื่อคลัง', render: (w) => `${esc(w.name)}${w.code === DB.current ? ' <span class="tag" style="margin-left:6px">ใช้อยู่</span>' : ''}` },
+      { key: 'zones', label: 'โซน', num: true, sortVal: (w) => DB.zones.filter((z) => z.wh === w.code).length, render: (w) => fmt(DB.zones.filter((z) => z.wh === w.code).length) },
+      { key: 'locs', label: 'ตำแหน่ง', num: true, cls: 'p2', sortVal: (w) => DB.locations.filter((l) => l.wh === w.code).length, render: (w) => fmt(DB.locations.filter((l) => l.wh === w.code).length) },
+      { key: 'stock', label: 'สต็อก (ชิ้น)', num: true, render: (w) => fmt(w.stock) },
+      { key: 'status', label: 'สถานะ', render: whStatus },
+      { key: 'act', label: '', sort: false, cls: 'col-act', render: (w) => `<button class="row-menu-btn" type="button" data-wh-menu="${w.code}" aria-label="การทำงานของคลัง ${esc(w.code)}" aria-haspopup="menu" aria-expanded="false">${icon('more-horizontal')}</button>` },
+    ],
+    rowClass: (w) => w.status === 'disabled' ? 'is-closed' : '',
+    onRowClick: (code) => { const w = DB.warehouses.find((x) => x.code === code); if (w.status !== 'disabled') whSheet.open(w); },
+    empty: { icon: 'warehouse', title: 'ยังไม่มีคลัง', body: 'เพิ่มคลังแรกแล้วค่อยแบ่งโซนและตำแหน่งในคลัง', action: 'เพิ่มคลัง', run: () => whSheet.open() },
+  });
+
+  // ── Zones table ──
+  const zoneTable = Z.dataTable({
+    id: 'zone', mount: $('#zone-table'), key: 'code', autoHeight: true,
+    rows: () => DB.zones.filter((z) => z.wh === zoneWh()),
+    columns: [
+      { key: 'code', label: 'รหัสโซน', cls: 'col-sticky', render: (z) => `<span class="doc" translate="no">${esc(z.code)}</span>` },
+      { key: 'name', label: 'ชื่อโซน' },
+      { key: 'room', label: 'ประเภทห้อง', render: (z) => esc(z.room) },
+      { key: 'cap', label: 'ความจุ (m³)', num: true, render: (z) => fmt(z.cap) },
+      { key: 'walk', label: 'ลำดับการเดิน', cls: 'p2', render: (z) => esc(walkTh(z.walk)) },
+      { key: 'locs', label: 'ตำแหน่ง', num: true, sortVal: (z) => DB.locations.filter((l) => l.wh === z.wh && l.zone === z.code).length,
+        render: (z) => { const n = DB.locations.filter((l) => l.wh === z.wh && l.zone === z.code).length; return z.wh === DB.current && n ? `<a class="btn-link" data-cell-act href="locations.html?zone=${encodeURIComponent(z.code)}">${fmt(n)}</a>` : fmt(n); } },
+      { key: 'act', label: '', sort: false, cls: 'col-act', render: (z) => `<button class="row-menu-btn" type="button" data-zone-menu="${esc(z.code)}" aria-label="การทำงานของโซน ${esc(z.code)}" aria-haspopup="menu" aria-expanded="false">${icon('more-horizontal')}</button>` },
+    ],
+    onRowClick: (code) => zoneSheet.open(DB.zones.find((z) => z.wh === zoneWh() && z.code === code)),
+    empty: { icon: 'layers', title: 'ยังไม่มีโซนในคลังนี้', body: 'เพิ่มโซนแรกเพื่อเริ่มสร้างตำแหน่ง เช่น ลานรับสินค้า หรือชั้นวาง', action: 'เพิ่มโซน', run: () => zoneSheet.open() },
+  });
+
+  const refreshMeta = () => {
+    const active = DB.warehouses.filter((w) => w.status !== 'disabled').length;
+    $('#wh-meta').textContent = `${fmt(DB.warehouses.length)} คลัง · ใช้งาน ${fmt(active)}`;
+    const wh = DB.warehouses.find((w) => w.code === zoneWh());
+    $('#zone-meta').textContent = `${fmt(DB.zones.filter((z) => z.wh === zoneWh()).length)} โซน`;
+    $('#zone-h').textContent = `โซนใน${wh ? wh.name : ''}`;
+  };
+  const fillZoneWh = () => {
+    const cur = $('#zone-wh').value || Z.url.get('wh', DB.current);
+    $('#zone-wh').innerHTML = DB.warehouses.filter((w) => w.status !== 'disabled').map((w) => `<option value="${w.code}" ${w.code === cur ? 'selected' : ''}>${esc(w.name)} (${w.code})</option>`).join('');
+  };
+  fillZoneWh();
+  $('#zone-wh').addEventListener('change', () => { Z.url.set({ wh: zoneWh() === DB.current ? '' : zoneWh() }); zoneTable.render(); refreshMeta(); });
+  const renderAll = () => { whTable.render(); zoneTable.render(); refreshMeta(); };
+  refreshMeta();
+
+  // ── Warehouse sheet ──
+  let editingWh = null;
+  const whSheet = sheet($('#sheet-wh'), {
+    onOpen(w) {
+      editingWh = w || null;
+      $('#sheet-wh-t').textContent = w ? `แก้ไขคลัง ${w.code}` : 'เพิ่มคลัง';
+      $('#sheet-wh-sub').textContent = w ? 'รหัสคลังแก้ไม่ได้หลังสร้าง เพราะใช้อ้างอิงในเอกสารและ label' : 'คลังใหม่จะเลือกได้ในตัวเลือกคลังของผู้ใช้ที่มีสิทธิ์';
+      $('#wh-save').textContent = w ? 'บันทึกคลัง' : 'เพิ่มคลัง';
+      $('#wh-code').value = w ? w.code : ''; $('#wh-code').disabled = !!w;
+      $('#wh-name').value = w ? w.name : '';
+    },
+  });
+  $('#wh-code').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); });
+  $('#sheet-wh form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = $('#wh-code'), name = $('#wh-name');
+    const ok = validate($('#sheet-wh'), [
+      ...(editingWh ? [] : [[code, (v) => (!v ? 'กรอกรหัสคลัง' : v.length !== 3 ? 'รหัสคลังต้องมี 3 ตัว' : DB.warehouses.some((w) => w.code === v) ? `รหัส ${v} ถูกใช้แล้ว · เลือกรหัสอื่น` : true)]]),
+      [name, (v) => (!v.trim() ? 'กรอกชื่อคลัง' : true)],
+    ]);
+    if (!ok) return;
+    if (MOCK.conflict) { $('#sheet-wh .conflict').hidden = false; return; }
+    await busy($('#wh-save'));
+    if (editingWh) {
+      const old = editingWh.name; editingWh.name = name.value.trim();
+      logAction('edit', `warehouse:${editingWh.code}`, `ชื่อ ${old} → ${editingWh.name}`);
+      toast({ title: `บันทึกคลัง ${editingWh.code} แล้ว` });
+    } else {
+      DB.warehouses.push({ code: code.value, name: name.value.trim(), status: 'active', stock: 0 });
+      logAction('create', `warehouse:${code.value}`, name.value.trim());
+      toast({ title: `เพิ่มคลัง ${code.value} แล้ว`, body: 'เลือกคลังนี้ในตัวเลือกคลังได้ทันที · ต่อไปเพิ่มโซน' });
+    }
+    save(); whSheet.close(); fillZoneWh(); renderAll();
+    whTable.flash([editingWh ? editingWh.code : code.value]);
+  });
+  $('#sheet-wh [data-reload]').addEventListener('click', () => { $('#sheet-wh .conflict').hidden = true; if (editingWh) $('#wh-name').value = editingWh.name; MOCK.conflict = false; });
+
+  // ── Zone sheet ──
+  let editingZone = null;
+  const zoneSheet = sheet($('#sheet-zone'), {
+    onOpen(z) {
+      editingZone = z || null;
+      const wh = DB.warehouses.find((w) => w.code === zoneWh());
+      $('#sheet-zone-t').textContent = z ? `แก้ไขโซน ${z.code}` : 'เพิ่มโซน';
+      $('#sheet-zone-sub').textContent = `${wh.name} (${wh.code})`;
+      $('#zone-save').textContent = z ? 'บันทึกโซน' : 'เพิ่มโซน';
+      $('#z-code').value = z ? z.code : ''; $('#z-code').disabled = !!z;
+      $('#z-name').value = z ? z.name : '';
+      $('#z-room').value = z ? z.room : Z.ROOM_TYPES[0];
+      $('#z-cap').value = z ? z.cap : '';
+      $$('[name="z-walk"]').forEach((r) => { r.checked = r.value === (z ? z.walk : 'snake'); });
+    },
+  });
+  $('#z-code').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+  $('#sheet-zone form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = $('#z-code'), name = $('#z-name'), cap = $('#z-cap');
+    const ok = validate($('#sheet-zone'), [
+      ...(editingZone ? [] : [[code, (v) => (!v ? 'กรอกรหัสโซน' : DB.zones.some((z) => z.wh === zoneWh() && z.code === v) ? `โซน ${v} มีอยู่แล้วในคลังนี้` : true)]]),
+      [name, (v) => (!v.trim() ? 'กรอกชื่อโซน' : true)],
+      [cap, (v) => (!v ? 'กรอกความจุ' : !(+v > 0) ? 'ความจุต้องเป็นตัวเลขมากกว่า 0' : true)],
+    ]);
+    if (!ok) return;
+    if (MOCK.conflict) { $('#sheet-zone .conflict').hidden = false; return; }
+    await busy($('#zone-save'));
+    const data = { name: name.value.trim(), room: $('#z-room').value, cap: +cap.value, walk: $('[name="z-walk"]:checked').value };
+    if (editingZone) {
+      Object.assign(editingZone, data);
+      logAction('edit', `zone:${zoneWh()}/${editingZone.code}`, JSON.stringify(data));
+      toast({ title: `บันทึกโซน ${editingZone.code} แล้ว` });
+    } else {
+      DB.zones.push({ wh: zoneWh(), code: code.value, ...data });
+      logAction('create', `zone:${zoneWh()}/${code.value}`, data.name);
+      toast({ title: `เพิ่มโซน ${code.value} แล้ว`, body: 'ต่อไปสร้างตำแหน่งในโซนนี้' });
+    }
+    save(); zoneSheet.close(); renderAll();
+    zoneTable.flash([editingZone ? editingZone.code : code.value]);
+  });
+  $('#sheet-zone [data-reload]').addEventListener('click', () => { $('#sheet-zone .conflict').hidden = true; MOCK.conflict = false; if (editingZone) zoneSheet.open(editingZone); });
+
+  $('#btn-add-wh').addEventListener('click', () => whSheet.open());
+  $('#btn-add-zone').addEventListener('click', () => zoneSheet.open());
+
+  // ── Disable warehouse: refused with stock; approval when empty (FR-8, FR-105) ──
+  async function disableWh(w) {
+    if (w.stock > 0) {
+      await confirmDialog({
+        tone: 'danger', hideConfirm: true, cancelLabel: 'เข้าใจแล้ว',
+        title: `ปิดใช้${esc(w.name)} (${w.code}) ไม่ได้`,
+        body: `ยังมีสต็อก <b class="tnum">${fmt(w.stock)}</b> ชิ้นในคลังนี้ · ย้ายหรือตัดสต็อกออกให้เหลือ 0 ก่อน แล้วค่อยขอปิดใช้`,
+      });
+      return;
+    }
+    const r = await confirmDialog({
+      tone: 'warning', confirmTone: 'primary', reason: true, reasonLabel: 'เหตุผลที่ปิดใช้',
+      title: `ขออนุมัติปิดใช้${esc(w.name)} (${w.code})?`,
+      body: 'คลังนี้ไม่มีสต็อกแล้ว · การปิดใช้ต้องผ่านผู้อนุมัติ เมื่ออนุมัติแล้วคลังนี้จะไม่แสดงในตัวเลือกคลัง',
+      confirmLabel: 'ส่งคำขอปิดใช้',
+    });
+    if (!r) return;
+    w.status = 'pending-disable';
+    logAction('request-disable', `warehouse:${w.code}`, r.reason);
+    save(); renderAll();
+    toast({ title: `ส่งคำขอปิดใช้ ${w.code} แล้ว`, body: 'รออนุมัติ · สถานะจะเปลี่ยนเมื่อมีผลอนุมัติ' });
+  }
+
+  document.addEventListener('click', (e) => {
+    const wb = e.target.closest('[data-wh-menu]');
+    if (wb) {
+      const w = DB.warehouses.find((x) => x.code === wb.dataset.whMenu);
+      menu(wb, [
+        { text: 'แก้ไขคลัง', icon: 'pencil', disabled: w.status === 'disabled' || MOCK.offline, run: () => whSheet.open(w) },
+        { text: 'ดูโซนของคลังนี้', icon: 'layers', run: () => { $('#zone-wh').value = w.code; $('#zone-wh').dispatchEvent(new Event('change')); $('#zone-h').scrollIntoView({ behavior: 'smooth', block: 'start' }); } },
+        '-',
+        w.status === 'pending-disable'
+          ? { text: 'ยกเลิกคำขอปิดใช้', icon: 'x', disabled: MOCK.offline, run: () => { w.status = 'active'; logAction('cancel-disable', `warehouse:${w.code}`, ''); save(); renderAll(); toast({ title: `ยกเลิกคำขอปิดใช้ ${w.code} แล้ว` }); } }
+          : { text: 'ปิดใช้คลัง', icon: 'power', danger: true, disabled: w.status === 'disabled' || MOCK.offline, run: () => disableWh(w) },
+      ]);
+      return;
+    }
+    const zb = e.target.closest('[data-zone-menu]');
+    if (zb) {
+      const z = DB.zones.find((x) => x.wh === zoneWh() && x.code === zb.dataset.zoneMenu);
+      menu(zb, [
+        { text: 'แก้ไขโซน', icon: 'pencil', disabled: MOCK.offline, run: () => zoneSheet.open(z) },
+        { text: 'ดูตำแหน่งในโซนนี้', icon: 'map-pin', disabled: z.wh !== DB.current, title: z.wh !== DB.current ? 'สลับคลังก่อนดูตำแหน่ง' : '', run: () => { location.href = `locations.html?zone=${encodeURIComponent(z.code)}`; } },
+        { text: 'สร้างตำแหน่งในโซนนี้', icon: 'plus', disabled: z.wh !== DB.current || MOCK.offline, run: () => { location.href = `locations.html?zone=${encodeURIComponent(z.code)}&new=bulk`; } },
+      ]);
+    }
+  });
+
+  // ── Prototype state switcher ──
+  Z.mockbar([{ group: 'รายการคลังและโซน', items: [
+    { key: 'list', value: 'normal', label: 'มีข้อมูล', default: true },
+    { key: 'list', value: 'loading', label: 'กำลังโหลด' },
+    { key: 'list', value: 'empty', label: 'ว่าง (ครั้งแรก)' },
+    { key: 'list', value: 'error', label: 'โหลดไม่สำเร็จ' },
+  ] }]);
+  document.addEventListener('mock', (e) => {
+    if (e.detail.key !== 'list') return;
+    whTable.setMode(e.detail.value); zoneTable.setMode(e.detail.value);
+    if (e.detail.value === 'error') toast({ tone: 'error', title: 'โหลดรายการคลังไม่สำเร็จ', body: 'ลองโหลดใหม่ ถ้ายังไม่ได้ให้แจ้งผู้ดูแลระบบ', ref: 'ERR-7F3A21' });
+  });
+})();
+</script>
+</body>
+</html>

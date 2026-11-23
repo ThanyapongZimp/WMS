@@ -2,7 +2,8 @@
 name: Zimple WMS / Zimple Fulfillment
 status: final
 created: 2026-11-19
-updated: 2026-11-19
+updated: 2026-11-23
+change-note: "2026-11-23 — G1 review for pilot wave 1: web sign-in states (FR-20) and warehouse-setup states (FR-8, FR-10, FR-125) added to match the PRD."
 design: ./DESIGN.md
 sources:
   - ../../prds/prd-WMS-2026-11-19/prd.md
@@ -202,6 +203,12 @@ Behavioural rules only. Visual specs are in `DESIGN.md` Components, grouped the 
 | Day-close checklist | ค้างส่งมอบ & ปิดวัน (FR-91) | One row per failing check, each with a link to its fix. The close button stays disabled with the reason "แก้ให้ครบ n รายการก่อน จึงปิดวันได้" (fix the n items before closing the day) until every check passes. Only users with the *day close* permission see the button |
 | Layout editor (added 2026-11-23) | ตั้งค่าคลัง › คลังและตำแหน่ง › ผังคลัง (FR-125) | Tools by button or shortcut: V select · R rack · A aisle · Z zone area · W wall/obstacle · D door/dock · S pick start/end point · T label. Ctrl+Z / Ctrl+Shift+Z undo/redo, Delete removes, arrows nudge one grid step, Shift+arrows nudge 1 m. A status bar shows "แบบร่าง · แก้ล่าสุด HH:MM" and "ใช้งานอยู่ v{n}". Publish opens a validation result first (blocking items and warnings, each linked to the element). A keyboard-operable binding list mirrors the canvas, and every element is selectable from a list. Route preview lists its stops as text as well as drawing them. Below 1280px the editor is read-only |
 | Layout map (added 2026-11-23) | สินค้าคงคลัง › ผังคลัง (FR-126) | Read-only published layout. Selecting a slot opens a side panel with its stock. Filters dim non-matching slots rather than hiding them |
+| Layout draft held by someone else (added 2026-11-23) | ผังคลัง (FR-125) | The editor opens read-only with a banner "{name} กำลังแก้ผังนี้ ตั้งแต่ HH:MM" ({name} is editing since HH:MM). Admins also see "แก้แทน" (take over), which confirms in an AlertDialog that names the holder; the holder's unsaved work is saved as a separate draft copy and they see "ผังถูกแก้แทนโดย {name}" |
+| Layout versions (added 2026-11-23) | ผังคลัง (FR-125) | A "ประวัติเวอร์ชัน" list shows each published version with date, user and counts of racks and bound slots. "เผยแพร่เวอร์ชันนี้อีกครั้ง" on an old version runs the same publish validation and creates a new version number |
+| Pick start/end per zone (added 2026-11-23) | ผังคลัง (FR-125) | Placing a start or end point asks which pick zone it serves; each pick zone shows one start and one end. Publish validation names any pick zone with bound locations but no start point |
+| Bulk location create (added 2026-11-23) | ตั้งค่าคลัง › ตำแหน่ง (FR-8) | The Sheet builds codes from the zone's code format and ranges. Before creating, a preview shows the first and last codes, the total ("จะสร้าง 480 ตำแหน่ง") and the codes that already exist ("ข้าม 12 รหัสที่มีอยู่แล้ว", expandable). More than 5,000 blocks the create button with "สร้างได้ครั้งละไม่เกิน 5,000 ตำแหน่ง" |
+| Disable vs delete (added 2026-11-23) | Warehouses, zones, locations, containers (FR-8, FR-10) | Delete appears only for records that never held stock and are not bound to the layout. Otherwise only "ปิดใช้" (disable) or, for containers, "เลิกใช้" (retire) is offered, and both require a reason. A bound location's delete is replaced by "ยกเลิกการผูกก่อนลบ" (unbind before deleting) with a link to the slot |
+| Fixed codes (added 2026-11-23) | Warehouse, location and container forms (FR-8, FR-10) | The code field is editable only on create. On edit it shows as read-only mono text with the helper "รหัสแก้ไม่ได้ เพราะอยู่ในเลขเอกสารและ QR" |
 
 ### Stations
 
@@ -271,6 +278,15 @@ Behavioural rules only. Visual specs are in `DESIGN.md` Components, grouped the 
 
 | State | Surface | Treatment |
 |---|---|---|
+| Web sign-in: wrong password | Web login (FR-20) | Inline alert "อีเมลหรือรหัสผ่านไม่ถูกต้อง · ลองได้อีก n ครั้งก่อนบัญชีถูกล็อกชั่วคราว". The message never says which of the two was wrong |
+| Web sign-in: locked | Web login | "บัญชีถูกล็อกชั่วคราว" with a 15:00 countdown, a "ตั้งรหัสผ่านใหม่" action, and "เข้าสู่ระบบอีกครั้ง" enabled when the countdown ends |
+| Web sign-in: OTP | Web login | Six digit boxes, paste and one-time-code autofill supported, auto-submit on the sixth digit. The masked email shows where the code went (`t**@fullfeel.co`). Resend unlocks after 45 s, up to 5 times; the countdown is announced to screen readers only when resend becomes available |
+| Web sign-in: OTP wrong / expired / too many | Web login | Wrong: "รหัสไม่ถูกต้อง · ลองได้อีก n ครั้ง" and the boxes clear. Expired after 5 minutes: "รหัสหมดอายุ" with the resend action. Fifth wrong code or resend limit reached: back to the password step with "ยืนยันตัวตนไม่สำเร็จ · เข้าสู่ระบบใหม่" |
+| Web sign-in: suspended / no web page | Web login | Shown only after a correct password, with no OTP sent: "บัญชีนี้ถูกพักใช้" or "บัญชีนี้ยังไม่มีสิทธิ์ใช้งานบนเว็บ", each with "ติดต่อผู้ดูแลระบบ" and "ใช้บัญชีอื่น" |
+| Web sign-in: no active warehouse | Web login | "ยังไม่มีคลังที่เปิดใช้งานในสิทธิ์ของคุณ · ติดต่อผู้ดูแลระบบ". No way into the app |
+| Web sign-in: warehouse picker | Web login | One card per active warehouse in scope, each showing the user's role there; the last used is preselected. Users with one warehouse skip it |
+| Idle warning | Office web (FR-20) | Two minutes before the idle timeout, a Dialog "จะออกจากระบบใน 2:00 เพราะไม่มีการใช้งาน" with "อยู่ต่อ" focused. On timeout the user lands on "หมดเวลาใช้งาน"; an open Sheet's unsaved input is kept as a draft and offered back after sign-in |
+| Password reset | Web login | The same "ตรวจอีเมลของคุณ" screen for every email. The link works once within 30 minutes; an expired or used link shows "ลิงก์นี้ใช้ไม่ได้แล้ว · ขอลิงก์ใหม่" |
 | Permission denied | Any | The item is hidden (see Visibility rules). A deep link to a hidden page shows "ไม่มีสิทธิ์เข้าหน้านี้ · ติดต่อผู้ดูแลระบบ" (no access to this page · contact your admin) with a link home |
 | Feature not in edition / add-on off | Deep link | "ฟีเจอร์นี้ไม่ได้เปิดใช้ในบริษัทของคุณ" (this feature isn't enabled for your company). No upsell on floor devices |
 | PDA login: no PDA permission | PDA login | "ไม่มีสิทธิ์ใช้ PDA · แจ้งผู้ดูแลระบบเพื่อขอสิทธิ์ แล้วสแกนใหม่" |

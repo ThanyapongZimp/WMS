@@ -66,6 +66,7 @@
     'shield-check': '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
     'user-x': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/>',
     'timer': '<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
+    'link-2-off': '<path d="M9 17H7A5 5 0 0 1 7 7"/><path d="M15 7h2a5 5 0 0 1 4 8"/><line x1="8" x2="12" y1="12" y2="12"/><line x1="2" x2="22" y1="2" y2="22"/>',
     'filter-x': '<path d="M13.013 3H2l8 9.46V19l4 2v-8.54l.9-1.055"/><path d="m22 3-5 5"/><path d="m17 3 5 5"/>',
     'server-crash': '<path d="M6 10H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M6 14H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"/><path d="M6 6h.01"/><path d="M6 18h.01"/><path d="m13 6-4 6h6l-4 6"/>',
     'sliders': '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
@@ -445,6 +446,7 @@
         { key: 'offline', label: 'ออฟไลน์', toggle: true },
         { key: 'update', label: 'มีเวอร์ชันใหม่', toggle: true },
         { key: 'conflict', label: 'บันทึกชนกัน', toggle: true },
+        { key: 'idle', label: 'ใกล้หมดเวลาใช้งาน' },
       ] },
     ];
     host.innerHTML = `<button type="button" aria-expanded="false" aria-controls="mock-panel">${icon('sliders')}ดูสถานะหน้าจอ (prototype)</button>
@@ -473,7 +475,33 @@
     if (key === 'offline') setOffline(value);
     if (key === 'update') setUpdate(value);
     if (key === 'conflict') MOCK.conflict = value;
+    if (key === 'idle') idleWarning();
   });
+
+  // Idle warning (FR-20): 2 minutes before the idle timeout (company default 30 min), with "อยู่ต่อ" focused.
+  function idleWarning(seconds = 120) {
+    if ($('#idle-dialog')) return;
+    const d = document.createElement('dialog');
+    d.id = 'idle-dialog'; d.className = 'dlg'; d.setAttribute('role', 'alertdialog');
+    d.setAttribute('aria-labelledby', 'idle-t'); d.setAttribute('aria-describedby', 'idle-b');
+    d.innerHTML = `<div class="dlg-body"><div class="dlg-title"><span class="dlg-icon warning">${icon('timer', 'ic-20')}</span>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><h2 id="idle-t">ใกล้หมดเวลาใช้งาน</h2>
+      <div id="idle-b" class="muted">ไม่มีการใช้งานมาเกือบ 30 นาที · ระบบจะออกจากระบบใน <span class="mono strong" id="idle-count">2:00</span> · ข้อมูลที่กรอกค้างไว้จะถูกเก็บเป็นฉบับร่าง</div></div></div></div>
+      <div class="dlg-foot"><button class="btn btn-outline" type="button" data-idle="out">ออกจากระบบ</button><button class="btn btn-primary" type="button" data-idle="stay">อยู่ต่อ</button></div>`;
+    document.body.append(d);
+    d.showModal();
+    $('[data-idle="stay"]', d).focus();
+    let s = seconds;
+    const done = () => { clearInterval(t); d.close(); d.remove(); };
+    const t = setInterval(() => {
+      s -= 1;
+      $('#idle-count', d).textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+      if (s <= 0) { done(); logAction('sign-out', 'user:ton@fullfeel.co', 'idle timeout'); location.href = 'login.html?s=timeout'; }
+    }, 1000);
+    $('[data-idle="stay"]', d).addEventListener('click', () => { done(); toast({ title: 'ใช้งานต่อได้', body: 'นับเวลาใหม่แล้ว' }); });
+    $('[data-idle="out"]', d).addEventListener('click', () => { done(); location.href = 'login.html?s=signedout'; });
+    d.addEventListener('cancel', (e) => { e.preventDefault(); });
+  }
 
   function setOffline(on) {
     MOCK.offline = on;

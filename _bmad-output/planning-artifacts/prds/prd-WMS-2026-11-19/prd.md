@@ -3,7 +3,7 @@ title: "PRD: Zimple Fulfillment — Phase 1 (WMS Core)"
 status: draft
 created: 2026-11-19
 updated: 2026-11-23
-change-note: "2026-11-23 — FR-125/126 added; layout map moved from Later to Phase 1 (sprint-change-proposal-2026-11-23.md)"
+change-note: "2026-11-23 — FR-125/126 added; layout map moved from Later to Phase 1 (sprint-change-proposal-2026-11-23.md). 2026-11-23 (G1 review, pilot wave 1) — rules added to FR-8, FR-10, FR-17, FR-20, FR-107, FR-125; decisions logged in addendum §B.10–B.14."
 inputs:
   - _bmad-output/planning-artifacts/briefs/brief-WMS-2026-11-19/brief.md
   - _bmad-output/planning-artifacts/briefs/brief-WMS-2026-11-19/addendum.md
@@ -270,11 +270,22 @@ System can send decision cases (with photos, video and quantities) to OMS after-
 Admin can create warehouses (3-letter code), zones (room type, capacity, walk-order pattern) and locations, individually or in bulk.
 
 **Consequences:**
-- A location has one of 8 types, a zone, a walk sequence, a sellable flag, a capacity (m³ and kg) and a mixing policy.
-- The walk sequence is the fallback stop order for locations not bound to a published layout (FR-125).
-- A *disabled* location blocks putaway and moves. A location *locked for counting* is set only by a count.
-- Location QR labels print in bulk. One SKU may occupy many locations.
-- A warehouse can be disabled only when it holds zero stock, and only with approval.
+- **Warehouse:** a 3-letter code (A–Z, unique within the company) and a name and address are required. The code appears in document numbers and inside every QR, so it cannot be changed after the warehouse is created.
+- **Zone:** a code (unique within the warehouse), a name, a room type, a capacity (m³), a walk-order pattern and a location code format.
+  - Room type is *normal*. Temperature-controlled room types appear only when the temperature add-on is on.
+  - Walk-order patterns: zigzag by row, one-way by row, or aisle → rack → level → slot.
+  - The location code format has 2 to 6 segments (for example `A-03-02` zone-row-level, or `E-01-03-02-04` zone-aisle-bay-level-slot). Bulk creation and layout binding both follow it.
+- **Location:** one of 8 types, a zone, a walk sequence, a sellable flag, a capacity (m³ and kg) and a mixing policy.
+  - The code follows its zone's format, is unique within the warehouse, and cannot be changed after creation. To rename a location, disable it and create a new one.
+  - The sellable flag defaults by type: pick and storage are sellable. Receiving, staging, handover, returns, awaiting-restock and damaged/quarantine are not. Admin can change the flag on pick and storage locations only. Damaged/quarantine is never sellable.
+  - Mixing policy is *allow mixed SKUs* or *single SKU*. A single-SKU location may hold several lots of that SKU.
+- **Bulk creation** takes a range pattern (for example aisle A, rows 01–10, levels 01–04). A preview shows the codes and the count before anything is created. Codes that already exist are skipped and listed. One run creates at most 5,000 locations.
+- The walk sequence is the fallback stop order for locations not bound to a published layout (FR-125). Bulk creation numbers it by the zone's walk-order pattern, and admin can edit it afterwards.
+- A *disabled* location blocks putaway and moves into it. Stock already there is not allocated to new pick lists and can only be moved out. Disabling needs a reason. A location *locked for counting* is set only by a count.
+- A location or zone can be deleted only if it has never held stock and no location in it is bound to the layout. Otherwise it can only be disabled.
+- Location QR labels print in bulk. The QR encodes the warehouse code and the location code. Scanning a location QR anywhere opens that location. Every print and reprint is logged (FR-107).
+- One SKU may occupy many locations.
+- A warehouse can be disabled only when it holds zero stock, and only with approval. A disabled warehouse disappears from warehouse pickers and switchers.
 
 #### FR-9: Doors and staging points
 Admin can turn on doors and staging points bound to doors. This is off by default.
@@ -287,18 +298,30 @@ Admin can turn on doors and staging points bound to doors. This is off by defaul
 Admin can register container types with code prefix, count, stages used and capacity, and print their labels.
 
 **Consequences:**
-- Each container has one permanent QR, unique within the warehouse.
-- Live usage shows which pick list or carrier wave holds each container.
-- A cart left with residue from a cancelled list shows *needs clearing* and cannot be reused until cleared.
+- Built-in container types and prefixes: pallet PL, tote TT, bag BG, cage CG, cart C20/30/40, flat cart FC, put wall PW, damaged tote DMG-T. Admin can add a type with its own prefix (2–4 letters, unique against every other document, device and container prefix).
+- A container code is the prefix plus a running number. Registering more containers of a type continues the sequence. A code is never reused.
+- Each container has one permanent QR, unique within the warehouse. The QR encodes the warehouse code and the container code.
+- Capacity is set per type in the units that fit it: kg, parcels or slots.
+- A container always sits in a location. New containers sit in the location chosen when they are registered.
+- Container status: *available*, *in use* (live usage shows which pick list or carrier wave holds it), *needs clearing* and *retired*.
+  - A cart left with residue from a cancelled list shows *needs clearing* and cannot be reused until a user clears it.
+  - A lost or broken container is *retired* with a reason. It cannot be used again, and its code stays retired.
+- Every container label print and reprint is logged (FR-107).
 
 #### FR-125: Warehouse layout map editor
 Admin can draw a warehouse layout to scale (zone areas, racks, aisles, walls and obstacles, doors and docks, pick start and end points, text labels), bind locations to rack slots, and publish it.
 
 **Consequences:**
 - One layout per warehouse, with a draft and a published version. Editing the draft never affects live work. Publishing applies to pick lists created afterwards; lists already created keep their stop order.
-- Racks are drawn as rows of bays × levels. Locations bind to slots automatically by code pattern (for example aisle A, rows 01–12, levels 01–04) or one at a time. A location binds to at most one slot.
+- A layout covers one floor. Phase 1 does not model multi-floor buildings or mezzanines: such areas are set up as their own zones, left off the layout, and follow walk sequence.
+- The layout is drawn in metres on a 0.5 m grid.
+- Racks are drawn as rows of bays × levels and are single- or double-sided. Each face's slots bind separately. Locations bind to slots automatically by code pattern (for example aisle A, rows 01–12, levels 01–04) or one at a time. A location binds to at most one slot. Only pick and storage locations bind to slots.
 - Aisles form the walkable network. Every rack face must touch an aisle and every aisle must connect to a pick start point before publish.
-- Publish validation blocks unreachable racks and a missing start point, and warns on pick and storage locations that are not bound (they fall back to walk sequence).
+- **Pick start and end points belong to zones.** Each pick zone that has bound locations has one start point and one end point. A pick list uses its zone's pair. A list that spans zones starts at the start point of its first zone and ends at the end point of its last zone.
+- Publish validation blocks unreachable racks and a pick zone with bound locations but no start point, and warns on pick and storage locations that are not bound (they fall back to walk sequence).
+- Only one user edits the draft at a time. Others see who holds the draft and since when. An admin can take the draft over, and the previous holder's unsaved changes are kept as a separate draft copy.
+- Every published version is kept. Admin can publish an earlier version again; this creates a new version number.
+- A bound location cannot be deleted until it is unbound. Disabling it keeps the binding and shows its status.
 - Location status (disabled, locked for counting) shows on the layout.
 - Every layout change and publish is recorded in the activity log (FR-107).
 - Drawing doors does not turn on door assignment (FR-9 stays Defer).
@@ -371,7 +394,7 @@ Office or floor staff can run every floor flow on the web for a warehouse that h
 **Description:** Office staff sign in on the web. Floor staff sign in on PDAs by scanning a badge. Access is a role-based page × action matrix plus special permissions, scoped by warehouse and work point. Day-labour cards let temporary workers start on day one. Realizes UJ-2, UJ-6.
 
 #### FR-17: Users
-Admin can create users with roles (optionally temporary, with expiry), warehouse scope and sign-in methods (QR badge, username + password, optional OTP).
+Admin can create users with roles (optionally temporary, with expiry), warehouse scope and sign-in methods (QR badge, username + password, email + password for the web). OTP is not set per user; it follows the company MFA setting (FR-20).
 
 **Consequences:**
 - A suspended user cannot sign in.
@@ -396,10 +419,18 @@ Admin can grant special permissions outside the matrix: view product cost, act o
 Office user can sign in on the web with email and password, plus optional OTP when the company enables MFA, and pick a warehouse.
 
 **Consequences:**
-- 3 failed attempts lock the account for about 15 minutes.
-- A reset link is valid for 30 minutes. The reset response is identical whether or not the email exists.
-- An idle session times out. A password change signs out other sessions.
-- Zimple support staff always need MFA.
+- **Password:** at least 8 characters with at least one letter and one digit. A company may set a stricter policy.
+- **Lock:** 3 wrong passwords in a row lock the account for 15 minutes. The counter is per account and resets after a successful sign-in. The locked screen shows a countdown and offers a password reset. An admin can unlock the account early; this is logged.
+- **MFA** is one switch for the whole company. When it is on, every office user needs an OTP after the password. Zimple support staff always need an OTP, whatever the company setting.
+- **OTP:** 6 digits, sent by email, valid for 5 minutes.
+  - Resend is allowed after 45 seconds, up to 5 times per sign-in. A new code makes the previous one invalid.
+  - An expired code shows "code expired" with a resend action.
+  - 5 wrong codes end the sign-in attempt: the user returns to the password step, and this counts as one failed attempt toward the lock.
+  - There is no "remember this device" in Phase 1.
+- **Suspended users and users whose roles grant no web page** are told so only after a correct password, and no OTP is sent to them.
+- **Password reset:** the link is valid for 30 minutes and works once. The reset response is identical whether or not the email exists. A completed reset signs out all of the user's sessions.
+- **Session:** a session ends after 30 minutes of inactivity by default. A company can set 15 to 480 minutes. A warning appears 2 minutes before the end and lets the user stay signed in. A password change signs out all of the user's other sessions immediately. One user may be signed in on several browsers at once.
+- **Warehouse choice:** a user with more than one active warehouse in scope picks one after sign-in; the last one used is preselected. A user with one skips the step. A user with no active warehouse cannot enter and is told to contact the admin.
 
 #### FR-21: PDA sign-in
 Floor staff can sign in on a PDA by scanning a badge QR, with an optional 4-digit PIN.
@@ -1202,6 +1233,7 @@ System can keep an immutable activity log of time, actor (user, automation, OMS 
   - rule changes, users and permissions;
   - print and reprint;
   - every export.
+- A bulk action records one entry per affected record, linked by a shared batch reference, so each record's history is complete.
 - The log can be filtered and exported. Retention is at least 1 year `[ASSUMPTION]`.
 
 #### FR-108: Overdue alerts

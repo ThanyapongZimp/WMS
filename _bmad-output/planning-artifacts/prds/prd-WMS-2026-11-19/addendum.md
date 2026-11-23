@@ -28,11 +28,28 @@ The PRD's FRs are condensed from two catalogues. The catalogues add the full sta
 2. **The pilot leaves JST entirely.** At first the user answered that the pilot would keep JST as its OMS. They then changed this to: the pilot connects to **Zimple OMS** and leaves JST for both OMS and WMS. That makes Zimple OMS the gating dependency. It also means "leave JST" in SM-1 covers both systems.
 3. **Carrier APIs are only for non-marketplace orders.** Marketplace orders carry platform-issued labels and carriers (research: Shopee `ship_order`/`get_shipping_document`, Lazada RTS → getDocument, TikTok ship package). Flash, KEX and J&T are called directly only for LINE, web and B2B orders.
 4. **The PRD covers Phase 1 only.** Phase 2 and Later appear only as non-goals, plus the data Phase 1 must capture (PRD §4.16).
-5. **Unassigned features follow the JST-parity rule.** The user delegated phase assignment. Daily-operations features go to Phase 1. Layout map, temperature log, inter-warehouse transfer, peak forecast, Purchasing, Transport and Planning go to Later.
+5. **Unassigned features follow the JST-parity rule.** The user delegated phase assignment. Daily-operations features go to Phase 1. Temperature log, inter-warehouse transfer, peak forecast, Purchasing, Transport and Planning go to Later. (The layout map was also placed in Later here, then moved into Phase 1 on 2026-11-23: FR-125/126, `sprint-change-proposal-2026-11-23.md`.)
 6. **Owner-side decisions are made in OMS after-sales** (reviewer gate). The first draft gave them to an internal Owner Care role inside the WMS. The user chose the mockup model instead: the WMS sends decision cases with evidence and executes the decisions that come back (FR-121).
 7. **There is no fallback if Zimple OMS slips.** Phase 1 cutover moves with it. A JST-OMS connector as a fallback was considered and rejected.
 8. **The web fallback without PDAs is Phase 1 scope** (FR-122), even though it roughly doubles floor-flow UI work.
 9. **Provisional priority tiers** (PRD §9.3) were set by the PM agent from the thesis. They wait for confirmation from the JST parity checklist.
+
+**G1 PRD review for pilot wave 1 (2026-11-23).** The review found rules that a developer would otherwise have to guess. They were added to FR-8, FR-10, FR-17, FR-20, FR-107 and FR-125. Items marked *user* were decided by the product owner; items marked *PM* were set during the review from the mockups and common practice, and can be overturned at G1 sign-off.
+
+10. **Sign-in and session (FR-17, FR-20).**
+    - *User:* MFA is one company-wide switch, not a per-user option. FR-17's "optional OTP" sign-in method is removed. Zimple support always needs OTP.
+    - *User:* the idle timeout defaults to 30 minutes and a company can set 15–480 minutes, with a warning 2 minutes before.
+    - *PM:* password at least 8 characters with a letter and a digit; lock after 3 wrong passwords for exactly 15 minutes, per account, admin can unlock early.
+    - *PM:* OTP by email, valid 5 minutes, resend after 45 s up to 5 times, 5 wrong codes end the attempt and count as one failed password attempt; no remembered devices.
+    - *PM:* suspended / no-web-page users are told only after a correct password, so the message cannot be used to discover accounts.
+    - *PM:* the reset link is single-use and a completed reset signs out every session; several browser sessions per user are allowed.
+11. **Warehouse structure (FR-8).** *PM, from the `settings-storage-*` mockups:* warehouse code is A–Z and fixed after creation; zones carry the walk-order pattern and a 2–6 segment location code format; location codes are fixed after creation; sellable defaults by location type; mixing policy is "allow mixed SKUs" or "single SKU"; bulk creation previews first, skips existing codes and creates at most 5,000 per run `[ASSUMPTION]`; delete is allowed only for records that never held stock and are not bound to the layout.
+12. **Containers (FR-10).** *PM:* admin can add container types with their own 2–4 letter prefix; codes run on per type and are never reused; status set is available, in use, needs clearing, retired.
+13. **Layout map (FR-125).**
+    - *User:* one floor per warehouse in Phase 1. Multi-floor areas and mezzanines are separate zones off the layout.
+    - *User:* start and end points belong to pick zones. A pick list uses its zone's pair; a multi-zone list starts in its first zone and ends in its last.
+    - *PM:* 0.5 m grid; single- or double-sided racks; one draft editor at a time with admin take-over; every published version kept and can be republished; a bound location cannot be deleted until unbound.
+14. **Activity log (FR-107).** *PM:* a bulk action writes one entry per affected record, linked by a batch reference.
 
 ## C. Product editions and add-ons (from the mockups)
 

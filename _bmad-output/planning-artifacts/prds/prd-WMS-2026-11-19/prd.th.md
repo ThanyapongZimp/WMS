@@ -2,7 +2,8 @@
 title: "PRD: Zimple Fulfillment — Phase 1 (WMS Core)"
 status: draft
 created: 2026-11-19
-updated: 2026-11-19
+updated: 2026-11-23
+change-note: "2026-11-23 — sync กับ prd.md: เพิ่ม FR-125/126 (ผังคลังย้ายเข้า Phase 1), แก้ FR-64, FR-67 และกฎละเอียดจาก G1 review ใน FR-8, FR-10, FR-17, FR-20, FR-107, FR-125 (ดู addendum §B.10–B.14) · ถ้าขัดกัน prd.md ชนะ"
 inputs:
   - _bmad-output/planning-artifacts/briefs/brief-WMS-2026-11-19/brief.md
   - _bmad-output/planning-artifacts/briefs/brief-WMS-2026-11-19/addendum.md
@@ -269,10 +270,22 @@ System สามารถส่ง decision case (พร้อมรูป, ว�
 Admin สามารถสร้างคลังสินค้า (รหัส 3 ตัวอักษร), zone (ประเภทห้อง, capacity, รูปแบบ walk-order) และ location ได้ทั้งทีละรายการหรือแบบ bulk
 
 **ผลที่ตามมา:**
-- Location หนึ่งมีประเภทใดประเภทหนึ่งจาก 8 ประเภท, มี zone, walk sequence, sellable flag, capacity (m³ และ kg) และ mixing policy
-- Location ที่ *disabled* จะบล็อก putaway และการ move ส่วน location ที่ *locked for counting* จะถูกตั้งได้โดยการนับ (count) เท่านั้น
-- QR label ของ location พิมพ์แบบ bulk ได้ SKU หนึ่งตัวอยู่ได้หลาย location
-- คลังจะ disable ได้ก็ต่อเมื่อไม่มี stock เหลืออยู่เลย และต้องได้รับการอนุมัติเท่านั้น
+- **คลัง:** ต้องมีรหัส 3 ตัวอักษร (A–Z ไม่ซ้ำภายในบริษัท) ชื่อ และที่อยู่ รหัสนี้อยู่ในเลขเอกสารและใน QR ทุกตัว จึงแก้ไม่ได้หลังสร้างคลังแล้ว
+- **Zone:** มีรหัส (ไม่ซ้ำภายในคลัง), ชื่อ, ประเภทห้อง, capacity (m³), รูปแบบ walk-order และรูปแบบรหัส location
+  - ประเภทห้องคือ *ปกติ* ส่วนห้องคุมอุณหภูมิจะแสดงเมื่อเปิด add-on คุมอุณหภูมิเท่านั้น
+  - รูปแบบ walk-order: ซิกแซกตามแถว, ทางเดียวตามแถว หรือ ทางเดิน → ตู้ → ชั้น → ช่อง
+  - รูปแบบรหัส location มี 2–6 ส่วน (เช่น `A-03-02` zone-แถว-ชั้น หรือ `E-01-03-02-04` zone-ทางเดิน-ตู้-ชั้น-ช่อง) การสร้างแบบ bulk และการผูกกับผังใช้รูปแบบนี้
+- **Location:** มีประเภทใดประเภทหนึ่งจาก 8 ประเภท, มี zone, walk sequence, sellable flag, capacity (m³ และ kg) และ mixing policy
+  - รหัสตามรูปแบบของ zone ไม่ซ้ำภายในคลัง และแก้ไม่ได้หลังสร้าง ถ้าจะเปลี่ยนชื่อให้ disable แล้วสร้างใหม่
+  - Sellable flag มีค่าเริ่มต้นตามประเภท: หยิบและเก็บ = ขายได้ ส่วนรับเข้า, พักสินค้า, ส่งมอบ, คืน, รอคืนชั้น และชำรุด/กักกัน = ไม่ขาย Admin เปลี่ยน flag ได้เฉพาะ location หยิบและเก็บ ชำรุด/กักกันไม่ขายเสมอ
+  - Mixing policy คือ *คละ SKU ได้* หรือ *SKU เดียว* location แบบ SKU เดียวเก็บได้หลาย lot ของ SKU นั้น
+- **การสร้างแบบ bulk** ใช้รูปแบบช่วง (เช่น ทางเดิน A แถว 01–10 ชั้น 01–04) แสดงตัวอย่างรหัสและจำนวนก่อนสร้าง รหัสที่มีอยู่แล้วจะถูกข้ามและแสดงรายการ สร้างได้สูงสุด 5,000 location ต่อครั้ง
+- Walk sequence คือลำดับจุดสำรองของ location ที่ไม่ได้ผูกกับผังที่ publish (FR-125) การสร้างแบบ bulk เรียงเลขให้ตามรูปแบบ walk-order ของ zone และ admin แก้ทีหลังได้
+- Location ที่ *disabled* บล็อก putaway และการ move เข้า stock ที่อยู่ในนั้นแล้วจะไม่ถูก allocate ให้ pick list ใหม่และย้ายออกได้อย่างเดียว การ disable ต้องใส่เหตุผล ส่วน location ที่ *locked for counting* จะถูกตั้งได้โดยการนับ (count) เท่านั้น
+- Location หรือ zone ลบได้ก็ต่อเมื่อไม่เคยมี stock และไม่มี location ใดในนั้นผูกกับผัง ไม่อย่างนั้น disable ได้อย่างเดียว
+- QR label ของ location พิมพ์แบบ bulk ได้ QR เก็บรหัสคลังและรหัส location สแกน QR ของ location ที่ไหนก็เปิด location นั้น ทุกการพิมพ์และพิมพ์ซ้ำถูกบันทึก log (FR-107)
+- SKU หนึ่งตัวอยู่ได้หลาย location
+- คลังจะ disable ได้ก็ต่อเมื่อไม่มี stock เหลืออยู่เลย และต้องได้รับการอนุมัติเท่านั้น คลังที่ disable แล้วจะไม่แสดงในตัวเลือกคลังและ warehouse switcher
 
 #### FR-9: ประตู (door) และจุด staging
 Admin สามารถเปิดใช้ door และจุด staging ที่ผูกกับ door ได้ โดยค่า default คือปิดไว้
@@ -285,9 +298,40 @@ Admin สามารถเปิดใช้ door และจุด staging �
 Admin สามารถลงทะเบียนประเภท container พร้อม code prefix, จำนวน, stage ที่ใช้ และ capacity รวมถึงพิมพ์ label ได้
 
 **ผลที่ตามมา:**
-- Container แต่ละใบมี QR ถาวรหนึ่งอัน ซึ่ง unique ภายในคลัง
-- Live usage แสดงว่า pick list หรือ carrier wave ใดกำลังใช้ container ใบนั้นอยู่
-- รถเข็น (cart) ที่มีของค้างจาก list ที่ถูกยกเลิกจะแสดงสถานะ *needs clearing* และนำกลับมาใช้ไม่ได้จนกว่าจะเคลียร์
+- ประเภทและ prefix ที่มีให้: pallet PL, tote TT, bag BG, cage CG, cart C20/30/40, flat cart FC, put wall PW, damaged tote DMG-T Admin เพิ่มประเภทที่มี prefix ของตัวเองได้ (2–4 ตัวอักษร ไม่ซ้ำกับ prefix ของเอกสาร, device และ container อื่น)
+- รหัส container คือ prefix + เลขรัน ลงทะเบียนเพิ่มจะรันเลขต่อ และรหัสไม่ถูกใช้ซ้ำ
+- Container แต่ละใบมี QR ถาวรหนึ่งอัน ซึ่ง unique ภายในคลัง QR เก็บรหัสคลังและรหัส container
+- Capacity ตั้งต่อประเภทตามหน่วยที่เหมาะ: kg, จำนวนพัสดุ หรือจำนวนช่อง
+- Container อยู่ใน location เสมอ ตอนลงทะเบียนอยู่ใน location ที่เลือกไว้
+- สถานะ container: *ว่าง*, *ใช้อยู่* (live usage แสดงว่า pick list หรือ carrier wave ใดใช้อยู่), *ต้องเคลียร์* และ *เลิกใช้*
+  - รถเข็น (cart) ที่มีของค้างจาก list ที่ถูกยกเลิกจะแสดงสถานะ *needs clearing* และนำกลับมาใช้ไม่ได้จนกว่าจะมี user เคลียร์
+  - Container ที่หายหรือพังถูกตั้งเป็น *เลิกใช้* พร้อมเหตุผล ใช้ไม่ได้อีก และรหัสนั้นเลิกใช้ถาวร
+- ทุกการพิมพ์และพิมพ์ซ้ำ label ของ container ถูกบันทึก log (FR-107)
+
+#### FR-125: ตัววาดผังคลัง (Warehouse layout map editor)
+Admin สามารถวาดผังคลังตามสัดส่วนจริง (พื้นที่ zone, ชั้นวาง, ทางเดิน, ผนังและสิ่งกีดขวาง, ประตูและท่าโหลด, จุดเริ่มและจบการหยิบ, ป้ายข้อความ) ผูก location เข้ากับช่องของชั้นวาง และ publish ได้
+
+**ผลที่ตามมา:**
+- 1 ผังต่อคลัง มีฉบับร่าง (draft) และฉบับ publish การแก้ draft ไม่กระทบงานที่กำลังทำ การ publish มีผลกับ pick list ที่สร้างหลังจากนั้น ส่วน list ที่สร้างแล้วใช้ลำดับจุดเดิม
+- ผัง 1 อันครอบคลุม 1 ชั้น Phase 1 ไม่รองรับอาคารหลายชั้นหรือชั้นลอย พื้นที่เหล่านั้นตั้งเป็น zone แยก ไม่อยู่บนผัง และใช้ walk sequence
+- ผังวาดเป็นหน่วยเมตร บน grid 0.5 m
+- ชั้นวางวาดเป็นแถวของ ตู้ × ชั้น แบบหน้าเดียวหรือสองหน้า ช่องของแต่ละหน้าผูกแยกกัน Location ผูกกับช่องอัตโนมัติตามรูปแบบรหัส (เช่น ทางเดิน A แถว 01–12 ชั้น 01–04) หรือทีละช่อง 1 location ผูกได้ไม่เกิน 1 ช่อง และผูกได้เฉพาะ location หยิบและเก็บ
+- ทางเดินเป็นเครือข่ายที่เดินได้ ด้านหน้าชั้นวางทุกด้านต้องติดทางเดิน และทางเดินทุกเส้นต้องเชื่อมกับจุดเริ่มการหยิบก่อน publish
+- **จุดเริ่มและจบการหยิบเป็นของ zone** pick zone ที่มี location ผูกแล้วมีจุดเริ่ม 1 จุดและจุดจบ 1 จุด pick list ใช้คู่ของ zone ตัวเอง list ที่ข้าม zone เริ่มที่จุดเริ่มของ zone แรก และจบที่จุดจบของ zone สุดท้าย
+- การตรวจก่อน publish ปิดกั้นชั้นวางที่เดินไปไม่ถึง และ pick zone ที่มี location ผูกแล้วแต่ไม่มีจุดเริ่ม และเตือน location หยิบ/เก็บที่ยังไม่ผูก (ใช้ walk sequence แทน)
+- แก้ draft ได้ทีละ 1 คน คนอื่นเห็นว่าใครถืออยู่และตั้งแต่เมื่อไร Admin ยึด draft มาแก้ต่อได้ และการแก้ที่ยังไม่ save ของคนเดิมถูกเก็บเป็น draft สำเนาแยก
+- ทุก version ที่ publish ถูกเก็บไว้ Admin publish version เก่าซ้ำได้ ซึ่งจะได้เลข version ใหม่
+- Location ที่ผูกแล้วลบไม่ได้จนกว่าจะยกเลิกการผูก ถ้า disable การผูกยังอยู่และแสดงสถานะ
+- สถานะ location (disabled, locked for counting) แสดงบนผัง
+- ทุกการแก้ผังและการ publish ถูกบันทึกใน activity log (FR-107)
+- การวาดประตูไม่ได้เปิดฟีเจอร์ door assignment (FR-9 ยังเป็น Defer)
+
+#### FR-126: ดูผังคลัง (Layout map view)
+Warehouse Manager สามารถดูผังที่ publish แล้ว ระบายสีตามพื้นที่ที่ใช้ (m³ และ kg เทียบ capacity) ต่อ location, ชั้นวาง และ zone และ drill down จากช่องไปดู stock ได้
+
+**ผลที่ตามมา:**
+- Filter ได้ตาม zone, ประเภท location และสถานะ
+- สถานะใช้ 5 tone เท่านั้น ส่วนความหนาแน่นใช้ scale สีไล่ระดับเดียวพร้อม legend
 
 #### FR-11: อุปกรณ์ (device) และ station
 Admin สามารถลงทะเบียน device (PC, USB scanner, PDA, printer, เครื่องชั่ง, กล้อง) ผูกเข้ากับ station หรือ work point และทดสอบได้
@@ -350,7 +394,7 @@ Admin สามารถตั้งปฏิทินวันทำงาน�
 **คำอธิบาย:** พนักงาน office sign in บน web ส่วนพนักงานหน้างาน sign in บน PDA โดยการสแกนบัตร (badge) สิทธิ์การเข้าถึงเป็น matrix แบบ role-based ของ page × action บวกกับ special permission โดยจำกัด scope ตามคลังและ work point บัตรแรงงานรายวัน (day-labour card) ทำให้พนักงานชั่วคราวเริ่มงานได้ตั้งแต่วันแรก รองรับ UJ-2, UJ-6
 
 #### FR-17: ผู้ใช้ (Users)
-Admin สามารถสร้าง user พร้อม role (เลือกเป็นแบบชั่วคราวพร้อมวันหมดอายุได้), scope คลัง และวิธี sign-in (QR badge, username + password, OTP แบบ optional)
+Admin สามารถสร้าง user พร้อม role (เลือกเป็นแบบชั่วคราวพร้อมวันหมดอายุได้), scope คลัง และวิธี sign-in (QR badge, username + password, email + password สำหรับเว็บ) OTP ไม่ได้ตั้งรายคน แต่ใช้ตามการตั้งค่า MFA ของบริษัท (FR-20)
 
 **ผลที่ตามมา:**
 - User ที่ถูก suspend จะ sign in ไม่ได้
@@ -375,10 +419,18 @@ Admin สามารถให้ special permission นอก matrix ได้ 
 User office สามารถ sign in บน web ด้วย email และ password บวก OTP แบบ optional เมื่อบริษัทเปิด MFA และเลือกคลังได้
 
 **ผลที่ตามมา:**
-- ใส่ผิด 3 ครั้งจะล็อกบัญชีประมาณ 15 นาที
-- ลิงก์ reset ใช้ได้ 30 นาที response ของการ reset จะเหมือนกันไม่ว่า email นั้นมีอยู่หรือไม่
-- Session ที่ idle จะ timeout การเปลี่ยน password จะ sign out session อื่น ๆ
-- พนักงาน support ของ Zimple ต้องใช้ MFA เสมอ
+- **Password:** อย่างน้อย 8 ตัว มีตัวอักษรอย่างน้อย 1 ตัวและตัวเลขอย่างน้อย 1 ตัว บริษัทตั้งนโยบายเข้มกว่านี้ได้
+- **ล็อก:** ใส่ password ผิด 3 ครั้งติดกันล็อกบัญชี 15 นาที นับต่อบัญชี และรีเซ็ตเมื่อ sign in สำเร็จ หน้าล็อกแสดงเวลานับถอยหลังและมีทางไป reset password Admin ปลดล็อกก่อนเวลาได้ และถูกบันทึก log
+- **MFA** เป็นสวิตช์เดียวทั้งบริษัท เมื่อเปิด user office ทุกคนต้องกรอก OTP หลัง password ส่วน Zimple support ต้องใช้ OTP เสมอไม่ว่าบริษัทจะตั้งอย่างไร
+- **OTP:** 6 หลัก ส่งทางอีเมล ใช้ได้ 5 นาที
+  - กดส่งใหม่ได้หลัง 45 วินาที ไม่เกิน 5 ครั้งต่อการ sign in รหัสใหม่ทำให้รหัสเดิมใช้ไม่ได้
+  - รหัสหมดอายุแสดง "รหัสหมดอายุ" พร้อมปุ่มส่งใหม่
+  - กรอกผิด 5 ครั้งจบการ sign in รอบนั้น กลับไปขั้น password และนับเป็นการใส่ผิด 1 ครั้งของการล็อก
+  - Phase 1 ไม่มี "จำอุปกรณ์นี้"
+- **User ที่ถูก suspend และ user ที่ role ไม่ให้สิทธิ์หน้าเว็บใดเลย** จะเห็นข้อความหลังใส่ password ถูกเท่านั้น และระบบไม่ส่ง OTP ให้
+- **Reset password:** ลิงก์ใช้ได้ 30 นาทีและใช้ได้ครั้งเดียว response ของการ reset จะเหมือนกันไม่ว่า email นั้นมีอยู่หรือไม่ reset สำเร็จแล้ว sign out ทุก session ของ user
+- **Session:** หมดเมื่อไม่มีการใช้งาน 30 นาทีเป็นค่าเริ่มต้น บริษัทตั้งได้ 15–480 นาที เตือนก่อนหมด 2 นาทีและให้กดอยู่ต่อได้ การเปลี่ยน password sign out session อื่นทั้งหมดของ user ทันที User 1 คน sign in ได้หลาย browser พร้อมกัน
+- **เลือกคลัง:** user ที่มีคลัง active ใน scope มากกว่า 1 คลังเลือกคลังหลัง sign in โดยเลือกคลังที่ใช้ล่าสุดไว้ให้ user ที่มีคลังเดียวข้ามขั้นนี้ user ที่ไม่มีคลัง active เข้าไม่ได้และเห็นข้อความให้ติดต่อ admin
 
 #### FR-21: PDA sign-in
 พนักงานหน้างานสามารถ sign in บน PDA โดยสแกน QR ของ badge พร้อม PIN 4 หลักแบบ optional
@@ -777,7 +829,7 @@ System สามารถ assign pick method ได้หนึ่งในห�
 - Default pack method จะถูกเก็บไว้บน list
 
 #### FR-64: Lot and location allocation
-System สามารถ allocate lot และ location ตอนสร้าง list: FEFO → pick location ก่อน storage → จำนวน stop น้อยที่สุด → slot ที่หยิบแล้วหมดพอดี
+System สามารถ allocate lot และ location ตอนสร้าง list: FEFO → pick location ก่อน storage → จำนวน stop น้อยที่สุด → ระยะเดินสั้นที่สุดบนผังที่ publish → slot ที่หยิบแล้วหมดพอดี
 
 **ผลที่ตามมา:**
 - Pick location ขาดแต่ยังมี stock ใน storage จะสร้าง urgent replenishment และย้าย line ไปไว้ท้าย list โดยไม่ block order
@@ -800,9 +852,10 @@ System สามารถเรียงลำดับ pick queue: supervisor p
 - Print status (unprinted, printed, reprint #n ที่มีเครื่องหมาย "copy") จะถูก track ต่อ list
 
 #### FR-67: PDA picking
-Picker สามารถดำเนินการ pick list บน PDA ตาม snake route โดย scan cart หรือ tote, location และสินค้า
+Picker สามารถดำเนินการ pick list บน PDA ตามเส้นทางที่คำนวณจากผังที่ publish (FR-125) โดย scan cart หรือ tote, location และสินค้า
 
 **ผลที่ตามมา:**
+- เส้นทางเริ่มที่จุดเริ่มการหยิบของ list และเรียงจุดตามระยะเดินสั้นที่สุด จุดที่ location ยังไม่ผูกกับผังเรียงตาม walk sequence ต่อท้าย ถ้ายังไม่มีผังที่ publish ทุกจุดใช้ walk sequence
 - การ scan cart หรือ tote ตอนเริ่มต้นเป็นสิ่งที่ต้องทำเสมอ
 - การ scan location เป็นข้อบังคับสำหรับสินค้าที่ควบคุมด้วย lot
 - การ scan ทุกชิ้นปิดได้เฉพาะ list แบบ single-SKU bulk และ identical-set เท่านั้น และเปิดเสมอสำหรับ sort-while-pick, serial และสินค้ามูลค่าสูง
@@ -1180,6 +1233,7 @@ System สามารถเก็บ activity log ที่แก้ไขไ�
   - การเปลี่ยน rule, user และ permission;
   - print และ reprint;
   - ทุกการ export
+- Bulk action บันทึก 1 entry ต่อ record ที่ถูกกระทำ ผูกกันด้วย batch reference เดียวกัน เพื่อให้ประวัติของแต่ละ record ครบ
 - log สามารถ filter และ export ได้ ระยะเวลาเก็บอย่างน้อย 1 ปี `[ASSUMPTION]`
 
 #### FR-108: Overdue alerts
@@ -1362,7 +1416,7 @@ Admin สามารถรัน cutover check `[ASSUMPTION]`:
   - **Phase 1 ยังคงไว้:** ข้อมูลที่ scope ตาม owner (§4.16)
 - **ไม่ใช่ TMS** ไม่มี trip ของกองรถตัวเอง, driver app หรือ proof of delivery
 - **ไม่ใช่เครื่องมือจัดซื้อหรือบริหารแรงงาน** ไม่มี supplier หรือ PO, ไม่มีการวางแผนกะ, check-in หรือการทดสอบพนักงาน, ไม่มี peak forecasting
-- **ไม่ใช่ customization platform** ไม่มี theme tool, document template designer, layout map editor หรือ TV mode
+- **ไม่ใช่ customization platform** ไม่มี theme tool, document template designer หรือ TV mode
 - **อยู่นอก Phase 1:** temperature log และการโอนย้ายระหว่างคลัง (inter-warehouse transfer)
 - **ไม่มีการจัดการ e-Tax invoice หรือภาษีหัก ณ ที่จ่าย** สิ่งเหล่านี้เป็นส่วนของ billing ใน Phase 2 (ดู addendum)
 
@@ -1370,7 +1424,7 @@ Admin สามารถรัน cutover check `[ASSUMPTION]`:
 
 ### 9.1 อยู่ใน Scope
 - **Integration:** Zimple OMS บวก generic API; direct carrier API สำหรับ order ที่ไม่ใช่ marketplace
-- **Setup:** คลัง, zone, location, container, device และ station, rule และลำดับความสำคัญ (precedence), pickup round, numbering, calendar
+- **Setup:** คลัง, zone, location, ผังคลังและการคำนวณเส้นทางหยิบ, container, device และ station, rule และลำดับความสำคัญ (precedence), pickup round, numbering, calendar
 - **Access:** user, role, special permission, การ sign-in ทาง web และ PDA, บัตรแรงงานรายวัน, support access
 - **สินค้าและวัสดุ:** attribute ของ SKU ระดับคลัง, unit และ barcode, lot, expiry และ serial, kit, packaging ในฐานะ stock
 - **Inbound:** temporary receipt, การรับสินค้าพร้อมหลักฐาน, exception และ quarantine, putaway, การปิด receipt
@@ -1390,7 +1444,7 @@ Admin สามารถรัน cutover check `[ASSUMPTION]`:
   - Transport, TMS และ driver app; handover ด้วยกองรถตัวเอง
   - Purchasing; planning และ workforce; peak forecast
   - TV mode, theme tool, template designer
-- **Feature ที่ยังไม่ได้กำหนด phase ซึ่งถูกจัดเป็น Later ตามกฎ JST-parity** `[ASSUMPTION]`: layout map, temperature log, inter-warehouse transfer
+- **Feature ที่ยังไม่ได้กำหนด phase ซึ่งถูกจัดเป็น Later ตามกฎ JST-parity** `[ASSUMPTION]`: temperature log, inter-warehouse transfer (ผังคลังย้ายเข้า Phase 1 เมื่อ 2026-11-23 ดู FR-125/126)
 - **ส่วนเสริมของ handover ที่เลื่อนออกไป** `[ASSUMPTION]`: การชั่งน้ำหนักตอน handover, การ reassign ประตู, การตัดสินใจกรณีรถมาสาย
 - **หลัง pilot:** connector สำเร็จรูปสำหรับ JST, Zort และ OMS อื่นๆ `[ASSUMPTION]`
 - `[NOTE FOR PM]` **Scope ใหญ่มากสำหรับทีมเล็กใน 2 เดือน** PRD นี้มี 124 FR §9.3 ให้ provisional tier ไว้ JST parity checklist (Q-1) จะเป็นตัวยืนยัน
@@ -1490,7 +1544,7 @@ Tier เหล่านี้อิงตาม thesis: core flow, gap สอง
 - §4.8 FR-65, §4.9 FR-83, FR-84 — Automatic pick list, prep และ VAS ขั้นต่ำอยู่ใน Phase 1 ตาม brief แม้ใน mockup จะติด label ว่า add-on
 - §4.10 — การชั่งน้ำหนักตอน handover, การ reassign ประตู และการตัดสินใจกรณีรถมาสายถูกเลื่อนออกไป
 - §4.11 FR-95 — Approval สำหรับ cancel-after-pick ยังคงมี approval แต่ตัด 3PL cost notice ออก
-- §9.2 — Layout map, temperature log และ inter-warehouse transfer ย้ายไปเป็น Later ตามกฎ JST-parity
+- §9.2 — Temperature log และ inter-warehouse transfer ย้ายไปเป็น Later ตามกฎ JST-parity
 - §9.3 — Provisional priority tier ทั้งหมด
 - §4.9 FR-123 — Owner packing rule ตั้งค่าใน packaging settings ของ WMS
 - §7.1 — Rollback runbook กลับไป JST เป็นเวลา 2 สัปดาห์

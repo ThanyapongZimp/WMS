@@ -33,3 +33,6 @@
 | ปุ่ม |
 | :--- |
 | ใช่ |
+
+<!-- markdownlint-disable-next-line MD045 -->
+![](images/empty-wave.png)

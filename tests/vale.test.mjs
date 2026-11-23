@@ -14,7 +14,7 @@ function vale(file) {
 }
 
 const TERMS = ['Login', 'Putaway', 'Pick', 'Wave', 'ShortPick', 'Bin'].map((t) => `WMS.Term${t}`);
-const RULES = ['WMS.ThaiSpelling', ...TERMS, 'WMS.GenericButtons', 'WMS.TechErrorCodes', 'WMS.ThaiTrailingPeriod'];
+const RULES = ['WMS.ThaiSpelling', ...TERMS, 'WMS.GenericButtons', 'WMS.TechErrorCodes', 'WMS.ThaiTrailingPeriod', 'WMS.MissingAltText'];
 
 test('bad copy trips every WMS rule', () => {
   const alerts = vale('tests/fixtures/bad.md');

@@ -1,0 +1,8 @@
+extends: existence
+message: "รูปภาพไม่มีข้อความแทนภาพ ใส่คำอธิบายสั้นๆ หรือทำเครื่องหมายว่าเป็นภาพตกแต่ง"
+link: https://github.com/ThanyapongZimp/WMS/blob/main/docs/patterns/Accessibility.md#rules
+level: error
+nonword: true
+scope: raw
+tokens:
+  - '!\[\]\([^)]+\)'

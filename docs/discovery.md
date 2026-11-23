@@ -23,6 +23,9 @@ Central index of the WMS design system. Every document and component is listed h
 | Tokens | Token source | `tokens/` | Trial | ไฟล์ DTCG 2025.10 สามชั้น primitive, semantic, component |
 | Tokens | Agent tokens | `build/agent/tokens.json` | Trial | รายการ token พร้อม cssVar, aliasOf และ usageRule สำหรับ AI agent |
 | Tokens | CSS variables | `build/css/variables.css` | Trial | CSS custom properties สำหรับ UI import ครั้งเดียวที่ root |
+| Tokens | Register modes | `src/foundations/registers.css` | Trial | ค่า --control-height และ --target-min ตามอุปกรณ์ office, station, pda |
+| Tokens | Tenant primary | `src/theme/tenant-primary.mjs` | Trial | สร้างชุดสีหลักจากสีของลูกค้า ปรับให้ได้คอนทราสต์อย่างน้อย 4.5:1 |
+| Tokens | Token artifact | `artifact/tokens/index.html` | Trial | หน้าอ้างอิง token สำหรับนักออกแบบ build ด้วย `npm run artifact:build` |
 | Components (Scanner) | Scanner Button | [components/mobile-scanner/ScannerButton.md](components/mobile-scanner/ScannerButton.md) | Trial | ปุ่มขนาดใหญ่คอนทราสต์สูงสำหรับพนักงานหน้างาน |
 | Patterns | Error Messages | [patterns/ErrorMessages.md](patterns/ErrorMessages.md) | Trial | โครงสร้างข้อความแจ้งข้อผิดพลาดและทางแก้ไข |
 | Patterns | Empty States | [patterns/EmptyStates.md](patterns/EmptyStates.md) | Trial | หน้าจอว่าง แยกกรณียังไม่มีข้อมูลกับกรองแล้วไม่พบ |

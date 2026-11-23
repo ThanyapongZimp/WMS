@@ -10,7 +10,8 @@
     "tokens:build": "node sd.config.mjs",
     "tokens:check": "node scripts/tokens-check.mjs",
     "storybook": "storybook dev -p 6006",
-    "test:ui": "vitest run --project=storybook"
+    "test:ui": "vitest run --project=storybook",
+    "artifact:build": "node scripts/build-artifact.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",

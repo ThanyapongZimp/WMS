@@ -1,0 +1,355 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zimple WMS Tokens</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+/* tokens:start */
+/* tokens:end */
+/* registers:start */
+/* registers:end */
+
+/*
+ * Layout: one reading column; a sticky toolbar holds the two controls that
+ * change everything below (register, tenant colour). The page is the product's
+ * own light theme on purpose, so it uses only product tokens.
+ */
+:root { color-scheme: light; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font: var(--typography-body);
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+.wrap {
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.page { padding-block: var(--space-8) var(--space-6); }
+.eyebrow { font: var(--typography-label); color: var(--color-muted-foreground); letter-spacing: 0.02em; }
+h1 { font: var(--typography-display-kpi); font-size: var(--font-size-36); margin: var(--space-2) 0 var(--space-3); text-wrap: balance; }
+h2 { font: var(--typography-h2); margin: 0 0 var(--space-1); text-wrap: balance; }
+h3 { font: var(--typography-h3); margin: 0; }
+.lede { max-width: 65ch; color: var(--color-muted-foreground); margin: 0; }
+
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--color-card); }
+.toolbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--color-card);
+  border-block: var(--border-width-1) solid var(--color-border);
+}
+.toolbar .wrap > * { min-width: 0; }
+.toolbar .wrap { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); align-items: end; padding-block: var(--space-3); }
+.field { display: grid; gap: var(--space-1); min-width: 0; }
+.field > label, .field > .label { font: var(--typography-label); color: var(--color-muted-foreground); }
+
+.seg { display: inline-flex; flex-wrap: wrap; max-inline-size: 100%; border: var(--border-width-1) solid var(--color-input); border-radius: var(--radius-control); overflow: hidden; }
+.seg button {
+  font: var(--typography-body-strong); min-height: var(--target-office); padding: 0 var(--space-4);
+  background: var(--color-card); color: var(--color-foreground); border: 0; cursor: pointer;
+}
+.seg button + button { border-left: var(--border-width-1) solid var(--color-input); }
+.seg button:hover { background: var(--color-secondary-hover); }
+.seg button[aria-pressed="true"] { background: var(--color-primary); color: var(--color-primary-foreground); }
+.seg button[aria-pressed="true"]:hover { background: var(--color-primary-hover); }
+.seg button:focus-visible { outline-offset: calc(-1 * var(--border-width-focus) - 2px); outline-color: var(--color-feedback-focus-outline); box-shadow: inset 0 0 0 calc(var(--border-width-focus) + 2px) var(--color-ring); position: relative; z-index: 1; }
+
+.tenant { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+input[type="text"] {
+  font: var(--typography-code); inline-size: 10ch; min-inline-size: 0;
+  height: var(--layout-control-desktop); padding: 0 var(--space-3);
+  border: var(--border-width-1) solid var(--color-input); border-radius: var(--radius-control);
+  background: var(--color-card); color: var(--color-foreground);
+}
+input[aria-invalid="true"] { border-color: var(--color-destructive); border-width: var(--border-width-2); }
+input[type="color"] { inline-size: var(--size-36); block-size: var(--size-36); padding: 0; border: var(--border-width-1) solid var(--color-input); border-radius: var(--radius-control); background: var(--color-card); cursor: pointer; }
+.btn {
+  font: var(--typography-body-strong); min-height: var(--control-height); padding: 0 var(--space-4);
+  border-radius: var(--radius-control); border: var(--border-width-1) solid transparent; cursor: pointer;
+}
+.btn-primary { background: var(--color-primary); color: var(--color-primary-foreground); }
+.btn-primary:hover { background: var(--color-primary-hover); }
+.btn-primary:active { background: var(--color-primary-active); }
+.btn-secondary { background: var(--color-card); color: var(--color-foreground); border-color: var(--color-input); }
+.btn-secondary:hover { background: var(--color-secondary-hover); }
+.btn-ghost { background: transparent; color: var(--color-primary); min-height: var(--target-office); }
+.btn-ghost:hover { background: var(--color-secondary-hover); }
+:focus-visible { outline: var(--border-width-focus) solid var(--color-ring); outline-offset: 2px; }
+
+.notice:empty { padding: 0; border: 0; }
+.notice-note { font: var(--typography-caption); color: var(--color-muted-foreground); margin: 0; }
+.notice { margin: 0; font: var(--typography-label); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm);
+  background: var(--color-warning-soft); color: var(--color-warning-soft-foreground); border: var(--border-width-1) solid var(--color-warning-strong); }
+
+main section { padding-block: var(--space-8); border-top: var(--border-width-1) solid var(--color-border); }
+main section:first-child { border-top: 0; }
+.section-head { display: grid; gap: var(--space-1); margin-bottom: var(--space-5); max-width: 65ch; }
+.section-head p { margin: 0; color: var(--color-muted-foreground); }
+
+.group + .group { margin-top: var(--space-6); }
+.group > h3 { margin-bottom: var(--space-3); }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); gap: var(--space-3); }
+.swatch { display: grid; grid-template-rows: auto 1fr; background: var(--color-card); border: var(--border-width-1) solid var(--color-border); border-radius: var(--radius-card); overflow: hidden; min-width: 0; }
+.chip { height: var(--size-56); display: flex; align-items: center; padding: 0 var(--space-3); font: var(--typography-body-strong); border-bottom: var(--border-width-1) solid var(--color-border); }
+.meta { display: grid; gap: var(--space-1); padding: var(--space-3); min-width: 0; }
+.meta code { font: var(--typography-code); font-size: var(--font-size-13); overflow-wrap: anywhere; }
+.meta .val { font: var(--typography-code); font-size: var(--font-size-12); color: var(--color-muted-foreground); font-variant-numeric: tabular-nums; }
+.meta .rule { font: var(--typography-caption); color: var(--color-muted-foreground); }
+.ratio { font: var(--typography-caption); font-variant-numeric: tabular-nums; display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.tag { font: var(--typography-caption); font-weight: var(--font-weight-600); padding: 0 var(--space-2); border-radius: var(--radius-full); }
+.tag.ok { background: var(--color-success-soft); color: var(--color-success-soft-foreground); }
+.tag.low { background: var(--color-danger-soft); color: var(--color-danger-soft-foreground); }
+.tag.info { background: var(--color-neutral-soft); color: var(--color-neutral-soft-foreground); }
+
+.type-row { display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); gap: var(--space-2) var(--space-6); padding-block: var(--space-4); border-top: var(--border-width-1) solid var(--color-border); align-items: baseline; }
+.type-row:first-child { border-top: 0; }
+.type-row .sample { min-width: 0; }
+
+.scale { display: grid; gap: var(--space-2); }
+.scale-row { display: grid; grid-template-columns: minmax(0, 14rem) 5rem minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+.bar { height: var(--space-3); background: var(--color-primary); border-radius: var(--radius-sm); max-width: 100%; }
+.scale-row code { font: var(--typography-code); font-size: var(--font-size-13); overflow-wrap: anywhere; }
+.scale-row .val { font: var(--typography-code); font-size: var(--font-size-12); color: var(--color-muted-foreground); font-variant-numeric: tabular-nums; }
+
+.demo { display: grid; gap: var(--space-4); background: var(--color-card); border: var(--border-width-1) solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-5); }
+.demo-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.demo input[type="text"] { inline-size: min(100%, 20rem); height: var(--control-height); font: var(--typography-body); }
+.demo .readout { font: var(--typography-code); font-size: var(--font-size-13); color: var(--color-muted-foreground); font-variant-numeric: tabular-nums; }
+
+footer.page { padding-block: var(--space-6) var(--space-10); color: var(--color-muted-foreground); font: var(--typography-caption); border-top: var(--border-width-1) solid var(--color-border); }
+
+@media (max-width: 40rem) {
+  .toolbar { position: static; }
+  .type-row, .scale-row { grid-template-columns: minmax(0, 1fr); }
+  .scale-row .bar { grid-column: 1; }
+  h1 { font-size: var(--font-size-28); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="page wrap">
+  <div class="eyebrow">Zimple WMS · Design tokens</div>
+  <h1>ค่าดีไซน์ที่โค้ดใช้จริง</h1>
+  <p class="lede">ทุกสี ตัวอักษร และระยะในหน้านี้มาจากไฟล์ที่ทีมพัฒนาใช้ ถ้าต้องการเปลี่ยนค่า ให้แจ้งชื่อ token และค่าใหม่ ระบบจะตรวจค่าคอนทราสต์ก่อนนำเข้าโค้ด</p>
+</header>
+
+<div class="toolbar">
+  <div class="wrap">
+    <div class="field">
+      <span class="label" id="register-label">อุปกรณ์</span>
+      <div class="seg" role="group" aria-labelledby="register-label">
+        <button type="button" id="reg-office" data-register="office" aria-pressed="true">สำนักงาน</button>
+        <button type="button" id="reg-station" data-register="station" aria-pressed="false">สถานี</button>
+        <button type="button" id="reg-pda" data-register="pda" aria-pressed="false">PDA</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="tenant-hex">สีหลักของลูกค้า</label>
+      <div class="tenant">
+        <input type="color" id="tenant-picker" value="#4a3fd6" aria-label="เลือกสีหลักของลูกค้า">
+        <input type="text" id="tenant-hex" value="#4A3FD6" spellcheck="false" autocomplete="off">
+        <button type="button" class="btn btn-ghost" id="tenant-reset">คืนค่าสีเริ่มต้น</button>
+      </div>
+    </div>
+    <div class="field" id="tenant-feedback">
+      <p class="notice-note" id="tenant-note" hidden>ตัวอย่างข้อความที่ลูกค้าเห็นเมื่อบันทึกสี</p>
+      <p class="notice" id="tenant-notice" role="status"></p>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <section id="try">
+    <div class="section-head">
+      <h2>ลองกับคอมโพเนนต์</h2>
+      <p>ความสูงของปุ่มและช่องกรอกเปลี่ยนตามอุปกรณ์ที่เลือกด้านบน สีหลักเปลี่ยนตามสีของลูกค้า</p>
+    </div>
+    <div class="demo">
+      <div class="demo-row">
+        <button type="button" class="btn btn-primary" id="demo-primary">ยืนยันการหยิบ</button>
+        <button type="button" class="btn btn-secondary" id="demo-secondary">บันทึกร่าง</button>
+        <input type="text" id="demo-input" placeholder="สแกนช่องเก็บสินค้า" aria-label="สแกนช่องเก็บสินค้า">
+      </div>
+      <div class="readout" id="demo-readout"></div>
+    </div>
+  </section>
+
+  <section id="color">
+    <div class="section-head">
+      <h2>สี</h2>
+      <p>ใช้ชื่อ semantic เสมอ ห้ามใช้ค่า hex ในคอมโพเนนต์ ตัวเลขคืออัตราส่วนคอนทราสต์ตาม WCAG ข้อความต้องได้อย่างน้อย 4.5:1</p>
+    </div>
+    <div id="color-groups"></div>
+  </section>
+
+  <section id="type">
+    <div class="section-head">
+      <h2>ตัวอักษร</h2>
+      <p>IBM Plex Sans Thai ทุกขนาด ระยะบรรทัดภาษาไทยไม่ต่ำกว่า 1.45</p>
+    </div>
+    <div id="type-rows"></div>
+  </section>
+
+  <section id="space">
+    <div class="section-head">
+      <h2>ระยะ ขนาด และมุมโค้ง</h2>
+      <p>ระยะเป็นทวีคูณของ 4px เป้ากดต้องไม่เล็กกว่า 24px ในสำนักงาน 48px ที่สถานี และ 56px บน PDA</p>
+    </div>
+    <div class="group"><h3>ระยะ</h3><div class="scale" id="space-rows"></div></div>
+    <div class="group"><h3>ขนาดเลย์เอาต์และเป้ากด</h3><div class="scale" id="layout-rows"></div></div>
+    <div class="group"><h3>มุมโค้ง</h3><div class="scale" id="radius-rows"></div></div>
+  </section>
+</main>
+
+<footer class="page wrap">
+  <p>สร้างจาก tokens/ ใน repo WMS · ค่าอ้างอิงจาก DESIGN.md · Zimple WMS by Zimple Solution</p>
+</footer>
+
+<script>
+/*TENANT_JS*/
+</script>
+<script>
+const TOKENS = /*TOKENS_JSON*/[];
+const { deriveTenantPrimary, applyTenantPrimary, contrastRatio } = window.TenantPrimary;
+const root = document.documentElement;
+const css = (v) => getComputedStyle(root).getPropertyValue(v).trim();
+const byVar = new Map(TOKENS.map((t) => [t.cssVar, t]));
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) k === 'text' ? (n.textContent = v) : n.setAttribute(k, v);
+  for (const k of kids) n.append(k);
+  return n;
+};
+
+const GROUPS = [
+  ['พื้นผิวและข้อความ', /^--color-(background|foreground|card|popover|muted|border|input|disabled)/],
+  ['การโต้ตอบ', /^--color-(primary|secondary|accent|destructive|ring)/],
+  ['สถานะ', /^--color-(success|warning|danger|info|neutral)/],
+  ['ผลการสแกน', /^--color-(scan|feedback)/],
+  ['แถบนำทางและแบนเนอร์', /^--color-(sidebar|support)/],
+  ['PDA', /^--color-pda/],
+  ['กราฟ', /^--color-chart/],
+];
+
+function ratioTag(r, min) {
+  const ok = r >= min;
+  return el('span', { class: `tag ${ok ? 'ok' : 'low'}`, text: `${r.toFixed(2)}:1 ${ok ? 'ผ่าน' : 'ไม่ผ่าน'}` });
+}
+
+function swatch(t) {
+  const value = css(t.cssVar);
+  const fgVar = byVar.has(`${t.cssVar}-foreground`) ? `${t.cssVar}-foreground` : null;
+  const isText = /-foreground$/.test(t.cssVar) || t.cssVar === '--color-foreground';
+  const chip = el('div', { class: 'chip' });
+  chip.style.background = `var(${t.cssVar})`;
+  if (fgVar) { chip.style.color = `var(${fgVar})`; chip.textContent = 'ข้อความ'; }
+  const ratio = el('div', { class: 'ratio' });
+  try {
+    if (fgVar) ratio.append(el('span', { text: 'ข้อความบนพื้นสีนี้' }), ratioTag(contrastRatio(css(fgVar), value), 4.5));
+    else if (isText) ratio.append(el('span', { text: 'บนพื้นการ์ด' }), ratioTag(contrastRatio(value, css('--color-card')), 4.5));
+    else ratio.append(el('span', { text: 'เทียบกับพื้นการ์ด' }), el('span', { class: 'tag info', text: `${contrastRatio(value, css('--color-card')).toFixed(2)}:1` }));
+  } catch { /* non-hex value: no ratio */ }
+  return el('div', { class: 'swatch' }, chip,
+    el('div', { class: 'meta' }, el('code', { text: t.cssVar }), el('span', { class: 'val', text: value.toUpperCase() }), ratio, el('span', { class: 'rule', text: t.usageRule || '' })));
+}
+
+function renderColors() {
+  const host = document.getElementById('color-groups');
+  host.replaceChildren();
+  const colors = TOKENS.filter((t) => t.tier === 'semantic' && t.type === 'color');
+  const used = new Set();
+  for (const [title, re] of GROUPS) {
+    const items = colors.filter((t) => re.test(t.cssVar) && !used.has(t.cssVar));
+    if (!items.length) continue;
+    items.forEach((t) => used.add(t.cssVar));
+    host.append(el('div', { class: 'group' }, el('h3', { text: title }), el('div', { class: 'swatches' }, ...items.map(swatch))));
+  }
+  const rest = colors.filter((t) => !used.has(t.cssVar));
+  if (rest.length) host.append(el('div', { class: 'group' }, el('h3', { text: 'อื่น ๆ' }), el('div', { class: 'swatches' }, ...rest.map(swatch))));
+}
+
+function renderType() {
+  const host = document.getElementById('type-rows');
+  for (const t of TOKENS.filter((x) => x.tier === 'semantic' && x.type === 'typography')) {
+    const v = t.value || {};
+    const sample = el('div', { class: 'sample', text: /location|code|counter/.test(t.name) ? 'A-01-03-2' : 'หยิบสินค้าตามรอบการหยิบ 128 รายการ' });
+    sample.style.font = `var(${t.cssVar})`;
+    host.append(el('div', { class: 'type-row' },
+      el('div', { class: 'meta' }, el('code', { text: t.cssVar }), el('span', { class: 'val', text: `${v.fontSize ?? ''} · ${v.fontWeight ?? ''} · ${v.lineHeight ?? ''}` }), el('span', { class: 'rule', text: t.usageRule || '' })),
+      sample));
+  }
+}
+
+function scaleRows(hostId, filter) {
+  const host = document.getElementById(hostId);
+  for (const t of TOKENS.filter(filter)) {
+    const bar = el('div', { class: 'bar' });
+    bar.style.width = `min(100%, var(${t.cssVar}))`;
+    host.append(el('div', { class: 'scale-row' }, el('code', { text: t.cssVar }), el('span', { class: 'val', text: css(t.cssVar) }), bar));
+  }
+}
+
+const REG_LABEL = { office: 'สำนักงาน', station: 'สถานี', pda: 'PDA' };
+
+function updateReadout() {
+  const b = document.getElementById('demo-primary').getBoundingClientRect();
+  const reg = root.getAttribute('data-register') || 'office';
+  document.getElementById('demo-readout').textContent = `อุปกรณ์ ${REG_LABEL[reg]} · ความสูงปุ่ม ${Math.round(b.height)}px · --control-height ${css('--control-height')} · --target-min ${css('--target-min')}`;
+}
+
+function setRegister(reg) {
+  if (reg === 'office') root.removeAttribute('data-register'); else root.setAttribute('data-register', reg);
+  document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.register === reg)));
+  updateReadout();
+}
+
+function setInvalid(bad) {
+  const f = document.getElementById('tenant-hex');
+  if (bad) { f.setAttribute('aria-invalid', 'true'); f.setAttribute('aria-describedby', 'tenant-notice'); }
+  else { f.removeAttribute('aria-invalid'); f.removeAttribute('aria-describedby'); }
+}
+
+function setTenant(input) {
+  const notice = document.getElementById('tenant-notice');
+  const fam = deriveTenantPrimary(input);
+  const valid = fam.adjusted || fam.primary.toUpperCase() === String(input).trim().toUpperCase();
+  applyTenantPrimary(root, input);
+  document.getElementById('tenant-picker').value = fam.primary.toLowerCase();
+  const note = document.getElementById('tenant-note');
+  setInvalid(!valid);
+  if (fam.adjusted) {
+    notice.textContent = `เราปรับสีเป็น ${fam.primary.toUpperCase()} เพื่อให้ข้อความบนพื้นขาวอ่านได้ชัด`;
+    note.hidden = false;
+  } else if (!valid) {
+    notice.textContent = 'รหัสสีไม่ถูกต้อง ใส่ในรูปแบบ #RRGGBB เช่น #4A3FD6';
+    note.hidden = true;
+  } else { notice.textContent = ''; note.hidden = true; }
+  renderColors();
+}
+
+document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => setRegister(b.dataset.register)));
+document.getElementById('tenant-picker').addEventListener('input', (e) => { document.getElementById('tenant-hex').value = e.target.value.toUpperCase(); setTenant(e.target.value); });
+document.getElementById('tenant-hex').addEventListener('change', (e) => setTenant(e.target.value));
+document.getElementById('tenant-reset').addEventListener('click', () => {
+  ['--color-primary', '--color-primary-hover', '--color-primary-active', '--color-ring', '--color-accent', '--color-accent-foreground', '--color-sidebar-accent', '--color-sidebar-accent-foreground', '--color-chart-1'].forEach((v) => root.style.removeProperty(v));
+  document.getElementById('tenant-hex').value = '#4A3FD6';
+  document.getElementById('tenant-picker').value = '#4a3fd6';
+  document.getElementById('tenant-notice').textContent = '';
+  document.getElementById('tenant-note').hidden = true;
+  setInvalid(false);
+  renderColors();
+});
+window.addEventListener('resize', updateReadout);
+
+renderColors();
+renderType();
+scaleRows('space-rows', (t) => t.tier === 'primitive' && t.name.startsWith('space.'));
+scaleRows('layout-rows', (t) => t.tier === 'semantic' && (t.name.startsWith('layout.') || t.name.startsWith('target.')));
+scaleRows('radius-rows', (t) => t.name.startsWith('radius.'));
+updateReadout();
+</script>

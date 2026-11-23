@@ -1,0 +1,13 @@
+{
+  "name": "wms",
+  "private": true,
+  "scripts": {
+    "lint:vale": "vale docs CLAUDE.md AGENTS.md",
+    "lint:md": "markdownlint-cli2",
+    "lint": "npm run lint:vale && npm run lint:md",
+    "test": "node --test \"tests/*.test.mjs\""
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.24.2"
+  }
+}

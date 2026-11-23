@@ -23,11 +23,11 @@ Central index of the WMS design system. Every document and component is listed h
 | Patterns | Localization Keys | [patterns/LocalizationKeys.md](patterns/LocalizationKeys.md) | Trial | การตั้งชื่อ key, ICU MessageFormat และ Figma workflow |
 | Agent | UX Writer | `.claude/agents/ux-writer.md` | Trial | subagent ที่เขียนและรีวิว UI copy ของ WMS |
 | Agent | UX Researcher | `.claude/agents/ux-researcher.md` | Trial | วางแผนวิจัยและสังเคราะห์ข้อมูลผู้ใช้จริง อ่านอย่างเดียว |
-| Agent | UX Designer | `.claude/agents/ux-designer.md` | Trial | ออกแบบ user flow, state และ edge case แล้วส่ง UX brief |
-| Agent | UI Designer | `.claude/agents/ui-designer.md` | Trial | ออกแบบ UI และ component ด้วย semantic tokens |
-| Agent | Design Bridge | `.claude/agents/design-bridge.md` | Trial | เชื่อม Figma กับโค้ด, Code Connect และ token sync |
-| Agent | Accessibility Tester | `.claude/agents/accessibility-tester.md` | Trial | ตรวจ WCAG 2.2 AA อ่านอย่างเดียว |
-| Agent | QA Evaluator | `.claude/agents/qa-evaluator.md` | Trial | ทดสอบ user journey ด้วย Playwright หลาย viewport |
+| Agent | UX Designer | `.claude/agents/ux-designer.md` | Trial | ออกแบบ user flow, state และ edge case แล้วส่ง UX brief ให้ impeccable |
+| Agent | UI Designer | `.claude/agents/ui-designer.md` | Trial | ตัวสำรองเมื่อใช้ impeccable ไม่ได้ |
+| Agent | Design Bridge | `.claude/agents/design-bridge.md` | Trial | อ่าน Figma อย่างเดียว ยังไม่ทำ Code Connect |
+| Agent | Accessibility Tester | `.claude/agents/accessibility-tester.md` | Trial | ตรวจ WCAG 2.2 AA งานของ impeccable อ่านอย่างเดียว |
+| Agent | QA Evaluator | `.claude/agents/qa-evaluator.md` | Trial | ทดสอบ prototype ด้วย Playwright ที่ 360, 412, 1366, 1920 px |
 | Agent | Context Manager | `.claude/agents/context-manager.md` | Trial | จ่ายบริบทก่อนเริ่มงานและอัปเดต index หลังจบงาน |
 | Skill | UX Writing Review | `.claude/skills/ux-writing-review/SKILL.md` | Trial | checklist รีวิว copy เรียกด้วย `/ux-writing-review` |
 | Rule | UI Copy | `.claude/rules/ux-copy.md` | Trial | โหลดอัตโนมัติเมื่อแก้ docs หรือไฟล์ที่มี UI string |

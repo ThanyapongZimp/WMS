@@ -40,7 +40,12 @@ Read only the files the current task needs. Reading order: `docs/Guidelines.md`.
 
 ## UX/UI subagents
 
-Flow: `context-manager` (load context) -> `ux-researcher` -> `ux-designer` -> `ui-designer` with `ux-writer` and `design-bridge` -> `qa-evaluator` writes the contract -> build -> `accessibility-tester` and `qa-evaluator` in parallel -> fixes -> `context-manager` (update `docs/discovery.md`).
+- The `impeccable` skill is the primary design tool. BMAD skills own planning. In WMS, do not use the global `ux-ui-designer` agent.
+- Run automatically: `context-manager` (start and end of design work), `accessibility-tester` (after impeccable or any agent produces UI), `ux-writer` (any copy).
+- Run only when named: `ux-researcher`, `ux-designer`, `design-bridge` (read-only Figma), `qa-evaluator`, `ui-designer` (fallback when impeccable is unavailable).
+- Flow, run by the main session, asking the user before each next step: `context-manager` -> `ux-researcher` -> `ux-designer` (brief) -> `qa-evaluator` (contract) -> impeccable builds -> `accessibility-tester` and `qa-evaluator` check in parallel -> fixes -> `context-manager` updates the index.
+- Outputs go to `_bmad-output/ux/<feature>/`. Save files for agents that have no write tools.
+- No design tokens yet: agents stop visual work and say so instead of inventing values.
 
 ## Commands
 

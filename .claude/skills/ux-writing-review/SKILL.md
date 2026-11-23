@@ -54,6 +54,11 @@ Mark each item pass or fail for every string.
 - [ ] Confirm dialog: the confirm button repeats the action ("ลบรอบการหยิบ"), not "ยืนยัน" alone
 - [ ] PDA: fits one glance, one action, button label fits a 56px target at 16px
 
+### Length (count with `Intl.Segmenter`)
+
+- [ ] PDA: button 3 words, heading or label 5 words, error 2 sentences and 60 characters, empty-state line 1 sentence
+- [ ] Office: button 4 words, heading or label 8 words, error 2 sentences, empty-state line 2 sentences
+
 ### Accessibility
 
 - [ ] Icon-only control has an `aria-label` that names the purpose, without ปุ่ม or "button"
@@ -65,6 +70,12 @@ Mark each item pass or fail for every string.
 - [ ] Every string has a semantic key, 2 to 3 dot levels, named by feature, not by file path
 - [ ] No reused key across meanings, no string concatenation
 - [ ] Plurals use ICU with `=0` and `other`
+
+### Rule changes
+
+- [ ] Edits to `docs/foundation/` or `styles/WMS/` have a `CHANGELOG.md` entry under `Changed`, with `**Breaking:**` when an in-use term changes
+- [ ] A new glossary term has a Vale `substitution` rule with `nonword: true` and bad and good fixtures
+- [ ] Thai is the source; English is translated by meaning
 
 ## Before and after
 

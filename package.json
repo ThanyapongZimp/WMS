@@ -9,6 +9,8 @@
     "lint:links": "lychee --offline --no-progress --config lychee.toml docs/*.md docs/foundation docs/patterns"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.1",
     "markdownlint-cli2": "^0.24.2"
   }
 }

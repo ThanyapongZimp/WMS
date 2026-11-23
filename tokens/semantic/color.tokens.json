@@ -300,6 +300,46 @@
       "$type": "color",
       "$value": "{color.violet.600}",
       "$description": "Chart series 5."
+    },
+    "sidebar": {
+      "$type": "color",
+      "$value": "{color.white}",
+      "$description": "Sidebar surface."
+    },
+    "sidebar-foreground": {
+      "$type": "color",
+      "$value": "{color.gray.900}",
+      "$description": "Nav item text in the sidebar."
+    },
+    "sidebar-muted-foreground": {
+      "$type": "color",
+      "$value": "{color.gray.550}",
+      "$description": "Section labels and secondary text in the sidebar."
+    },
+    "sidebar-accent": {
+      "$type": "color",
+      "$value": "{color.indigo.50}",
+      "$description": "Active nav item fill. Follows the tenant primary."
+    },
+    "sidebar-accent-foreground": {
+      "$type": "color",
+      "$value": "{color.indigo.800}",
+      "$description": "Active nav item text and icon."
+    },
+    "sidebar-border": {
+      "$type": "color",
+      "$value": "{color.gray.200}",
+      "$description": "Sidebar edge and dividers. Decorative only."
+    },
+    "support-banner": {
+      "$type": "color",
+      "$value": "{color.amber.50}",
+      "$description": "Support-access banner fill while Zimple support is signed in."
+    },
+    "support-banner-foreground": {
+      "$type": "color",
+      "$value": "{color.amber.700}",
+      "$description": "Support-access banner text and icon."
     }
   }
 }

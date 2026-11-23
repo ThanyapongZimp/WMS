@@ -99,6 +99,16 @@
       "$type": "dimension",
       "$value": "64px",
       "$description": "Raw scale value. Use a semantic token in components."
+    },
+    "240": {
+      "$type": "dimension",
+      "$value": "240px",
+      "$description": "Raw size value. Use a semantic token in components."
+    },
+    "560": {
+      "$type": "dimension",
+      "$value": "560px",
+      "$description": "Raw size value. Use a semantic token in components."
     }
   },
   "border-width": {

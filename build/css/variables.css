@@ -56,6 +56,8 @@
   --size-48: 48px; /** Raw scale value. Use a semantic token in components. */
   --size-56: 56px; /** Raw scale value. Use a semantic token in components. */
   --size-64: 64px; /** Raw scale value. Use a semantic token in components. */
+  --size-240: 240px; /** Raw size value. Use a semantic token in components. */
+  --size-560: 560px; /** Raw size value. Use a semantic token in components. */
   --border-width-1: 1px; /** Raw scale value. Use a semantic token in components. */
   --border-width-2: 2px; /** Raw scale value. Use a semantic token in components. */
   --opacity-50: 0.5; /** Raw scale value. Use a semantic token in components. */
@@ -150,10 +152,30 @@
   --color-chart-3: var(--color-teal-600); /** Chart series 3. */
   --color-chart-4: var(--color-amber-600); /** Chart series 4. */
   --color-chart-5: var(--color-violet-600); /** Chart series 5. */
+  --color-sidebar: var(--color-white); /** Sidebar surface. */
+  --color-sidebar-foreground: var(--color-gray-900); /** Nav item text in the sidebar. */
+  --color-sidebar-muted-foreground: var(--color-gray-550); /** Section labels and secondary text in the sidebar. */
+  --color-sidebar-accent: var(--color-indigo-50); /** Active nav item fill. Follows the tenant primary. */
+  --color-sidebar-accent-foreground: var(--color-indigo-800); /** Active nav item text and icon. */
+  --color-sidebar-border: var(--color-gray-200); /** Sidebar edge and dividers. Decorative only. */
+  --color-support-banner: var(--color-amber-50); /** Support-access banner fill while Zimple support is signed in. */
+  --color-support-banner-foreground: var(--color-amber-700); /** Support-access banner text and icon. */
   --radius-control: var(--radius-lg); /** Buttons and inputs. */
   --radius-card: var(--radius-xl); /** Cards and sheets. */
   --border-width-control: var(--border-width-2); /** Border of outlined controls. */
   --border-width-focus: var(--border-width-2); /** Focus ring width and offset. Never removed. */
+  --layout-page-x-desktop: var(--size-24); /** Page side padding on office web. */
+  --layout-page-y-desktop: var(--space-5); /** Page top and bottom padding on office web. */
+  --layout-page-x-pda: var(--space-3); /** Page side padding on PDA. */
+  --layout-sidebar-width: var(--size-240); /** Expanded office sidebar width. */
+  --layout-sidebar-rail: var(--size-64); /** Collapsed sidebar rail width. */
+  --layout-sheet-width: var(--size-560); /** Right Sheet width for create and edit forms. */
+  --layout-control-desktop: var(--size-36); /** Input, select and button height on office web. */
+  --layout-control-station: var(--size-48); /** Control height on stations. */
+  --layout-table-row: var(--size-44); /** Default table row height. */
+  --layout-table-row-dense: var(--size-36); /** Dense table row height. */
+  --layout-scan-field-station: var(--size-64); /** Scan field height on stations. */
+  --layout-scan-field-pda: var(--size-56); /** Scan field height on PDA. */
   --target-office: var(--size-24); /** Minimum target on office web (WCAG 2.5.8). */
   --target-station: var(--size-48); /** Minimum target on stations. */
   --target-pda: var(--size-56); /** Minimum target on PDA. */

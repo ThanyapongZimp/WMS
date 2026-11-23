@@ -1,0 +1,65 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "layout": {
+    "page-x-desktop": {
+      "$type": "dimension",
+      "$value": "{size.24}",
+      "$description": "Page side padding on office web."
+    },
+    "page-y-desktop": {
+      "$type": "dimension",
+      "$value": "{space.5}",
+      "$description": "Page top and bottom padding on office web."
+    },
+    "page-x-pda": {
+      "$type": "dimension",
+      "$value": "{space.3}",
+      "$description": "Page side padding on PDA."
+    },
+    "sidebar-width": {
+      "$type": "dimension",
+      "$value": "{size.240}",
+      "$description": "Expanded office sidebar width."
+    },
+    "sidebar-rail": {
+      "$type": "dimension",
+      "$value": "{size.64}",
+      "$description": "Collapsed sidebar rail width."
+    },
+    "sheet-width": {
+      "$type": "dimension",
+      "$value": "{size.560}",
+      "$description": "Right Sheet width for create and edit forms."
+    },
+    "control-desktop": {
+      "$type": "dimension",
+      "$value": "{size.36}",
+      "$description": "Input, select and button height on office web."
+    },
+    "control-station": {
+      "$type": "dimension",
+      "$value": "{size.48}",
+      "$description": "Control height on stations."
+    },
+    "table-row": {
+      "$type": "dimension",
+      "$value": "{size.44}",
+      "$description": "Default table row height."
+    },
+    "table-row-dense": {
+      "$type": "dimension",
+      "$value": "{size.36}",
+      "$description": "Dense table row height."
+    },
+    "scan-field-station": {
+      "$type": "dimension",
+      "$value": "{size.64}",
+      "$description": "Scan field height on stations."
+    },
+    "scan-field-pda": {
+      "$type": "dimension",
+      "$value": "{size.56}",
+      "$description": "Scan field height on PDA."
+    }
+  }
+}

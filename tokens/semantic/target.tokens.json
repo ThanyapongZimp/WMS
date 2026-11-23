@@ -1,0 +1,49 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "target": {
+    "office": {
+      "$type": "dimension",
+      "$value": "{size.24}",
+      "$description": "Minimum target on office web (WCAG 2.5.8)."
+    },
+    "station": {
+      "$type": "dimension",
+      "$value": "{size.48}",
+      "$description": "Minimum target on stations."
+    },
+    "pda": {
+      "$type": "dimension",
+      "$value": "{size.56}",
+      "$description": "Minimum target on PDA."
+    },
+    "pda-primary": {
+      "$type": "dimension",
+      "$value": "{size.64}",
+      "$description": "Primary action on PDA."
+    }
+  },
+  "radius": {
+    "control": {
+      "$type": "dimension",
+      "$value": "{radius.lg}",
+      "$description": "Buttons and inputs."
+    },
+    "card": {
+      "$type": "dimension",
+      "$value": "{radius.xl}",
+      "$description": "Cards and sheets."
+    }
+  },
+  "inset": {
+    "control": {
+      "$type": "dimension",
+      "$value": "{space.4}",
+      "$description": "Horizontal padding inside buttons."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{space.2}",
+      "$description": "Gap between icon and label."
+    }
+  }
+}

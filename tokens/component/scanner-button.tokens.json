@@ -1,0 +1,82 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "component": {
+    "scanner-button": {
+      "bg": {
+        "$type": "color",
+        "$value": "{color.primary}",
+        "$description": "ScannerButton primary fill."
+      },
+      "fg": {
+        "$type": "color",
+        "$value": "{color.primary-foreground}",
+        "$description": "ScannerButton primary label."
+      },
+      "bg-hover": {
+        "$type": "color",
+        "$value": "{color.primary-hover}",
+        "$description": "ScannerButton primary hover and pressed."
+      },
+      "danger-bg": {
+        "$type": "color",
+        "$value": "{color.destructive}",
+        "$description": "ScannerButton danger fill."
+      },
+      "danger-fg": {
+        "$type": "color",
+        "$value": "{color.destructive-foreground}",
+        "$description": "ScannerButton danger label."
+      },
+      "secondary-bg": {
+        "$type": "color",
+        "$value": "{color.secondary}",
+        "$description": "ScannerButton secondary fill."
+      },
+      "secondary-fg": {
+        "$type": "color",
+        "$value": "{color.secondary-foreground}",
+        "$description": "ScannerButton secondary label."
+      },
+      "secondary-border": {
+        "$type": "color",
+        "$value": "{color.input}",
+        "$description": "ScannerButton secondary border (3:1)."
+      },
+      "ring": {
+        "$type": "color",
+        "$value": "{color.ring}",
+        "$description": "ScannerButton focus ring."
+      },
+      "min-height": {
+        "$type": "dimension",
+        "$value": "{target.pda-primary}",
+        "$description": "ScannerButton size scanner height."
+      },
+      "min-height-lg": {
+        "$type": "dimension",
+        "$value": "{target.pda}",
+        "$description": "ScannerButton size lg height."
+      },
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.control}",
+        "$description": "ScannerButton corner radius."
+      },
+      "padding-x": {
+        "$type": "dimension",
+        "$value": "{inset.control}",
+        "$description": "ScannerButton horizontal padding."
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{inset.gap}",
+        "$description": "Gap between spinner or icon and label."
+      },
+      "font": {
+        "$type": "typography",
+        "$value": "{typography.pda-button}",
+        "$description": "ScannerButton label type."
+      }
+    }
+  }
+}

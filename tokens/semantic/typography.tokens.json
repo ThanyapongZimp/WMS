@@ -1,0 +1,212 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "typography": {
+    "display-kpi": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.28}",
+        "fontWeight": "{font.weight.700}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "KPI values on dashboards."
+    },
+    "h1": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.24}",
+        "fontWeight": "{font.weight.600}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "Page title, once per page."
+    },
+    "h2": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.18}",
+        "fontWeight": "{font.weight.600}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "Section title."
+    },
+    "h3": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.16}",
+        "fontWeight": "{font.weight.600}",
+        "lineHeight": "{font.line-height.1-5}"
+      },
+      "$description": "Subsection and card title."
+    },
+    "body": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.14}",
+        "fontWeight": "{font.weight.400}",
+        "lineHeight": "{font.line-height.1-6}"
+      },
+      "$description": "Office body text and table cells."
+    },
+    "body-strong": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.14}",
+        "fontWeight": "{font.weight.600}",
+        "lineHeight": "{font.line-height.1-6}"
+      },
+      "$description": "Emphasis inside body."
+    },
+    "label": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.13}",
+        "fontWeight": "{font.weight.500}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "Form labels and pills."
+    },
+    "caption": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.12}",
+        "fontWeight": "{font.weight.400}",
+        "lineHeight": "{font.line-height.1-5}"
+      },
+      "$description": "Timestamps and meta only. Never actionable text."
+    },
+    "code": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.14}",
+        "fontWeight": "{font.weight.500}",
+        "lineHeight": "{font.line-height.1-5}"
+      },
+      "$description": "Location codes, document numbers, lots."
+    },
+    "prose": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.16}",
+        "fontWeight": "{font.weight.400}",
+        "lineHeight": "{font.line-height.1-8}"
+      },
+      "$description": "Long-form Thai text: help, docs, empty-state body."
+    },
+    "pda-body": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.16}",
+        "fontWeight": "{font.weight.400}",
+        "lineHeight": "{font.line-height.1-55}"
+      },
+      "$description": "PDA body text. Every PDA text is 16px or larger except the top bar."
+    },
+    "pda-caption": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.14}",
+        "fontWeight": "{font.weight.500}",
+        "lineHeight": "{font.line-height.1-5}"
+      },
+      "$description": "PDA top bar only."
+    },
+    "pda-title": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.20}",
+        "fontWeight": "{font.weight.600}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "PDA screen title."
+    },
+    "pda-button": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.18}",
+        "fontWeight": "{font.weight.600}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "PDA button label."
+    },
+    "pda-location": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.36}",
+        "fontWeight": "{font.weight.700}",
+        "lineHeight": "{font.line-height.1-15}"
+      },
+      "$description": "Current location code on PDA."
+    },
+    "scan-input": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.24}",
+        "fontWeight": "{font.weight.600}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "Station scan field."
+    },
+    "station-next": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.22}",
+        "fontWeight": "{font.weight.600}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "Station next-step value."
+    },
+    "station-counter": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.48}",
+        "fontWeight": "{font.weight.700}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "Station counters."
+    },
+    "feedback-headline": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.32}",
+        "fontWeight": "{font.weight.700}",
+        "lineHeight": "{font.line-height.1-45}"
+      },
+      "$description": "Full-screen scan feedback headline."
+    },
+    "station-code": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.18}",
+        "fontWeight": "{font.weight.700}",
+        "lineHeight": "{font.line-height.1-3}"
+      },
+      "$description": "Station code."
+    },
+    "line-height": {
+      "prose": {
+        "$type": "number",
+        "$value": "{font.line-height.1-8}",
+        "$description": "Line height for long-form Thai text (spec default 1.8)."
+      }
+    }
+  }
+}

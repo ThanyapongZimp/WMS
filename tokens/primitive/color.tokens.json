@@ -1,0 +1,186 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "color": {
+    "white": {
+      "$type": "color",
+      "$value": "#FFFFFF",
+      "$description": "Raw palette value. Do not use in components; use a semantic colour."
+    },
+    "neutral": {
+      "50": {
+        "$type": "color",
+        "$value": "#F6F7F9",
+        "$description": "Raw neutral step 50. Do not use in components; use a semantic colour."
+      },
+      "100": {
+        "$type": "color",
+        "$value": "#EEF0F4",
+        "$description": "Raw neutral step 100. Do not use in components; use a semantic colour."
+      },
+      "110": {
+        "$type": "color",
+        "$value": "#EDEFF3",
+        "$description": "Raw neutral step 110. Do not use in components; use a semantic colour."
+      },
+      "200": {
+        "$type": "color",
+        "$value": "#E1E4EA",
+        "$description": "Raw neutral step 200. Do not use in components; use a semantic colour."
+      },
+      "300": {
+        "$type": "color",
+        "$value": "#C9CDD6",
+        "$description": "Raw neutral step 300. Do not use in components; use a semantic colour."
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#9AA0AE",
+        "$description": "Raw neutral step 400. Do not use in components; use a semantic colour."
+      },
+      "450": {
+        "$type": "color",
+        "$value": "#8C93A3",
+        "$description": "Raw neutral step 450. Do not use in components; use a semantic colour."
+      },
+      "500": {
+        "$type": "color",
+        "$value": "#5F6678",
+        "$description": "Raw neutral step 500. Do not use in components; use a semantic colour."
+      },
+      "550": {
+        "$type": "color",
+        "$value": "#596072",
+        "$description": "Raw neutral step 550. Do not use in components; use a semantic colour."
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#4A5163",
+        "$description": "Raw neutral step 600. Do not use in components; use a semantic colour."
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#1B2030",
+        "$description": "Raw neutral step 800. Do not use in components; use a semantic colour."
+      },
+      "900": {
+        "$type": "color",
+        "$value": "#161A23",
+        "$description": "Raw neutral step 900. Do not use in components; use a semantic colour."
+      }
+    },
+    "indigo": {
+      "50": {
+        "$type": "color",
+        "$value": "#EEEDFC",
+        "$description": "Raw indigo step 50. Do not use in components; use a semantic colour."
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#4A3FD6",
+        "$description": "Raw indigo step 600. Do not use in components; use a semantic colour."
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#3B31B8",
+        "$description": "Raw indigo step 700. Do not use in components; use a semantic colour."
+      },
+      "800": {
+        "$type": "color",
+        "$value": "#2F2894",
+        "$description": "Raw indigo step 800. Do not use in components; use a semantic colour."
+      }
+    },
+    "red": {
+      "50": {
+        "$type": "color",
+        "$value": "#FDECEA",
+        "$description": "Raw red step 50. Do not use in components; use a semantic colour."
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#C4281C",
+        "$description": "Raw red step 600. Do not use in components; use a semantic colour."
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#B0261B",
+        "$description": "Raw red step 700. Do not use in components; use a semantic colour."
+      }
+    },
+    "green": {
+      "50": {
+        "$type": "color",
+        "$value": "#E5F5EC",
+        "$description": "Raw green step 50. Do not use in components; use a semantic colour."
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#13794A",
+        "$description": "Raw green step 600. Do not use in components; use a semantic colour."
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#106A40",
+        "$description": "Raw green step 700. Do not use in components; use a semantic colour."
+      }
+    },
+    "amber": {
+      "50": {
+        "$type": "color",
+        "$value": "#FEF3DC",
+        "$description": "Raw amber step 50. Do not use in components; use a semantic colour."
+      },
+      "400": {
+        "$type": "color",
+        "$value": "#F2A516",
+        "$description": "Raw amber step 400. Do not use in components; use a semantic colour."
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#B86E00",
+        "$description": "Raw amber step 600. Do not use in components; use a semantic colour."
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#8A5000",
+        "$description": "Raw amber step 700. Do not use in components; use a semantic colour."
+      },
+      "950": {
+        "$type": "color",
+        "$value": "#2B1D00",
+        "$description": "Raw amber step 950. Do not use in components; use a semantic colour."
+      }
+    },
+    "blue": {
+      "50": {
+        "$type": "color",
+        "$value": "#E7F0FB",
+        "$description": "Raw blue step 50. Do not use in components; use a semantic colour."
+      },
+      "600": {
+        "$type": "color",
+        "$value": "#1F66C1",
+        "$description": "Raw blue step 600. Do not use in components; use a semantic colour."
+      },
+      "700": {
+        "$type": "color",
+        "$value": "#195AAB",
+        "$description": "Raw blue step 700. Do not use in components; use a semantic colour."
+      }
+    },
+    "teal": {
+      "600": {
+        "$type": "color",
+        "$value": "#0E8A86",
+        "$description": "Raw teal step 600. Do not use in components; use a semantic colour."
+      }
+    },
+    "violet": {
+      "600": {
+        "$type": "color",
+        "$value": "#8A4FBF",
+        "$description": "Raw violet step 600. Do not use in components; use a semantic colour."
+      }
+    }
+  }
+}

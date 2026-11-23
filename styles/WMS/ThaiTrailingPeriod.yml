@@ -1,0 +1,8 @@
+extends: existence
+message: "ไม่ต้องใส่จุดท้ายข้อความภาษาไทย"
+link: https://github.com/ThanyapongZimp/WMS/blob/main/docs/foundation/GrammarAndSpelling.md#punctuation
+level: error
+nonword: true
+scope: paragraph
+tokens:
+  - '[\x{0E00}-\x{0E7F}]\.(?:\s|$)'

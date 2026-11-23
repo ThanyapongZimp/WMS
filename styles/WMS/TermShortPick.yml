@@ -1,0 +1,9 @@
+extends: substitution
+message: "ใช้คำมาตรฐาน '%s' แทน '%s'"
+link: https://github.com/ThanyapongZimp/WMS/blob/main/docs/foundation/Glossary.md#wms-terms
+level: error
+nonword: true
+ignorecase: false
+swap:
+  ของหาย: สินค้าขาด
+  หยิบไม่ครบ: สินค้าขาด

@@ -1,0 +1,8 @@
+extends: substitution
+message: "ใช้คำมาตรฐาน '%s' แทน '%s'"
+link: https://github.com/ThanyapongZimp/WMS/blob/main/docs/foundation/Glossary.md#general-terms
+level: error
+nonword: true
+ignorecase: false
+swap:
+  ล็อกอิน: เข้าสู่ระบบ

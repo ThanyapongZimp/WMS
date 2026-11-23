@@ -3,6 +3,8 @@ message: "'%s' ไม่บอกผลลัพธ์ ใช้คำกริ�
 link: https://github.com/ThanyapongZimp/WMS/blob/main/docs/foundation/GrammarAndSpelling.md#buttons
 level: warning
 nonword: true
-scope: list
+scope:
+  - list
+  - table.cell
 tokens:
-  - '^\s*(?:ตกลง|ใช่)\s*$'
+  - '^\s*["“]?(?:ตกลง|ใช่)["”]?\s*$'

@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" && npm run -s lint >&2 || { echo 'npm run lint failed. Fix the findings above before finishing.' >&2; exit 2; }"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-lint.sh\""
           }
         ]
       }

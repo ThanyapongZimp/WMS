@@ -21,6 +21,7 @@ test('bad copy trips every WMS rule', () => {
   const checks = alerts.map((a) => a.Check);
   assert.deepEqual([...new Set(checks)].sort(), [...RULES].sort());
   assert.equal(checks.filter((c) => c === 'WMS.ThaiSpelling').length, 5);
+  assert.equal(checks.filter((c) => c === 'WMS.GenericButtons').length, 3);
 });
 
 test('every WMS alert links to its guideline', () => {

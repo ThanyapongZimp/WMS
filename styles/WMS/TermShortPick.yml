@@ -5,5 +5,5 @@ level: error
 nonword: true
 ignorecase: false
 swap:
-  ของหาย: สินค้าขาด
+  ของหาย(?!าก): สินค้าขาด
   หยิบไม่ครบ: สินค้าขาด

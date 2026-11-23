@@ -5,4 +5,4 @@ level: error
 nonword: true
 scope: paragraph
 tokens:
-  - '[\x{0E00}-\x{0E7F}]\.(?:\s|$)'
+  - '[\x{0E00}-\x{0E7F}]\.$'

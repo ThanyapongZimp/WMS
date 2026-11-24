@@ -37,6 +37,6 @@ export function scan({ emojiPaths, uiPaths }) {
 }
 
 export const REPO_SCOPE = {
-  emojiPaths: ['CLAUDE.md', 'AGENTS.md', 'README.md', 'PRODUCT.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'docs', 'src', 'tokens', '.claude/agents', '.claude/rules', '.claude/skills/ux-writing-review', '.storybook', 'styles/WMS'],
+  emojiPaths: ['CLAUDE.md', 'AGENTS.md', 'README.md', 'PRODUCT.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'docs', 'src', 'tokens', '.claude/agents', '.claude/rules', '.claude/skills/ux-writing-review', '.claude/skills/thai-ui-a11y-auditor', '.storybook', 'styles/WMS'],
   uiPaths: ['src'],
 };

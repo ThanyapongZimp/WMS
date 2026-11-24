@@ -55,6 +55,7 @@ Read only the files the current task needs. Reading order: `docs/Guidelines.md`.
 - `npm run lint:vale` — Vale only
 - `npm run lint:md` — markdownlint only
 - `npm test` — rule fixtures, token rules and repo checks
+- `npm run lint:thai` — Thai UI checks (break-all, line-height floor, letter-spacing, lang, calendar)
 - `npm run tokens:build` — rebuild `build/` from `tokens/` (commit the result)
 - `npm run tokens:check` — fail if `build/` is stale
 

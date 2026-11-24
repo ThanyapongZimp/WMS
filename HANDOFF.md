@@ -4,10 +4,9 @@
 
 ## สถานะตอนนี้
 
-- งานทั้งหมดอยู่บน branch `phase1-guardrails` และเปิดเป็น [PR #3](https://github.com/ThanyapongZimp/WMS/pull/3) เข้า `main`
+- งาน Phase 1 และ Phase 2 merge เข้า `main` แล้วผ่าน [PR #3](https://github.com/ThanyapongZimp/WMS/pull/3) เมื่อ 24/11/2026
 - CI ผ่านครบ 5 job: `vale`, `markdown`, `links`, `tokens`, `storybook`
 - ในเครื่อง: `npm test` ผ่าน 162/162, `npm run test:ui` ผ่าน 10/10, lint ไม่มีปัญหา
-- PR ยังไม่ merge รอรีวิวและรอ designer ยืนยันสีหนึ่งค่า (ดูหัวข้อ "เรื่องที่ต้องตัดสินใจ")
 
 ## สิ่งที่มีแล้ว
 
@@ -28,10 +27,11 @@
 
 ## เริ่มงาน
 
-1. ติดตั้ง `node` 22 ขึ้นไป, `vale` และ `lychee` (บน macOS ใช้ `brew install vale lychee`)
-2. รัน `npm ci` แล้ว `npx playwright install chromium`
-3. อ่าน `CLAUDE.md` แล้วตามด้วย `docs/discovery.md` และ `docs/Guidelines.md`
-4. เปิด Storybook ด้วย `npm run storybook` แล้วเข้า `http://localhost:6006`
+1. รัน `git checkout main && git pull` แล้วแตก branch ใหม่สำหรับงานของคุณ
+2. ติดตั้ง `node` 22 ขึ้นไป, `vale` และ `lychee` (บน macOS ใช้ `brew install vale lychee`)
+3. รัน `npm ci` แล้ว `npx playwright install chromium`
+4. อ่าน `CLAUDE.md` แล้วตามด้วย `docs/discovery.md` และ `docs/Guidelines.md`
+5. เปิด Storybook ด้วย `npm run storybook` แล้วเข้า `http://localhost:6006`
 
 ## คำสั่งที่ใช้บ่อย
 
@@ -55,29 +55,24 @@
 - **ค่า token เก็บเป็น string** เช่น `"#4A3FD6"`, `"56px"` เพื่อให้ Style Dictionary ใช้ได้ตรงๆ
 - **สี primitive โทนเทาชื่อ `gray`** ไม่ใช่ `neutral` เพราะชนกับ `color.neutral` ฝั่ง semantic
 - **CODEOWNERS** ทุก path เป็นของ `@ThanyapongZimp` เพราะ repo อยู่ใต้บัญชีส่วนตัวจึงสร้างทีมไม่ได้
-
-## เรื่องที่ต้องตัดสินใจ
-
-- **สี `color.red.800` `#8F1F16`** ใช้เป็นสีตอนกดปุ่ม danger ค่านี้ไม่มีใน DESIGN.md ต้องให้ designer ยืนยันหรือเปลี่ยนก่อน merge
-- **Repo เป็น public** ทุกไฟล์รวมถึง PRODUCT.md, DESIGN.md และ mockup ใน `artifact/` กับ `_bmad-output/` เปิดให้คนทั่วไปเห็น ถ้าไม่ตั้งใจ เจ้าของ repo ต้องเปลี่ยนเป็น private
+- **สี `color.red.800` `#8F1F16`** ใช้เป็นสีตอนกดปุ่ม danger ค่านี้ไม่มีใน DESIGN.md ทีม design ดูแลเรื่องนี้แล้ว
+- **Repo เป็น public** PO ตั้งใจให้เป็นสาธารณะ ห้าม commit ข้อมูลลูกค้า ข้อมูลส่วนตัว หรือ secret ลงใน repo
 
 ## ข้อจำกัดที่รู้แล้ว
 
 - เทสต์ป้ายภาษาไทยของ ScannerButton ตรวจว่ามี padding กันสระวรรณยุกต์โดนตัด แต่ยังวัดขอบตัวอักษรจริงไม่ได้ ถ้าเปลี่ยนฟอนต์ให้เปิดดูด้วยตาอีกครั้ง
 - ปุ่ม secondary ตอน hover เปลี่ยนสีน้อย (gray.100 ไป gray.200) ตอนกดเห็นชัดกว่า
 - หน้า `artifact/tokens/` แสดงป้าย contrast ของสี background โดยไม่บอกว่าเป็นพื้นผิว และที่ความกว้าง 280px คำว่า "คอนทราสต์" ถูกตัดกลางคำ
-- ลิงก์ `link:` ในกฎ Vale ชี้ไปที่ branch `main` จะเปิดได้หลัง merge PR #3
 - Mockup เดิมใน `artifact/` และ `_bmad-output/` มีปัญหา contrast ที่ impeccable แจ้งไว้ 66 จุด ยังไม่ได้แก้
 
 ## งานถัดไป
 
-1. **Merge PR #3** หลัง designer ยืนยันสี `red.800`
-2. **Component สำหรับพนักงาน PDA** แตก branch ใหม่จาก `main`
+1. **Component สำหรับพนักงาน PDA** แตก branch ใหม่จาก `main`
    - `BinLocationCard` แสดง Zone > Aisle > Bin ตัวใหญ่ อ่านได้จากระยะแขน
    - `PickQtyStepper` ใส่จำนวนที่หยิบได้จริง ใช้ตอนสินค้าขาด (Short Pick)
    - ทำแบบเดียวกับ ScannerButton: เขียนแผน เขียน story และเทสต์ให้ fail ก่อน แล้วค่อยสร้าง component และเปิดดูด้วยตาที่ 360px
-3. **Workflow docs** `docs/workflows/ReceivingAndPutaway.md` และ `docs/workflows/WavePicking.md` ตาม Workflow A และ B ในเอกสาร context รวมกรณี "ช่องเก็บเต็ม" และ "สินค้าขาด"
-4. **Phase 3** รอให้มี component มากพอก่อน: Figma sync และ Code Connect, changesets, Docs Portal
+2. **Workflow docs** `docs/workflows/ReceivingAndPutaway.md` และ `docs/workflows/WavePicking.md` ตาม Workflow A และ B ในเอกสาร context รวมกรณี "ช่องเก็บเต็ม" และ "สินค้าขาด"
+3. **Phase 3** รอให้มี component มากพอก่อน: Figma sync และ Code Connect, changesets, Docs Portal
 
 ## ข้อควรระวัง
 

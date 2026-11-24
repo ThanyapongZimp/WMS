@@ -21,7 +21,7 @@ Calm, clear, operational. "Modern" means quiet and unambiguous, not decorative. 
 ## Anti-references
 
 - JST: "ใช้ยากมาก" (very hard to use), forced-update loops, data that cannot be exported.
-- The old Zimple prototype: navy-and-blue palette, 10–11px type, mixed brand names, mixed ค.ศ./พ.ศ., design notes inside UI copy, inconsistent status colours and the ⚡ urgent marker, unprioritised 13-column tables, PDA buttons under 56px, desktop chrome around PDA screens.
+- The old Zimple prototype: navy-and-blue palette, 10–11px type, mixed brand names, mixed ค.ศ./พ.ศ., design notes inside UI copy, inconsistent status colours and the lightning-bolt urgent marker, unprioritised 13-column tables, PDA buttons under 56px, desktop chrome around PDA screens.
 - A theme tool with ~60 knobs. Tenants change only the logo and the primary colour.
 - Generic SaaS dashboard decoration: gradients, glass, hero metrics.
 

@@ -9,7 +9,8 @@ StyleDictionary.registerFormat(agentFormat);
 const sd = new StyleDictionary({
   source: [`${src}/**/*.tokens.json`],
   usesDtcg: true,
-  log: { verbosity: 'silent', errors: { brokenReferences: 'throw' } },
+  // 'verbose' only changes error text: broken references are listed by name.
+  log: { verbosity: 'verbose', errors: { brokenReferences: 'throw' } },
   platforms: {
     css: {
       transformGroup: 'css',

@@ -34,12 +34,24 @@ test('agent JSON carries resolved value, alias and usage rule', () => {
   for (const t of agent.tokens) assert.ok(t.usageRule, `${t.name} has no usageRule`);
 });
 
-test('a broken alias fails the build', () => {
+function breakAlias(file, mutate) {
   const src = mkdtempSync(join(tmpdir(), 'tok-'));
   cpSync('tokens', src, { recursive: true });
-  const f = join(src, 'semantic/color.tokens.json');
+  const f = join(src, file);
   const json = JSON.parse(readFileSync(f, 'utf8'));
-  json.color.primary.$value = '{color.nope.600}';
+  mutate(json);
   writeFileSync(f, JSON.stringify(json));
-  assert.notEqual(build({ SD_SOURCE: src }).status, 0);
+  return build({ SD_SOURCE: src });
+}
+
+test('a broken colour alias fails the build and names the reference', () => {
+  const r = breakAlias('semantic/color.tokens.json', (j) => { j.color.primary.$value = '{color.nope.600}'; });
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /color\.nope\.600/);
+});
+
+test('a broken alias inside a composite typography token fails the build', () => {
+  const r = breakAlias('semantic/typography.tokens.json', (j) => { j.typography.body.$value.fontSize = '{font.size.999}'; });
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /font\.size\.999/);
 });

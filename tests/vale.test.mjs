@@ -4,9 +4,11 @@ import { execFileSync } from 'node:child_process';
 
 function vale(file) {
   let out;
+  const bin = process.env.VALE_BIN ?? 'vale';
   try {
-    out = execFileSync('vale', ['--output=JSON', '--config=.vale.ini', file], { encoding: 'utf8' });
+    out = execFileSync(bin, ['--output=JSON', '--config=.vale.ini', file], { encoding: 'utf8' });
   } catch (err) {
+    if (err.code === 'ENOENT') throw new Error(`vale not installed (looked for "${bin}"). Install it: brew install vale`);
     out = err.stdout;
   }
   const parsed = JSON.parse(out);
@@ -32,4 +34,15 @@ test('every WMS alert links to its guideline', () => {
 
 test('good copy and code spans stay silent', () => {
   assert.deepEqual(vale('tests/fixtures/good.md'), []);
+});
+
+test('a missing vale binary fails with a clear message', () => {
+  const saved = process.env.VALE_BIN;
+  process.env.VALE_BIN = 'vale-does-not-exist';
+  try {
+    assert.throws(() => vale('tests/fixtures/good.md'), /vale not installed/);
+  } finally {
+    if (saved === undefined) delete process.env.VALE_BIN;
+    else process.env.VALE_BIN = saved;
+  }
 });

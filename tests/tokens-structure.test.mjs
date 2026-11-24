@@ -29,12 +29,32 @@ test('semantic tokens alias primitives only', () => {
   }
 });
 
-test('component tokens alias semantic tokens only', () => {
-  for (const [path, t] of entries.filter(([, t]) => t.tier === 'component')) {
-    const target = aliasTarget(t.$value);
-    assert.ok(target, `${path} holds a raw value`);
-    assert.equal(tokens[target]?.tier, 'semantic', `${path} -> ${target} is not semantic`);
+function tierViolations(all, tier, allowed) {
+  const out = [];
+  for (const [path, t] of Object.entries(all).filter(([, t]) => t.tier === tier)) {
+    const targets = aliasesIn(t.$value);
+    if (targets.length === 0) out.push(`${path} has no value`);
+    for (const target of targets) {
+      if (!target) out.push(`${path} holds a raw value`);
+      else if (all[target]?.tier !== allowed) out.push(`${path} -> ${target} is not ${allowed}`);
+    }
   }
+  return out;
+}
+
+test('tier check catches raw or primitive values inside a composite component token', () => {
+  const fake = {
+    'font.size.14': { tier: 'primitive', $value: '14px' },
+    'typography.body': { tier: 'semantic', $value: '{font.size.14}' },
+    'component.x.font': { tier: 'component', $value: { fontSize: '{font.size.14}', fontWeight: 600 } },
+  };
+  const v = tierViolations(fake, 'component', 'semantic');
+  assert.ok(v.some((m) => m.includes('is not semantic')), v.join('; '));
+  assert.ok(v.some((m) => m.includes('raw value')), v.join('; '));
+});
+
+test('component tokens alias semantic tokens only', () => {
+  assert.deepEqual(tierViolations(tokens, 'component', 'semantic'), []);
 });
 
 test('key values match DESIGN.md and PRODUCT.md', () => {

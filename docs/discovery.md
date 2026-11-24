@@ -40,6 +40,7 @@ Central index of the WMS design system. Every document and component is listed h
 | Agent | QA Evaluator | `.claude/agents/qa-evaluator.md` | Trial | ทดสอบ prototype ด้วย Playwright ที่ 360, 412, 1366, 1920 px |
 | Agent | Context Manager | `.claude/agents/context-manager.md` | Trial | จ่ายบริบทก่อนเริ่มงานและอัปเดต index หลังจบงาน |
 | Skill | UX Writing Review | `.claude/skills/ux-writing-review/SKILL.md` | Trial | checklist รีวิว copy เรียกด้วย `/ux-writing-review` |
+| Skill | shadcn | `.claude/skills/shadcn/SKILL.md` | Trial | skill ทางการจาก shadcn/ui (`npx skills add shadcn/ui`) ทำงานเมื่อโปรเจกต์มี `components.json` อัปเดตด้วย `npx skills update shadcn` |
 | Rule | UI Copy | `.claude/rules/ux-copy.md` | Trial | โหลดอัตโนมัติเมื่อแก้ docs หรือไฟล์ที่มี UI string |
 | Governance | Changelog | [../CHANGELOG.md](../CHANGELOG.md) | Active | บันทึกการเปลี่ยนแปลงตาม Keep a Changelog |
 | Governance | Contributing | [../CONTRIBUTING.md](../CONTRIBUTING.md) | Active | Definition of Done สำหรับ PR ที่แก้ UI copy |

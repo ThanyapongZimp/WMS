@@ -42,6 +42,8 @@ Central index of the WMS design system. Every document and component is listed h
 | Agent | Context Manager | `.claude/agents/context-manager.md` | Trial | จ่ายบริบทก่อนเริ่มงานและอัปเดต index หลังจบงาน |
 | Skill | UX Writing Review | `.claude/skills/ux-writing-review/SKILL.md` | Trial | checklist รีวิว copy เรียกด้วย `/ux-writing-review` |
 | Skill | shadcn | `.claude/skills/shadcn/SKILL.md` | Trial | skill ทางการจาก shadcn/ui (`npx skills add shadcn/ui`) ทำงานเมื่อโปรเจกต์มี `components.json` อัปเดตด้วย `npx skills update shadcn` |
+| Skill | Hugeicons | `.claude/skills/hugeicons/SKILL.md` | Trial | skill ทางการจาก hugeicons ค้นชื่อไอคอนจริงผ่าน Hugeicons MCP แทนการเดาชื่อ อัปเดตด้วย `npx skills update hugeicons` |
+| Skill | Hugeicons migrate | `.claude/skills/hugeicons-migrate/SKILL.md` | Trial | ย้ายไอคอนจาก lucide, heroicons หรือ react-icons มาเป็น Hugeicons |
 | Rule | UI Copy | `.claude/rules/ux-copy.md` | Trial | โหลดอัตโนมัติเมื่อแก้ docs หรือไฟล์ที่มี UI string |
 | Governance | Changelog | [../CHANGELOG.md](../CHANGELOG.md) | Active | บันทึกการเปลี่ยนแปลงตาม Keep a Changelog |
 | Governance | Contributing | [../CONTRIBUTING.md](../CONTRIBUTING.md) | Active | Definition of Done สำหรับ PR ที่แก้ UI copy |

@@ -44,7 +44,7 @@ You run without `CLAUDE.md`. Find every path through `docs/discovery.md`; never 
 - Reply in Thai. Keep design terms, token names, code and file paths in English. Saved files follow the same rule.
 - Users: office staff on Windows PCs (supervisors, admins, CS, accounting) and floor staff on rugged Android PDAs and scanner stations.
 - Visual values come only from design tokens: pick from `build/agent/tokens.json` by `usageRule` and use the CSS variable from `build/css/variables.css`. If no token fits, say so and propose one under `tokens/`; never invent hex or px values.
-- Thai body text: `line-height: 1.8` (range 1.7 to 2.0). Wrap with `word-break: normal` and `overflow-wrap: break-word`, never `break-all`.
+- Thai line-height never below 1.45 (use `font: var(--typography-*)`); long-form text uses `--typography-prose` (1.8). Wrap with `word-break: normal` and `overflow-wrap: break-word`, never `break-all`. Audit with the `thai-ui-a11y-auditor` skill.
 - Font stack: `'IBM Plex Sans Thai', 'Sarabun', Tahoma, sans-serif`.
 - Dates: Gregorian, `DD/MM/YYYY`, formatters pinned with `-u-ca-gregory`.
 - PDA touch targets: at least 56px.

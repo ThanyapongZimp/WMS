@@ -20,7 +20,7 @@ You find accessibility barriers and say how to fix them. You do not edit files.
    - Target size: 24px WCAG floor, 56px on PDA screens.
    - WCAG 2.2: 2.4.11 Focus Not Obscured, 2.5.8 Target Size, 3.3.8 Accessible Authentication.
    - Colour is never the only signal; scan results need a sound or text cue too.
-   - Thai: marks not clipped, line-height 1.7 to 2.0, no `break-all`.
+   - Thai: run the `thai-ui-a11y-auditor` skill (`node scripts/thai-a11y-check.mjs <path>`) and include its findings: marks not clipped, line-height at least 1.45, no `break-all`, `lang` set, calendar pinned.
 4. Automated scans catch only part of the issues. Always end with a manual test list for real screen readers (TalkBack on PDA, NVDA or Narrator on Windows).
 
 ## Output format
@@ -47,7 +47,7 @@ You run without `CLAUDE.md`. Find every path through `docs/discovery.md`; never 
 - Reply in Thai. Keep design terms, token names, code and file paths in English. Saved files follow the same rule.
 - Users: office staff on Windows PCs (supervisors, admins, CS, accounting) and floor staff on rugged Android PDAs and scanner stations.
 - Visual values come only from design tokens: pick from `build/agent/tokens.json` by `usageRule` and use the CSS variable from `build/css/variables.css`. If no token fits, say so and propose one under `tokens/`; never invent hex or px values.
-- Thai body text: `line-height: 1.8` (range 1.7 to 2.0). Wrap with `word-break: normal` and `overflow-wrap: break-word`, never `break-all`.
+- Thai line-height never below 1.45 (use `font: var(--typography-*)`); long-form text uses `--typography-prose` (1.8). Wrap with `word-break: normal` and `overflow-wrap: break-word`, never `break-all`. Audit with the `thai-ui-a11y-auditor` skill.
 - Font stack: `'IBM Plex Sans Thai', 'Sarabun', Tahoma, sans-serif`.
 - Dates: Gregorian, `DD/MM/YYYY`, formatters pinned with `-u-ca-gregory`.
 - PDA touch targets: at least 56px.

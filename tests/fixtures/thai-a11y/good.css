@@ -1,0 +1,7 @@
+/* word-break: break-all is banned; this comment must not count */
+.label { word-break: normal; overflow-wrap: break-word; }
+.title { letter-spacing: normal; }
+.code { letter-spacing: 0; }
+.cell { line-height: 1.45; }
+.prose { line-height: var(--font-line-height-1-8); }
+.icon { line-height: 0; } /* thai-a11y-ignore: icon box has no text */

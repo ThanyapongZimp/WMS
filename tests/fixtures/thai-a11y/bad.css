@@ -1,0 +1,5 @@
+.label { word-break: break-all; }
+.title { letter-spacing: 0.05em; }
+.nav { text-transform: uppercase; }
+.cell { line-height: 1.2; }
+.pill { line-height: 1; }

@@ -1,0 +1,11 @@
+{
+  // Thai has no spaces between words, so line length is meaningless.
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD033": false,
+    "MD024": { "siblings_only": true }
+  },
+  "globs": ["*.md", "docs/**/*.md", "tests/fixtures/*.md"],
+  "ignores": ["node_modules", "docs/superpowers/**", "_bmad/**", "_bmad-output/**"]
+}

@@ -1,0 +1,13 @@
+extends: substitution
+message: "ใช้ '%s' แทน '%s' ตามราชบัณฑิตยสถาน"
+link: https://github.com/ThanyapongZimp/WMS/blob/main/docs/foundation/GrammarAndSpelling.md#transliteration
+level: error
+nonword: true
+ignorecase: false
+swap:
+  แอพ: แอปพลิเคชัน
+  อีเมล์: อีเมล
+  อัพเดท: อัปเดต
+  อัพเดต: อัปเดต
+  ฟังก์ชั่น: ฟังก์ชัน
+  ดิจิตอล: ดิจิทัล

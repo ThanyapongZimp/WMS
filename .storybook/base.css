@@ -1,0 +1,16 @@
+/* Global base for stories. Values come only from build/css/variables.css. */
+html, body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font: var(--typography-body);
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.wms-token-table { border-collapse: collapse; inline-size: 100%; }
+.wms-token-table caption { font: var(--typography-h2); text-align: start; padding-block: var(--inset-control-y); }
+.wms-token-table th, .wms-token-table td { border-block-end: var(--border-width-1) solid var(--color-border); padding: var(--inset-control-y); text-align: start; vertical-align: top; }
+.wms-token-swatch { display: block; inline-size: var(--target-station); block-size: var(--target-office); border: var(--border-width-1) solid var(--color-input); border-radius: var(--radius-control); }
+.wms-token-meta { font: var(--typography-caption); color: var(--color-muted-foreground); margin-block-end: 0; }
+.wms-token-ramp p { margin-block-start: var(--inset-gap); }

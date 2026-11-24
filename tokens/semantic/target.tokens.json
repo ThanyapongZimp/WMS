@@ -1,0 +1,90 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "target": {
+    "office": {
+      "$type": "dimension",
+      "$value": "{size.24}",
+      "$description": "Minimum target on office web (WCAG 2.5.8)."
+    },
+    "station": {
+      "$type": "dimension",
+      "$value": "{size.48}",
+      "$description": "Minimum target on stations."
+    },
+    "pda": {
+      "$type": "dimension",
+      "$value": "{size.56}",
+      "$description": "Minimum target on PDA."
+    },
+    "pda-primary": {
+      "$type": "dimension",
+      "$value": "{size.64}",
+      "$description": "Primary action on PDA."
+    }
+  },
+  "radius": {
+    "control": {
+      "$type": "dimension",
+      "$value": "{radius.lg}",
+      "$description": "Buttons and inputs."
+    },
+    "card": {
+      "$type": "dimension",
+      "$value": "{radius.xl}",
+      "$description": "Cards and sheets."
+    }
+  },
+  "border-width": {
+    "control": {
+      "$type": "dimension",
+      "$value": "{border-width.2}",
+      "$description": "Border of outlined controls."
+    },
+    "focus": {
+      "$type": "dimension",
+      "$value": "{border-width.2}",
+      "$description": "Focus ring width and offset. Never removed."
+    }
+  },
+  "state": {
+    "disabled-opacity": {
+      "$type": "number",
+      "$value": "{opacity.50}",
+      "$description": "Disabled controls only. Never for loading."
+    }
+  },
+  "motion": {
+    "duration-fast": {
+      "$type": "duration",
+      "$value": "{duration.150}",
+      "$description": "Hover and press transitions."
+    },
+    "duration-spin": {
+      "$type": "duration",
+      "$value": "{duration.800}",
+      "$description": "One spinner revolution. Stops under reduced motion."
+    }
+  },
+  "inset": {
+    "control": {
+      "$type": "dimension",
+      "$value": "{space.4}",
+      "$description": "Horizontal padding inside buttons."
+    },
+    "control-y": {
+      "$type": "dimension",
+      "$value": "{space.2}",
+      "$description": "Vertical padding inside buttons."
+    },
+    "glyph": {
+      "$type": "dimension",
+      "$value": "{space.1}",
+      "$description": "Block padding around Thai text so stacked marks are not clipped."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{space.2}",
+      "$description": "Gap between icon and label."
+    }
+  }
+}

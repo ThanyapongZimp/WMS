@@ -1,0 +1,8 @@
+extends: existence
+message: "อย่าแสดงรหัสข้อผิดพลาดทางเทคนิค '%s' บอกปัญหาและวิธีแก้แทน"
+link: https://github.com/ThanyapongZimp/WMS/blob/main/docs/patterns/ErrorMessages.md#structure
+level: error
+nonword: true
+tokens:
+  - '\bError \d{3}\b'
+  - '\bInvalid [a-z]+ token\b'

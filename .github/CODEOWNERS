@@ -1,0 +1,17 @@
+# Owner: @ThanyapongZimp (personal repo, no teams). Switch to a team when the repo moves to an org.
+
+*                     @ThanyapongZimp
+
+/docs/foundation/     @ThanyapongZimp
+/docs/patterns/       @ThanyapongZimp
+/styles/WMS/          @ThanyapongZimp
+
+/tokens/              @ThanyapongZimp
+/docs/components/     @ThanyapongZimp
+/.claude/             @ThanyapongZimp
+/.github/             @ThanyapongZimp
+CLAUDE.md             @ThanyapongZimp
+AGENTS.md             @ThanyapongZimp
+
+# Protects this file itself. Keep last so it wins.
+/.github/CODEOWNERS   @ThanyapongZimp

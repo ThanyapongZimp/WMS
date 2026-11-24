@@ -1,0 +1,6 @@
+.bad {
+  color: #4A3FD6;
+  padding: 12px;
+  transition: color 150ms;
+  /* 64px in a comment is fine */
+}

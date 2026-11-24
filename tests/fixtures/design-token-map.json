@@ -1,0 +1,28 @@
+{
+  "designMd": "_bmad-output/planning-artifacts/ux-designs/ux-WMS-2026-11-19/DESIGN.md",
+  "map": {
+    "colors.sidebar": "color.sidebar",
+    "colors.sidebar-foreground": "color.sidebar-foreground",
+    "colors.sidebar-muted-foreground": "color.sidebar-muted-foreground",
+    "colors.sidebar-accent": "color.sidebar-accent",
+    "colors.sidebar-accent-foreground": "color.sidebar-accent-foreground",
+    "colors.sidebar-border": "color.sidebar-border",
+    "colors.support-banner": "color.support-banner",
+    "colors.support-banner-foreground": "color.support-banner-foreground",
+    "spacing.page-x-desktop": "layout.page-x-desktop",
+    "spacing.page-y-desktop": "layout.page-y-desktop",
+    "spacing.page-x-pda": "layout.page-x-pda",
+    "spacing.sidebar-width": "layout.sidebar-width",
+    "spacing.sidebar-rail": "layout.sidebar-rail",
+    "spacing.sheet-width": "layout.sheet-width",
+    "spacing.control-desktop": "layout.control-desktop",
+    "spacing.control-station": "layout.control-station",
+    "spacing.table-row": "layout.table-row",
+    "spacing.table-row-dense": "layout.table-row-dense",
+    "spacing.scan-field-station": "layout.scan-field-station",
+    "spacing.scan-field-pda": "layout.scan-field-pda",
+    "spacing.touch-min-pda": "target.pda",
+    "spacing.touch-primary-pda": "target.pda-primary"
+  },
+  "unmapped": {}
+}

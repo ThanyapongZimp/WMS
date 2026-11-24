@@ -1,0 +1,11 @@
+/*
+ * Self-hosted UI fonts (@fontsource, OFL). Import once at the app root.
+ * Do not rely on fonts installed on the device: PDAs and office PCs do not have them.
+ * IBM Plex Sans Thai: 400/500/600/700 (DESIGN.md). IBM Plex Mono: 500/700, codes only.
+ */
+@import '@fontsource/ibm-plex-sans-thai/400.css';
+@import '@fontsource/ibm-plex-sans-thai/500.css';
+@import '@fontsource/ibm-plex-sans-thai/600.css';
+@import '@fontsource/ibm-plex-sans-thai/700.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/700.css';

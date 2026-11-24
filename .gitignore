@@ -1,2 +1,12 @@
 .DS_Store
 node_modules/
+.env
+.env.*
+.superpowers/
+styles/*
+!styles/WMS/
+!styles/config/
+storybook-static/
+test-results/
+.vitest-attachments/
+*.tsbuildinfo

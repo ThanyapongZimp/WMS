@@ -1,0 +1,231 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-white: #ffffff; /** Raw palette value. Do not use in components; use a semantic colour. */
+  --color-gray-50: #f6f7f9; /** Raw gray step 50. Do not use in components; use a semantic colour. */
+  --color-gray-100: #eef0f4; /** Raw gray step 100. Do not use in components; use a semantic colour. */
+  --color-gray-110: #edeff3; /** Raw gray step 110. Do not use in components; use a semantic colour. */
+  --color-gray-200: #e1e4ea; /** Raw gray step 200. Do not use in components; use a semantic colour. */
+  --color-gray-300: #c9cdd6; /** Raw gray step 300. Do not use in components; use a semantic colour. */
+  --color-gray-400: #9aa0ae; /** Raw gray step 400. Do not use in components; use a semantic colour. */
+  --color-gray-450: #8c93a3; /** Raw gray step 450. Do not use in components; use a semantic colour. */
+  --color-gray-500: #5f6678; /** Raw gray step 500. Do not use in components; use a semantic colour. */
+  --color-gray-550: #596072; /** Raw gray step 550. Do not use in components; use a semantic colour. */
+  --color-gray-600: #4a5163; /** Raw gray step 600. Do not use in components; use a semantic colour. */
+  --color-gray-800: #1b2030; /** Raw gray step 800. Do not use in components; use a semantic colour. */
+  --color-gray-900: #161a23; /** Raw gray step 900. Do not use in components; use a semantic colour. */
+  --color-indigo-50: #eeedfc; /** Raw indigo step 50. Do not use in components; use a semantic colour. */
+  --color-indigo-600: #4a3fd6; /** Raw indigo step 600. Do not use in components; use a semantic colour. */
+  --color-indigo-700: #3b31b8; /** Raw indigo step 700. Do not use in components; use a semantic colour. */
+  --color-indigo-800: #2f2894; /** Raw indigo step 800. Do not use in components; use a semantic colour. */
+  --color-red-50: #fdecea; /** Raw red step 50. Do not use in components; use a semantic colour. */
+  --color-red-600: #c4281c; /** Raw red step 600. Do not use in components; use a semantic colour. */
+  --color-red-700: #b0261b; /** Raw red step 700. Do not use in components; use a semantic colour. */
+  --color-red-800: #8f1f16; /** Raw red step 800. Do not use in components; use a semantic colour. */
+  --color-green-50: #e5f5ec; /** Raw green step 50. Do not use in components; use a semantic colour. */
+  --color-green-600: #13794a; /** Raw green step 600. Do not use in components; use a semantic colour. */
+  --color-green-700: #106a40; /** Raw green step 700. Do not use in components; use a semantic colour. */
+  --color-amber-50: #fef3dc; /** Raw amber step 50. Do not use in components; use a semantic colour. */
+  --color-amber-400: #f2a516; /** Raw amber step 400. Do not use in components; use a semantic colour. */
+  --color-amber-600: #b86e00; /** Raw amber step 600. Do not use in components; use a semantic colour. */
+  --color-amber-700: #8a5000; /** Raw amber step 700. Do not use in components; use a semantic colour. */
+  --color-amber-950: #2b1d00; /** Raw amber step 950. Do not use in components; use a semantic colour. */
+  --color-blue-50: #e7f0fb; /** Raw blue step 50. Do not use in components; use a semantic colour. */
+  --color-blue-600: #1f66c1; /** Raw blue step 600. Do not use in components; use a semantic colour. */
+  --color-blue-700: #195aab; /** Raw blue step 700. Do not use in components; use a semantic colour. */
+  --color-teal-600: #0e8a86; /** Raw teal step 600. Do not use in components; use a semantic colour. */
+  --color-violet-600: #8a4fbf; /** Raw violet step 600. Do not use in components; use a semantic colour. */
+  --space-1: 4px; /** Raw scale value. Use a semantic token in components. */
+  --space-2: 8px; /** Raw scale value. Use a semantic token in components. */
+  --space-3: 12px; /** Raw scale value. Use a semantic token in components. */
+  --space-4: 16px; /** Raw scale value. Use a semantic token in components. */
+  --space-5: 20px; /** Raw scale value. Use a semantic token in components. */
+  --space-6: 24px; /** Raw scale value. Use a semantic token in components. */
+  --space-8: 32px; /** Raw scale value. Use a semantic token in components. */
+  --space-10: 40px; /** Raw scale value. Use a semantic token in components. */
+  --radius-sm: 4px; /** Raw scale value. Use a semantic token in components. */
+  --radius-md: 6px; /** Raw scale value. Use a semantic token in components. */
+  --radius-lg: 8px; /** Raw scale value. Use a semantic token in components. */
+  --radius-xl: 12px; /** Raw scale value. Use a semantic token in components. */
+  --radius-full: 9999px; /** Raw scale value. Use a semantic token in components. */
+  --size-24: 24px; /** Raw scale value. Use a semantic token in components. */
+  --size-36: 36px; /** Raw scale value. Use a semantic token in components. */
+  --size-44: 44px; /** Raw scale value. Use a semantic token in components. */
+  --size-48: 48px; /** Raw scale value. Use a semantic token in components. */
+  --size-56: 56px; /** Raw scale value. Use a semantic token in components. */
+  --size-64: 64px; /** Raw scale value. Use a semantic token in components. */
+  --size-240: 240px; /** Raw size value. Use a semantic token in components. */
+  --size-560: 560px; /** Raw size value. Use a semantic token in components. */
+  --border-width-1: 1px; /** Raw scale value. Use a semantic token in components. */
+  --border-width-2: 2px; /** Raw scale value. Use a semantic token in components. */
+  --opacity-50: 0.5; /** Raw scale value. Use a semantic token in components. */
+  --duration-150: 0.15s; /** Raw scale value. Use a semantic token in components. */
+  --duration-800: 0.8s; /** Raw scale value. Use a semantic token in components. */
+  --font-family-sans: 'IBM Plex Sans Thai', Sarabun, Tahoma, sans-serif; /** Thai-first UI family with fallbacks. */
+  --font-family-mono: 'IBM Plex Mono', 'IBM Plex Sans Thai', ui-monospace, monospace; /** Codes read aloud or matched by eye. Thai characters fall back to IBM Plex Sans Thai. */
+  --font-weight-400: 400; /** Raw scale value. Use a semantic token in components. */
+  --font-weight-500: 500; /** Raw scale value. Use a semantic token in components. */
+  --font-weight-600: 600; /** Raw scale value. Use a semantic token in components. */
+  --font-weight-700: 700; /** Raw scale value. Use a semantic token in components. */
+  --font-size-12: 12px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-13: 13px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-14: 14px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-16: 16px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-18: 18px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-20: 20px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-22: 22px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-24: 24px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-28: 28px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-32: 32px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-36: 36px; /** Raw scale value. Use a semantic token in components. */
+  --font-size-48: 48px; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-1: 1.1; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-15: 1.15; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-2: 1.2; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-3: 1.3; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-35: 1.35; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-4: 1.4; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-45: 1.45; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-5: 1.5; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-55: 1.55; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-6: 1.6; /** Raw scale value. Use a semantic token in components. */
+  --font-line-height-1-8: 1.8; /** Raw scale value. Use a semantic token in components. */
+  --color-background: var(--color-gray-50); /** Page background behind cards. */
+  --color-foreground: var(--color-gray-900); /** Default text on background and card. */
+  --color-card: var(--color-white); /** Card, table and panel surface. */
+  --color-card-foreground: var(--color-gray-900); /** Text on card. */
+  --color-popover: var(--color-white); /** Menus and popovers. */
+  --color-popover-foreground: var(--color-gray-900); /** Text in menus and popovers. */
+  --color-primary: var(--color-indigo-600); /** The one main action per view, links, selected state. Tenant brand colour overrides this only. */
+  --color-primary-hover: var(--color-indigo-700); /** Hover and pressed state of primary. */
+  --color-primary-active: var(--color-indigo-800); /** Pressed state of primary. */
+  --color-primary-foreground: var(--color-white); /** Text and icons on primary. */
+  --color-secondary: var(--color-gray-100); /** Neutral button fill. Never a coloured fill. */
+  --color-secondary-hover: var(--color-gray-200); /** Hover state of secondary. */
+  --color-secondary-active: var(--color-gray-300); /** Pressed state of secondary. */
+  --color-secondary-foreground: var(--color-gray-900); /** Text on secondary. */
+  --color-muted: var(--color-gray-100); /** Subtle surface: table header, skeleton. */
+  --color-muted-foreground: var(--color-gray-550); /** Secondary text and meta lines. Not for disabled. */
+  --color-accent: var(--color-indigo-50); /** Hover and selected row or nav item background. */
+  --color-accent-foreground: var(--color-indigo-800); /** Text on accent. */
+  --color-destructive: var(--color-red-600); /** Destructive actions only (delete, cancel order). Same variant in trigger and confirm dialog. */
+  --color-destructive-hover: var(--color-red-700); /** Hover state of destructive. */
+  --color-destructive-active: var(--color-red-800); /** Pressed state of destructive. */
+  --color-destructive-foreground: var(--color-white); /** Text on destructive. */
+  --color-border: var(--color-gray-200); /** Decorative dividers and card edges only (below 3:1). Not for control borders. */
+  --color-input: var(--color-gray-450); /** Control borders: inputs, checkboxes, selects (3:1 on card). */
+  --color-ring: var(--color-indigo-600); /** Focus ring, 2px, never removed. */
+  --color-disabled-foreground: var(--color-gray-400); /** Disabled text. Exempt from contrast; never use for readable content. */
+  --color-success: var(--color-green-600); /** Success tone fill. Always pair with icon and label. */
+  --color-success-foreground: var(--color-white); /** Text on success. */
+  --color-success-soft: var(--color-green-50); /** Success pill and banner background. */
+  --color-success-soft-foreground: var(--color-green-700); /** Text on success-soft. */
+  --color-warning: var(--color-amber-400); /** Fill only, under dark text. Never text or thin icons on white (2.07:1). */
+  --color-warning-foreground: var(--color-amber-950); /** Text on warning fill. */
+  --color-warning-strong: var(--color-amber-600); /** Amber icons, dots and borders on white (3.99:1). Not for body text. */
+  --color-warning-soft: var(--color-amber-50); /** Warning pill and banner background. */
+  --color-warning-soft-foreground: var(--color-amber-700); /** Text on warning-soft. */
+  --color-danger-soft: var(--color-red-50); /** Danger pill and banner background. */
+  --color-danger-soft-foreground: var(--color-red-700); /** Text on danger-soft. */
+  --color-info: var(--color-blue-600); /** Info tone fill. */
+  --color-info-foreground: var(--color-white); /** Text on info. */
+  --color-info-soft: var(--color-blue-50); /** Info pill and banner background. */
+  --color-info-soft-foreground: var(--color-blue-700); /** Text on info-soft. */
+  --color-neutral: var(--color-gray-500); /** Neutral status tone fill. */
+  --color-neutral-foreground: var(--color-white); /** Text on neutral. */
+  --color-neutral-soft: var(--color-gray-110); /** Neutral pill background. */
+  --color-neutral-soft-foreground: var(--color-gray-600); /** Text on neutral-soft. */
+  --color-scan-accept: var(--color-green-600); /** Full-screen scan accepted. Pair with icon, headline and sound. */
+  --color-scan-reject: var(--color-red-600); /** Full-screen scan rejected. Pair with icon, headline and sound. */
+  --color-scan-blocked: var(--color-amber-400); /** Full-screen scan blocked. Dark text only. */
+  --color-scan-blocked-foreground: var(--color-amber-950); /** Text on scan-blocked. */
+  --color-scan-notice: var(--color-amber-50); /** Inline non-blocking scan notice under the scan field. */
+  --color-scan-notice-foreground: var(--color-amber-700); /** Text on scan-notice. */
+  --color-scan-notice-border: var(--color-amber-600); /** Border of scan-notice. */
+  --color-feedback-focus-outline: var(--color-white); /** Focus outline on full-screen tone surfaces. */
+  --color-pda-bar: var(--color-gray-800); /** PDA top bar. */
+  --color-pda-bar-foreground: var(--color-white); /** Text on pda-bar. */
+  --color-chart-1: var(--color-indigo-600); /** Chart series 1. */
+  --color-chart-2: var(--color-blue-600); /** Chart series 2. */
+  --color-chart-3: var(--color-teal-600); /** Chart series 3. */
+  --color-chart-4: var(--color-amber-600); /** Chart series 4. */
+  --color-chart-5: var(--color-violet-600); /** Chart series 5. */
+  --color-sidebar: var(--color-white); /** Sidebar surface. */
+  --color-sidebar-foreground: var(--color-gray-900); /** Nav item text in the sidebar. */
+  --color-sidebar-muted-foreground: var(--color-gray-550); /** Section labels and secondary text in the sidebar. */
+  --color-sidebar-accent: var(--color-indigo-50); /** Active nav item fill. Follows the tenant primary. */
+  --color-sidebar-accent-foreground: var(--color-indigo-800); /** Active nav item text and icon. */
+  --color-sidebar-border: var(--color-gray-200); /** Sidebar edge and dividers. Decorative only. */
+  --color-support-banner: var(--color-amber-50); /** Support-access banner fill while Zimple support is signed in. */
+  --color-support-banner-foreground: var(--color-amber-700); /** Support-access banner text and icon. */
+  --radius-control: var(--radius-lg); /** Buttons and inputs. */
+  --radius-card: var(--radius-xl); /** Cards and sheets. */
+  --border-width-control: var(--border-width-2); /** Border of outlined controls. */
+  --border-width-focus: var(--border-width-2); /** Focus ring width and offset. Never removed. */
+  --layout-page-x-desktop: var(--size-24); /** Page side padding on office web. */
+  --layout-page-y-desktop: var(--space-5); /** Page top and bottom padding on office web. */
+  --layout-page-x-pda: var(--space-3); /** Page side padding on PDA. */
+  --layout-sidebar-width: var(--size-240); /** Expanded office sidebar width. */
+  --layout-sidebar-rail: var(--size-64); /** Collapsed sidebar rail width. */
+  --layout-sheet-width: var(--size-560); /** Right Sheet width for create and edit forms. */
+  --layout-control-desktop: var(--size-36); /** Input, select and button height on office web. */
+  --layout-control-station: var(--size-48); /** Control height on stations. */
+  --layout-table-row: var(--size-44); /** Default table row height. */
+  --layout-table-row-dense: var(--size-36); /** Dense table row height. */
+  --layout-scan-field-station: var(--size-64); /** Scan field height on stations. */
+  --layout-scan-field-pda: var(--size-56); /** Scan field height on PDA. */
+  --target-office: var(--size-24); /** Minimum target on office web (WCAG 2.5.8). */
+  --target-station: var(--size-48); /** Minimum target on stations. */
+  --target-pda: var(--size-56); /** Minimum target on PDA. */
+  --target-pda-primary: var(--size-64); /** Primary action on PDA. */
+  --state-disabled-opacity: var(--opacity-50); /** Disabled controls only. Never for loading. */
+  --motion-duration-fast: var(--duration-150); /** Hover and press transitions. */
+  --motion-duration-spin: var(--duration-800); /** One spinner revolution. Stops under reduced motion. */
+  --inset-control: var(--space-4); /** Horizontal padding inside buttons. */
+  --inset-control-y: var(--space-2); /** Vertical padding inside buttons. */
+  --inset-glyph: var(--space-1); /** Block padding around Thai text so stacked marks are not clipped. */
+  --inset-gap: var(--space-2); /** Gap between icon and label. */
+  --typography-display-kpi: var(--font-weight-700) var(--font-size-28)/var(--font-line-height-1-45) var(--font-family-sans); /** KPI values on dashboards. */
+  --typography-h1: var(--font-weight-600) var(--font-size-24)/var(--font-line-height-1-45) var(--font-family-sans); /** Page title, once per page. */
+  --typography-h2: var(--font-weight-600) var(--font-size-18)/var(--font-line-height-1-45) var(--font-family-sans); /** Section title. */
+  --typography-h3: var(--font-weight-600) var(--font-size-16)/var(--font-line-height-1-5) var(--font-family-sans); /** Subsection and card title. */
+  --typography-body: var(--font-weight-400) var(--font-size-14)/var(--font-line-height-1-6) var(--font-family-sans); /** Office body text and table cells. */
+  --typography-body-strong: var(--font-weight-600) var(--font-size-14)/var(--font-line-height-1-6) var(--font-family-sans); /** Emphasis inside body. */
+  --typography-label: var(--font-weight-500) var(--font-size-13)/var(--font-line-height-1-45) var(--font-family-sans); /** Form labels and pills. */
+  --typography-caption: var(--font-weight-400) var(--font-size-12)/var(--font-line-height-1-5) var(--font-family-sans); /** Timestamps and meta only. Never actionable text. */
+  --typography-code: var(--font-weight-500) var(--font-size-14)/var(--font-line-height-1-5) var(--font-family-mono); /** Location codes, document numbers, lots. */
+  --typography-prose: var(--font-weight-400) var(--font-size-16)/var(--font-line-height-1-8) var(--font-family-sans); /** Long-form Thai text: help, docs, empty-state body. */
+  --typography-pda-body: var(--font-weight-400) var(--font-size-16)/var(--font-line-height-1-55) var(--font-family-sans); /** PDA body text. Every PDA text is 16px or larger except the top bar. */
+  --typography-pda-caption: var(--font-weight-500) var(--font-size-14)/var(--font-line-height-1-5) var(--font-family-sans); /** PDA top bar only. */
+  --typography-pda-title: var(--font-weight-600) var(--font-size-20)/var(--font-line-height-1-45) var(--font-family-sans); /** PDA screen title. */
+  --typography-pda-button: var(--font-weight-600) var(--font-size-18)/var(--font-line-height-1-45) var(--font-family-sans); /** PDA button label. */
+  --typography-pda-location: var(--font-weight-700) var(--font-size-36)/var(--font-line-height-1-15) var(--font-family-mono); /** Current location code on PDA. */
+  --typography-scan-input: var(--font-weight-600) var(--font-size-24)/var(--font-line-height-1-45) var(--font-family-sans); /** Station scan field. */
+  --typography-station-next: var(--font-weight-600) var(--font-size-22)/var(--font-line-height-1-45) var(--font-family-sans); /** Station next-step value. */
+  --typography-station-counter: var(--font-weight-700) var(--font-size-48)/var(--font-line-height-1-45) var(--font-family-sans); /** Station counters. */
+  --typography-feedback-headline: var(--font-weight-700) var(--font-size-32)/var(--font-line-height-1-45) var(--font-family-sans); /** Full-screen scan feedback headline. */
+  --typography-station-code: var(--font-weight-700) var(--font-size-18)/var(--font-line-height-1-3) var(--font-family-mono); /** Station code. */
+  --typography-line-height-prose: var(--font-line-height-1-8); /** Line height for long-form Thai text (spec default 1.8). */
+  --component-scanner-button-bg: var(--color-primary); /** ScannerButton primary fill. */
+  --component-scanner-button-fg: var(--color-primary-foreground); /** ScannerButton primary label. */
+  --component-scanner-button-bg-hover: var(--color-primary-hover); /** ScannerButton primary hover. */
+  --component-scanner-button-bg-active: var(--color-primary-active); /** ScannerButton primary pressed. */
+  --component-scanner-button-danger-bg-hover: var(--color-destructive-hover); /** ScannerButton danger hover. */
+  --component-scanner-button-danger-bg-active: var(--color-destructive-active); /** ScannerButton danger pressed. */
+  --component-scanner-button-secondary-bg-hover: var(--color-secondary-hover); /** ScannerButton secondary hover. */
+  --component-scanner-button-secondary-bg-active: var(--color-secondary-active); /** ScannerButton secondary pressed. */
+  --component-scanner-button-danger-bg: var(--color-destructive); /** ScannerButton danger fill. */
+  --component-scanner-button-danger-fg: var(--color-destructive-foreground); /** ScannerButton danger label. */
+  --component-scanner-button-secondary-bg: var(--color-secondary); /** ScannerButton secondary fill. */
+  --component-scanner-button-secondary-fg: var(--color-secondary-foreground); /** ScannerButton secondary label. */
+  --component-scanner-button-secondary-border: var(--color-input); /** ScannerButton secondary border (3:1). */
+  --component-scanner-button-ring: var(--color-ring); /** ScannerButton focus ring. */
+  --component-scanner-button-min-height: var(--target-pda-primary); /** ScannerButton size scanner height. */
+  --component-scanner-button-min-height-lg: var(--target-pda); /** ScannerButton size lg height. */
+  --component-scanner-button-radius: var(--radius-control); /** ScannerButton corner radius. */
+  --component-scanner-button-padding-x: var(--inset-control); /** ScannerButton horizontal padding. */
+  --component-scanner-button-gap: var(--inset-gap); /** Gap between spinner or icon and label. */
+  --component-scanner-button-font: var(--typography-pda-button); /** ScannerButton label type. */
+}

@@ -1,0 +1,19 @@
+/*
+ * Register modes. Set data-register on <html> (or any container):
+ * office (default), station, pda. Components read --control-height and
+ * --target-min instead of picking a register token themselves.
+ */
+:root {
+  --control-height: var(--layout-control-desktop);
+  --target-min: var(--target-office);
+}
+
+[data-register="station"] {
+  --control-height: var(--layout-control-station);
+  --target-min: var(--target-station);
+}
+
+[data-register="pda"] {
+  --control-height: var(--target-pda);
+  --target-min: var(--target-pda);
+}

@@ -2,7 +2,7 @@
   "name": "wms",
   "private": true,
   "scripts": {
-    "lint:vale": "vale docs CLAUDE.md AGENTS.md PRODUCT.md README.md",
+    "lint:vale": "vale docs CLAUDE.md AGENTS.md PRODUCT.md README.md HANDOFF.md",
     "lint:md": "markdownlint-cli2",
     "lint": "npm run lint:vale && npm run lint:md && npm run lint:links",
     "test": "node --test \"tests/*.test.mjs\"",

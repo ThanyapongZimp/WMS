@@ -13,6 +13,7 @@ Central index of the WMS design system. Every document and component is listed h
 
 | หมวดหมู่ (Category) | ชื่อรายการ (Name) | ที่อยู่ไฟล์ (File Path) | สถานะ (Status) | คำอธิบายย่อ (Description) |
 | :--- | :--- | :--- | :--- | :--- |
+| Guide | Handoff | [../HANDOFF.md](../HANDOFF.md) | Active | สถานะงาน การตัดสินใจ เรื่องที่ค้าง และงานถัดไปสำหรับคนรับงานต่อ |
 | Guide | Guidelines | [Guidelines.md](Guidelines.md) | Trial | ลำดับการอ่านเอกสาร |
 | Foundation | Voice and Tone | [foundation/VoiceAndTone.md](foundation/VoiceAndTone.md) | Trial | บุคลิกแบรนด์และการปรับระดับภาษาตามสถานการณ์ |
 | Foundation | Glossary | [foundation/Glossary.md](foundation/Glossary.md) | Trial | คลังคำศัพท์บังคับใช้ทั้งทั่วไปและเฉพาะทาง WMS |

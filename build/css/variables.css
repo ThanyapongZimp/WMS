@@ -64,7 +64,7 @@
   --duration-150: 0.15s; /** Raw scale value. Use a semantic token in components. */
   --duration-800: 0.8s; /** Raw scale value. Use a semantic token in components. */
   --font-family-sans: 'IBM Plex Sans Thai', Sarabun, Tahoma, sans-serif; /** Thai-first UI family with fallbacks. */
-  --font-family-mono: 'IBM Plex Mono', ui-monospace, monospace; /** Codes read aloud or matched by eye. */
+  --font-family-mono: 'IBM Plex Mono', 'IBM Plex Sans Thai', ui-monospace, monospace; /** Codes read aloud or matched by eye. Thai characters fall back to IBM Plex Sans Thai. */
   --font-weight-400: 400; /** Raw scale value. Use a semantic token in components. */
   --font-weight-500: 500; /** Raw scale value. Use a semantic token in components. */
   --font-weight-600: 600; /** Raw scale value. Use a semantic token in components. */

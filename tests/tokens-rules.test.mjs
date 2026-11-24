@@ -39,7 +39,8 @@ test('Thai sans typography never below line-height 1.45', () => {
   for (const [path, t] of Object.entries(tokens)) {
     if (t.$type !== 'typography') continue;
     const v = resolve(tokens, path);
-    if (!v.fontFamily.includes('IBM Plex Sans Thai')) continue;
+    // Primary family decides the register; mono tokens carry Latin codes (A-03-12) only.
+    if (v.fontFamily[0] !== 'IBM Plex Sans Thai') continue;
     assert.ok(v.lineHeight >= 1.45, `${path} line-height ${v.lineHeight}`);
   }
 });
@@ -77,3 +78,9 @@ for (const [fg, bg] of [['muted-foreground', 'background'], ['muted-foreground',
   test(`text ${fg} on ${bg} >= 4.5:1`, () => assert.ok(contrastRatio(col(fg), col(bg)) >= 4.5));
 }
 test('ring on background >= 3:1', () => assert.ok(contrastRatio(col('ring'), col('background')) >= 3));
+
+test('mono stack falls back to the Thai family before system fonts', () => {
+  const mono = resolve(tokens, 'font.family.mono');
+  assert.equal(mono[0], 'IBM Plex Mono');
+  assert.equal(mono[1], 'IBM Plex Sans Thai');
+});

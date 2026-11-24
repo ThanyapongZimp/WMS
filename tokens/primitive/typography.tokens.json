@@ -16,10 +16,11 @@
         "$type": "fontFamily",
         "$value": [
           "IBM Plex Mono",
+          "IBM Plex Sans Thai",
           "ui-monospace",
           "monospace"
         ],
-        "$description": "Codes read aloud or matched by eye."
+        "$description": "Codes read aloud or matched by eye. Thai characters fall back to IBM Plex Sans Thai."
       }
     },
     "weight": {

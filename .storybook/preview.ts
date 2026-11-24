@@ -1,4 +1,5 @@
 import type { Preview } from '@storybook/react-vite';
+import '../src/foundations/fonts.css';
 import '../build/css/variables.css';
 import '../src/foundations/registers.css';
 import './base.css';

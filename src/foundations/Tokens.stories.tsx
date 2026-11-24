@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect } from 'storybook/test';
 import agent from '../../build/agent/tokens.json';
 
 type AgentToken = { name: string; cssVar: string; value: unknown; type: string; usageRule: string; tier: string };
@@ -42,4 +43,13 @@ const meta = { title: 'Foundations/Tokens' } satisfies Meta;
 export default meta;
 
 export const Colors: StoryObj = { render: () => <Swatches /> };
-export const Typography: StoryObj = { render: () => <TypeRamp /> };
+export const Typography: StoryObj = {
+  render: () => <TypeRamp />,
+  play: async () => {
+    // The project must ship its own fonts; a font installed on the test machine does not count.
+    for (const [family, weight] of [['IBM Plex Sans Thai', 400], ['IBM Plex Sans Thai', 600], ['IBM Plex Mono', 500]] as const) {
+      const faces = await document.fonts.load(`${weight} 16px "${family}"`, family.includes('Thai') ? 'ก' : 'A');
+      await expect(faces.length, `${family} ${weight} has no @font-face`).toBeGreaterThan(0);
+    }
+  },
+};
